@@ -21,7 +21,7 @@ Einfach `index.html` doppelklicken — läuft direkt im Browser, ohne alles ande
 ## Auf dem Unraid-Server (Tower) betreiben
 
 Die App läuft als winziger nginx-Container auf dem Tower und ist über den
-Cloudflare-Tunnel unter **https://kochkiste.derpixel.com** erreichbar.
+Cloudflare-Tunnel unter **https://kochkiste.erenstower.de** erreichbar.
 
 👉 Komplette Anleitung: **[`deploy/UNRAID-CLOUDFLARE.md`](deploy/UNRAID-CLOUDFLARE.md)**
 
@@ -30,9 +30,11 @@ Cloudflare-Tunnel unter **https://kochkiste.derpixel.com** erreichbar.
 Der Ablauf, wenn wir gemeinsam etwas an der App ändern:
 
 1. **Ich (Claude) bearbeite** `index.html` und pushe die Änderung nach GitHub.
-2. **Du holst sie auf den Server**, per SSH auf dem Tower:
+2. **Du holst sie auf den Server**, per SSH auf dem Tower (Unraid hat kein `git`,
+   wir laden die Datei direkt neu):
    ```bash
-   cd /mnt/user/appdata/kochkiste && git pull
+   B="https://raw.githubusercontent.com/Slim3joker/project1/refs/heads/claude/koch-app-unraid-cloudflare-ex3k2n"
+   curl -fL -o /mnt/user/appdata/kochkiste/index.html "$B/index.html"
    ```
 3. **Browser neu laden** — fertig. Kein Container-Neustart nötig, nginx liefert die
    neue Datei sofort aus.
