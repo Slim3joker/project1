@@ -1,0 +1,13 @@
+services:
+  kochkiste:
+    image: nginx:alpine
+    container_name: kochkiste
+    restart: unless-stopped
+    ports:
+      # Host-Port 8088 -> Container-Port 80. Aussenport bei Bedarf aendern.
+      - "8088:80"
+    volumes:
+      # Das ganze Repo wird schreibgeschuetzt in den Webroot gehaengt.
+      # "git pull" im Repo-Ordner aktualisiert die App sofort (kein Neustart noetig).
+      - ./:/usr/share/nginx/html:ro
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
