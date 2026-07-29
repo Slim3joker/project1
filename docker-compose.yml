@@ -1,0 +1,17 @@
+services:
+  abend-hub:
+    build: .
+    # Alternativ ein vorgebautes Image verwenden, statt lokal zu bauen:
+    # image: abend-hub:latest
+    container_name: abend-hub
+    restart: unless-stopped
+    ports:
+      - "8787:3000"       # Host-Port 8787 -> Container-Port 3000 (fuer Cloudflare-Tunnel)
+    environment:
+      - PORT=3000
+      - TZ=Europe/Berlin
+      - NOTION_TOKEN=${NOTION_TOKEN}
+      - NOTION_DB_ID=${NOTION_DB_ID}
+    # Liest Werte aus einer .env-Datei neben dieser docker-compose.yml
+    env_file:
+      - .env
