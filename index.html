@@ -175,6 +175,11 @@
   .sheet-bg.open{display:flex}
   .sheet{background:var(--panel);width:100%;max-width:560px;margin:0 auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));max-height:70vh;overflow:auto}
   .sheet h3{margin:2px 0 12px;font-size:16px}
+  #recipeSheet input,#recipeSheet select,#recipeSheet textarea{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);width:100%;box-sizing:border-box}
+  #recipeSheet input[type=checkbox]{width:auto}
+  #recipeSheet input[type=range]{padding:0}
+  #recipeSheet .rf-num{flex:1;font-size:12px;color:var(--ink-soft)}
+  #recipeSheet summary{color:var(--ink-soft)}
   .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
   .emoji-grid button{font-size:24px;background:none;border:0;padding:8px 0;border-radius:9px;cursor:pointer}
   .emoji-grid button:active{background:var(--chip)}
@@ -285,6 +290,10 @@
       <div class="craving" id="craving"></div>
     </div>
 
+    <div class="card" style="padding:12px 15px">
+      <button class="btn btn-pri" style="width:100%" onclick="openRecipeForm()">➕ Eigenes Rezept hinzufügen</button>
+    </div>
+
     <div class="card">
       <div class="card-h"><h2>🍳 Vorschläge für dich</h2><span id="cookHint" style="font-size:12px;color:var(--ink-soft)"></span></div>
       <div class="card-b" id="recipeList"></div>
@@ -364,6 +373,50 @@
   <div class="sheet">
     <h3 id="wpSheetTitle">Was kochst du?</h3>
     <div id="wpSheetList" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+</div>
+
+<div class="sheet-bg" id="recipeSheet" onclick="if(event.target===this)closeRecipeForm()">
+  <div class="sheet">
+    <h3>➕ Eigenes Rezept</h3>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;gap:8px">
+        <input id="rfTitle" placeholder="Titel (z.B. Omas Auflauf)" style="flex:1" autocomplete="off">
+        <input id="rfEmoji" value="🍽️" maxlength="4" style="width:56px;text-align:center" autocomplete="off">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="rfRegion" style="flex:1;min-width:150px"></select>
+        <input id="rfCountry" placeholder="Küche (optional)" style="flex:1;min-width:120px" autocomplete="off">
+      </div>
+      <div style="display:flex;gap:8px">
+        <label class="rf-num">Zeit (Min)<input id="rfTime" type="number" value="20" min="1"></label>
+        <label class="rf-num">Portionen<input id="rfServings" type="number" value="2" min="1"></label>
+        <label class="rf-num">kcal/Port.<input id="rfKcal" type="number" value="400" min="0"></label>
+      </div>
+
+      <div>
+        <div style="font-weight:600;margin-bottom:6px">Zutaten <span style="font-weight:400;font-size:12px;color:var(--ink-soft)">— Menge/Einheit optional</span></div>
+        <div id="rfIngRows" style="display:flex;flex-direction:column;gap:6px"></div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="rfAddIngRow()">+ Zutat</button>
+      </div>
+
+      <div>
+        <div style="font-weight:600;margin-bottom:6px">Zubereitung</div>
+        <div id="rfStepRows" style="display:flex;flex-direction:column;gap:6px"></div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="rfAddStepRow()">+ Schritt</button>
+      </div>
+
+      <details>
+        <summary style="cursor:pointer;font-weight:600">Geschmack &amp; Schärfe feinjustieren (optional)</summary>
+        <div style="font-size:12px;color:var(--ink-soft);margin:6px 0 2px">Damit das Geschmacks-Radar dein Rezept richtig einordnet. Kann so bleiben.</div>
+        <div id="rfTasteRows" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
+      </details>
+
+      <div style="display:flex;gap:8px;margin-top:2px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeRecipeForm()">Abbrechen</button>
+        <button class="btn btn-pri" style="flex:2" onclick="saveUserRecipe()">Speichern</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -953,6 +1006,16 @@ const RECIPES = [
      "Hitze reduzieren, Paprikapulver einrühren (nicht verbrennen) und sofort mit etwas Brühe ablöschen.",
      "Fleisch zurückgeben, mit Brühe und passierten Tomaten bedecken und zugedeckt 1,5-2 Std. schmoren.",
      "Paprika (und Kartoffeln) in Stücken in der letzten halben Stunde mitgaren, abschmecken."]},
+  {id:'r47',title:'Brokkoli mit Käsesoße & Spirelli',e:'🥦',region:'central_european',country:'Deutsch',
+   taste:{sweet:1,salty:2,sour:0,bitter:1,umami:3,fatty:3},spice:0,richness:3,protein:'vegetarisch',
+   ingr:['Brokkoli','Spirelli','Sahne','Frischkäse'],opt:['Zwiebel','Knoblauch','Parmesan'],
+   ingrQty:[{n:'Brokkoli',amount:1,unit:'Kopf'},{n:'Spirelli',amount:250,unit:'g'},{n:'Sahne',amount:200,unit:'ml'},{n:'Frischkäse',amount:150,unit:'g'}],optQty:[{n:'Zwiebel',amount:1,unit:'Stk'},{n:'Knoblauch',amount:1,unit:'Stk'},{n:'Parmesan',amount:30,unit:'g'}],
+   kcal:560,servings:2,time:25,season:['frühling','sommer','herbst','winter'],source:'eigenes Rezept',
+   steps:["Zwiebel und Knoblauch fein schneiden. Zwiebel in etwas Butter oder Öl anrösten, nach ein paar Minuten den Knoblauch dazugeben und kurz mitrösten.",
+     "Sahne (ersatzweise fettige Milch, dann etwas Butter/Öl zufügen) und 50-100 ml Gemüsebrühe angießen und aufkochen lassen.",
+     "Frischkäse (100-200 g) einrühren und schmelzen lassen — nach Geschmack mit Schmelzkäse, Parmesan oder Mozzarella verfeinern.",
+     "Spirelli nach Packungsangabe kochen. Brokkoli in Röschen ca. 5 Min. kochen und kalt abschrecken.",
+     "Brokkoli und Nudeln in die Soße geben und kurz mitköcheln. Ist die Soße zu dünn, etwas Mehl oder Soßenbinder einrühren; ist sie zu dick, mit etwas Wasser verlängern."]},
 ];
 
 /* ============================================================
@@ -1005,6 +1068,8 @@ let shop   = Store.read('shop', []);
 let log    = Store.read('log', []);     // {recipeId,title,region,taste,spice,date}
 let ratings = Store.read('ratings', {}); // {recipeId: 1-5}
 let weekplan = Store.read('weekplan', {}); // {'2026-06-22': recipeId, ...}
+let userRecipes = Store.read('userRecipes', []); // selbst hinzugefügte Rezepte
+userRecipes.forEach(r=>{ if(!RECIPES.some(x=>x.id===r.id)) RECIPES.push(r); });
 let leftovers = Store.read('leftovers', []); // [{id,n}, ...] freie Resteliste, eigene Eingaben
 let craving = null;                      // aktiver Lust-Filter (taste-key oder region)
 let emojiTarget = null;
@@ -1596,6 +1661,7 @@ function renderDetail(r){
       <div class="detail-section">
         <button class="btn btn-pri" style="width:100%" onclick="cookIt('${r.id}');closeDetail();">🍽️ Koch ich jetzt!</button>
       </div>
+      ${r.id.startsWith('u')?`<div class="detail-section"><button class="btn btn-ghost btn-sm" style="width:100%;color:var(--red)" onclick="deleteUserRecipe('${r.id}')">🗑️ Eigenes Rezept löschen</button></div>`:''}
     </div>
   `;
   document.getElementById('detailWrap').innerHTML = html;
@@ -1625,6 +1691,110 @@ function pickEmoji(e){
   if(!emojiTarget)return;
   if(emojiTarget.scope==='fridge'){const it=fridge.find(x=>x.id===emojiTarget.id);if(it)it.e=e;}
   saveAll();closeEmoji();renderFridge();
+}
+
+/* ============================================================
+   EIGENE REZEPTE — Formular zum Selbst-Hinzufügen
+============================================================ */
+function rfAddIngRow(n='',amount='',unit=''){
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:6px;align-items:center';
+  row.innerHTML=`
+    <input class="rf-amt" type="text" inputmode="decimal" placeholder="Menge" value="${amount}" style="width:66px">
+    <input class="rf-unit" type="text" placeholder="Einh." value="${unit}" style="width:62px">
+    <input class="rf-name" type="text" placeholder="Zutat" value="${n}" style="flex:1">
+    <label style="font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:3px;white-space:nowrap"><input class="rf-opt" type="checkbox">opt.</label>
+    <button onclick="this.parentNode.remove()" style="background:none;border:0;font-size:16px;cursor:pointer;padding:0 2px">🗑️</button>`;
+  document.getElementById('rfIngRows').appendChild(row);
+}
+function rfAddStepRow(text=''){
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:6px;align-items:flex-start';
+  row.innerHTML=`
+    <textarea class="rf-step" rows="2" placeholder="Schritt beschreiben…" style="flex:1;resize:vertical">${text}</textarea>
+    <button onclick="this.parentNode.remove()" style="background:none;border:0;font-size:16px;cursor:pointer;margin-top:6px">🗑️</button>`;
+  document.getElementById('rfStepRows').appendChild(row);
+}
+function openRecipeForm(){
+  document.getElementById('rfTitle').value='';
+  document.getElementById('rfEmoji').value='🍽️';
+  document.getElementById('rfCountry').value='';
+  document.getElementById('rfTime').value=20;
+  document.getElementById('rfServings').value=2;
+  document.getElementById('rfKcal').value=400;
+  const rs=document.getElementById('rfRegion');
+  rs.innerHTML=Object.entries(REGIONS).map(([k,v])=>`<option value="${k}">${v.e} ${v.label}</option>`).join('');
+  rs.value='central_european';
+  document.getElementById('rfTasteRows').innerHTML=TASTE_AXES.map(a=>{
+    const max=a.key==='spice'?5:3, def=a.key==='spice'?0:1;
+    return `<label style="display:flex;align-items:center;gap:10px;font-size:13px">
+      <span style="width:96px">${a.e} ${a.label}</span>
+      <input type="range" class="rf-taste" data-key="${a.key}" min="0" max="${max}" step="1" value="${def}" style="flex:1" oninput="this.nextElementSibling.textContent=this.value">
+      <b style="width:14px;text-align:center">${def}</b></label>`;
+  }).join('');
+  document.getElementById('rfIngRows').innerHTML='';
+  document.getElementById('rfStepRows').innerHTML='';
+  rfAddIngRow();rfAddIngRow();rfAddIngRow();
+  rfAddStepRow();
+  document.getElementById('recipeSheet').classList.add('open');
+}
+function closeRecipeForm(){document.getElementById('recipeSheet').classList.remove('open');}
+function saveUserRecipe(){
+  const title=document.getElementById('rfTitle').value.trim();
+  if(!title){toast('Bitte einen Titel eingeben');return;}
+  const ingr=[],opt=[],ingrQty=[],optQty=[];
+  document.querySelectorAll('#rfIngRows > div').forEach(row=>{
+    const name=row.querySelector('.rf-name').value.trim();
+    if(!name)return;
+    const amtRaw=row.querySelector('.rf-amt').value.trim().replace(',','.');
+    const amount=amtRaw===''?null:(parseFloat(amtRaw)||null);
+    const unit=row.querySelector('.rf-unit').value.trim();
+    if(row.querySelector('.rf-opt').checked){opt.push(name);optQty.push({n:name,amount,unit});}
+    else{ingr.push(name);ingrQty.push({n:name,amount,unit});}
+  });
+  if(ingr.length===0){toast('Bitte mind. eine (nicht-optionale) Zutat');return;}
+  const steps=[];
+  document.querySelectorAll('#rfStepRows .rf-step').forEach(t=>{const v=t.value.trim();if(v)steps.push(v);});
+  if(steps.length===0){toast('Bitte mind. einen Zubereitungsschritt');return;}
+  const taste={};let fatty=0;
+  document.querySelectorAll('#rfTasteRows .rf-taste').forEach(sl=>{
+    const k=sl.dataset.key,v=parseInt(sl.value)||0;
+    if(k==='spice')return;
+    taste[k]=v; if(k==='fatty')fatty=v;
+  });
+  ['sweet','salty','sour','bitter','umami','fatty'].forEach(k=>{if(taste[k]===undefined)taste[k]=0;});
+  const spiceEl=document.querySelector('#rfTasteRows .rf-taste[data-key="spice"]');
+  const spice=spiceEl?parseInt(spiceEl.value)||0:0;
+  const rec={
+    id:'u'+Date.now(),
+    title,
+    e:document.getElementById('rfEmoji').value.trim()||'🍽️',
+    region:document.getElementById('rfRegion').value,
+    country:document.getElementById('rfCountry').value.trim()||'Eigenes',
+    taste,spice,richness:Math.min(3,fatty),protein:'eigenes',
+    ingr,opt,ingrQty,optQty,
+    kcal:parseInt(document.getElementById('rfKcal').value)||0,
+    servings:parseInt(document.getElementById('rfServings').value)||1,
+    time:parseInt(document.getElementById('rfTime').value)||0,
+    season:['frühling','sommer','herbst','winter'],
+    source:'eigenes Rezept',
+    steps
+  };
+  RECIPES.push(rec);
+  userRecipes.push(rec);
+  Store.write('userRecipes',userRecipes);
+  closeRecipeForm();
+  toast('Rezept „'+title+'" gespeichert 🎉');
+  renderRecipes();
+}
+function deleteUserRecipe(id){
+  if(!confirm('Dieses eigene Rezept wirklich löschen?'))return;
+  const i=RECIPES.findIndex(r=>r.id===id); if(i>=0)RECIPES.splice(i,1);
+  userRecipes=userRecipes.filter(r=>r.id!==id);
+  Store.write('userRecipes',userRecipes);
+  closeDetail();
+  toast('Rezept gelöscht');
+  renderRecipes();
 }
 
 /* ============================================================
