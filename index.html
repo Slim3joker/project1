@@ -61,6 +61,9 @@
   .x:active{opacity:1}
 
   .addbar{display:flex;gap:8px;padding:11px 15px;border-top:1px solid var(--line);background:#fbfaf5}
+  .qgrid{display:flex;flex-wrap:wrap;gap:7px;padding:12px 15px}
+  .qchip{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13.5px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
+  .qchip:active{background:var(--green);color:#f3efe6}
   input,select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:10px 12px;width:100%}
   input:focus,select:focus{outline:2px solid var(--green-bright);outline-offset:0;border-color:var(--green-bright)}
   .btn{font:inherit;font-weight:600;border:0;border-radius:11px;padding:10px 14px;cursor:pointer;white-space:nowrap}
@@ -235,7 +238,7 @@
 </header>
 
 <!-- ========== KÜHLSCHRANK ========== -->
-<section class="view active" id="v-fridge">
+<section class="view" id="v-fridge">
   <div class="wrap">
     <div class="card">
       <div class="card-h"><h2>🧊 Kühlschrank</h2><span id="fridgeCount" style="font-size:12px;color:var(--ink-soft)"></span></div>
@@ -302,7 +305,7 @@
 </section>
 
 <!-- ========== EINKAUF ========== -->
-<section class="view" id="v-shop">
+<section class="view active" id="v-shop">
   <div class="wrap">
     <div class="card">
       <div class="card-h"><h2>🛒 Einkaufsliste</h2><button class="btn btn-ghost btn-sm" onclick="clearDone()">Erledigte weg</button></div>
@@ -312,7 +315,13 @@
         <button class="btn btn-pri" onclick="addShop()">+</button>
       </div>
     </div>
-    <div class="hint">Abhaken fragt nach „gekauft & frisch?" und legt es direkt in den Kühlschrank.</div>
+
+    <div class="card" id="quickAddCard">
+      <div class="card-h"><h2>⚡ Häufig gekauft</h2><span style="font-size:12px;color:var(--ink-soft)">tippen = auf die Liste</span></div>
+      <div class="qgrid" id="quickAddGrid"></div>
+    </div>
+
+    <div class="hint">Abhaken fragt nach „gekauft & frisch?" und legt es direkt in den Kühlschrank. Was du oft kaufst, rutscht bei „Häufig gekauft" nach vorn.</div>
   </div>
 </section>
 
@@ -354,10 +363,10 @@
 
 <nav class="tabs">
   <div class="wrap">
-    <button class="tab on" data-v="fridge"><span class="ti">🧊</span><span class="tl">Kühl­schrank</span></button>
+    <button class="tab" data-v="fridge"><span class="ti">🧊</span><span class="tl">Kühl­schrank</span></button>
     <button class="tab" data-v="cook"><span class="ti">🍳</span><span class="tl">Kochen</span></button>
     <button class="tab" data-v="leftover"><span class="ti">🥡</span><span class="tl">Reste</span></button>
-    <button class="tab" data-v="shop"><span class="ti">🛒</span><span class="tl">Einkauf</span></button>
+    <button class="tab on" data-v="shop"><span class="ti">🛒</span><span class="tl">Einkauf</span></button>
     <button class="tab" data-v="log"><span class="ti">📖</span><span class="tl">Verlauf</span></button>
   </div>
 </nav>
@@ -1070,6 +1079,7 @@ let ratings = Store.read('ratings', {}); // {recipeId: 1-5}
 let weekplan = Store.read('weekplan', {}); // {'2026-06-22': recipeId, ...}
 let userRecipes = Store.read('userRecipes', []); // selbst hinzugefügte Rezepte
 userRecipes.forEach(r=>{ if(!RECIPES.some(x=>x.id===r.id)) RECIPES.push(r); });
+let buyStats = Store.read('buyStats', {}); // {normName:{n,count}} – lernt, was oft gekauft wird
 let leftovers = Store.read('leftovers', []); // [{id,n}, ...] freie Resteliste, eigene Eingaben
 let craving = null;                      // aktiver Lust-Filter (taste-key oder region)
 let emojiTarget = null;
@@ -1449,6 +1459,7 @@ function missToShop(id){
    EINKAUF
 ============================================================ */
 function renderShop(){
+  renderQuickAdd();
   const list=document.getElementById('shopList');
   if(!shop.length){list.innerHTML='<div class="empty"><span class="big">🛒</span>Liste ist leer. Aus „Kochen" wandert Fehlendes hierher.</div>';return;}
   const open=shop.filter(s=>!s.done), done=shop.filter(s=>s.done);
@@ -1460,10 +1471,12 @@ function renderShop(){
     </div>`).join('');
 }
 function addShop(){const i=document.getElementById('sAdd');const n=i.value.trim();if(!n)return;
-  shop.push({id:'s'+Date.now(),n,e:guessEmoji(n),done:false});i.value='';saveAll();renderShop();}
+  shop.push({id:'s'+Date.now(),n,e:guessEmoji(n),done:false});bumpBuy(n,1);i.value='';saveAll();renderShop();}
 function toggleShop(id){
   const s=shop.find(x=>x.id===id);if(!s)return;
-  s.done=!s.done;saveAll();renderShop();
+  s.done=!s.done;
+  if(s.done) bumpBuy(s.n,2); // gekauft = starkes Signal fürs Lernen
+  saveAll();renderShop();
   if(s.done && /hack|fleisch|hähn|fisch|milch|sahne|joghurt|käse|feta|salat|gurke|paprika|tomate|obst|apfel|banane|beere|brot|ei|gemüse|möhre|karotte/i.test(s.n)){
     if(confirm(`„${s.n}" gekauft & frisch — in den Kühlschrank legen?`)){
       fridge.push({id:'f'+Date.now(),n:s.n,e:s.e,shelf:guessShelf(s.n),added:todayISO()});
@@ -1474,6 +1487,41 @@ function toggleShop(id){
 }
 function rmShop(id){shop=shop.filter(x=>x.id!==id);saveAll();renderShop();}
 function clearDone(){shop=shop.filter(s=>!s.done);saveAll();renderShop();}
+
+/* ---- „Häufig gekauft": lernt aus deinen Einkäufen ---- */
+const QUICK_STAPLES=['Milch','Eier','Brot','Butter','Käse','Tomaten','Zwiebeln','Bananen','Äpfel','Kartoffeln','Joghurt','Paprika','Gurke','Hähnchen','Hackfleisch','Klopapier','Kaffee','Spülmittel'];
+function bumpBuy(name,w){
+  const k=norm(name); if(!k)return;
+  if(!buyStats[k]) buyStats[k]={n:name,count:0};
+  buyStats[k].count += w;
+  buyStats[k].n = name; // aktuellste Schreibweise merken
+  Store.write('buyStats',buyStats);
+}
+function renderQuickAdd(){
+  const grid=document.getElementById('quickAddGrid'); if(!grid)return;
+  const onList=new Set(shop.filter(s=>!s.done).map(s=>norm(s.n)));
+  const seen=new Set(), out=[];
+  // 1) Gelerntes zuerst (nach Häufigkeit)
+  Object.values(buyStats).filter(b=>b.count>0).sort((a,b)=>b.count-a.count).forEach(b=>{
+    const k=norm(b.n); if(out.length<10 && !seen.has(k) && !onList.has(k)){seen.add(k);out.push(b.n);}
+  });
+  // 2) Mit Standard-Einkäufen auffüllen
+  for(const nm of QUICK_STAPLES){const k=norm(nm);
+    if(out.length>=12)break;
+    if(!seen.has(k) && !onList.has(k)){seen.add(k);out.push(nm);}
+  }
+  grid.innerHTML = out.length
+    ? out.map(nm=>`<div class="qchip" onclick="quickAdd(&quot;${nm.replace(/"/g,'')}&quot;)">${guessEmoji(nm)} ${nm}</div>`).join('')
+    : '<div style="color:var(--ink-soft);font-size:13px">Alles Wichtige ist schon auf der Liste. 👍</div>';
+}
+function quickAdd(name){
+  if(!shop.some(s=>norm(s.n)===norm(name) && !s.done)){
+    shop.push({id:'s'+Date.now(),n:name,e:guessEmoji(name),done:false});
+  }
+  bumpBuy(name,1);
+  saveAll();renderShop();
+  toast(name+' auf der Liste');
+}
 
 /* ============================================================
    VERLAUF
