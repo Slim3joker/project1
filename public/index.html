@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#100f17" />
+<title>Abend-Hub</title>
+<style>
+  /* ---- Design tokens: committed to a calm "evening" dark world by default,
+         with a light variant that wins when the viewer forces it. ---- */
+  :root {
+    color-scheme: dark;
+    --bg: #100f17;
+    --bg-hi: #17141f;
+    --surface: #1a1823;
+    --surface-2: #211e2c;
+    --surface-hi: #2a2636;
+    --border: #2c2838;
+    --border-soft: #23202e;
+    --text: #ece9f5;
+    --muted: #a6a1b8;
+    --faint: #6d6982;
+    --accent: #f5b451;          /* lamp-lit amber */
+    --accent-2: #ffcd78;
+    --accent-soft: rgba(245, 180, 81, 0.14);
+    --accent-ink: #241a04;
+    --prio-hoch: #f26d6d;
+    --prio-mittel: #f3b64f;
+    --prio-low: #56cf94;
+    --good: #56cf94;
+    --info: #6fb3ff;
+    --shadow: 0 18px 44px -22px rgba(0, 0, 0, 0.75);
+    --radius: 16px;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f3f1f8;
+    --bg-hi: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f6f4fb;
+    --surface-hi: #eeeaf6;
+    --border: #e5e0ef;
+    --border-soft: #ece8f4;
+    --text: #211f2b;
+    --muted: #625d73;
+    --faint: #928da4;
+    --accent: #bd6f14;
+    --accent-2: #a95f0c;
+    --accent-soft: rgba(189, 111, 20, 0.12);
+    --accent-ink: #ffffff;
+    --prio-hoch: #d6483f;
+    --prio-mittel: #b9820f;
+    --prio-low: #16955c;
+    --good: #16955c;
+    --info: #2f6fd0;
+    --shadow: 0 16px 40px -24px rgba(40, 30, 60, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 700px at 78% -8%, rgba(245, 180, 81, 0.10), transparent 60%),
+      radial-gradient(900px 620px at 6% 108%, rgba(111, 123, 255, 0.08), transparent 62%),
+      linear-gradient(180deg, var(--bg-hi), var(--bg) 32%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+  }
+
+  .app {
+    width: min(680px, 100%);
+    margin: 0 auto;
+    padding: max(22px, env(safe-area-inset-top)) 18px calc(48px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ---- Header ---- */
+  .top { display: flex; flex-direction: column; gap: 6px; padding: 6px 4px 2px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--faint); font-weight: 600;
+    display: flex; align-items: center; gap: 10px; justify-content: space-between;
+  }
+  .theme-btn {
+    border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+    width: 34px; height: 34px; border-radius: 10px; cursor: pointer; font-size: 15px;
+    display: grid; place-items: center; transition: transform .15s ease, background .15s ease;
+  }
+  .theme-btn:hover { background: var(--surface-hi); transform: translateY(-1px); }
+  .greeting {
+    margin: 2px 0 0; font-size: clamp(26px, 7vw, 34px); font-weight: 700;
+    letter-spacing: -0.02em; text-wrap: balance;
+  }
+  .greeting .name { color: var(--accent); }
+  .sub { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .stats { display: flex; gap: 10px; margin-top: 12px; }
+  .stat {
+    flex: 1; background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;
+    box-shadow: var(--shadow);
+  }
+  .stat .num { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .stat .lbl { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); font-weight: 600; }
+  .stat.open .num { color: var(--text); }
+  .stat.progress .num { color: var(--info); }
+  .stat.done .num { color: var(--good); }
+
+  /* ---- Filter pills ---- */
+  .filters {
+    display: flex; gap: 8px; overflow-x: auto; padding: 2px 4px 4px;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .pill {
+    flex: 0 0 auto; border: 1px solid var(--border); background: var(--surface);
+    color: var(--muted); border-radius: 999px; padding: 7px 14px; font-size: 13.5px;
+    font-weight: 600; cursor: pointer; white-space: nowrap; transition: all .15s ease;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--faint)); }
+  .pill.active { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
+  .pill:hover { border-color: var(--accent); }
+
+  /* ---- Section label ---- */
+  .section-label {
+    display: flex; align-items: center; gap: 10px; padding: 4px 6px 0; margin-top: 4px;
+    font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--faint); font-weight: 700;
+  }
+  .section-label::after { content: ""; flex: 1; height: 1px; background: var(--border-soft); }
+
+  /* ---- Task list ---- */
+  .tasks { display: flex; flex-direction: column; gap: 10px; }
+  .task {
+    position: relative; display: flex; gap: 13px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: var(--radius); padding: 14px 15px 14px 16px; box-shadow: var(--shadow);
+    overflow: hidden; transition: transform .18s ease, opacity .28s ease, border-color .15s ease;
+  }
+  .task::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--stripe, transparent);
+  }
+  .task[data-prio="hoch"] { --stripe: var(--prio-hoch); }
+  .task[data-prio="mittel"] { --stripe: var(--prio-mittel); }
+  .task[data-prio="low"] { --stripe: var(--prio-low); }
+  .task.inprogress { --stripe: var(--info); }
+  .task.leaving { opacity: 0; transform: translateX(18px) scale(0.98); }
+
+  .check {
+    flex: 0 0 auto; margin-top: 1px; width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid var(--check, var(--faint)); background: transparent; cursor: pointer;
+    display: grid; place-items: center; transition: all .15s ease; padding: 0;
+  }
+  .task[data-prio="hoch"] .check { --check: var(--prio-hoch); }
+  .task[data-prio="mittel"] .check { --check: var(--prio-mittel); }
+  .task[data-prio="low"] .check { --check: var(--prio-low); }
+  .check::after {
+    content: ""; width: 11px; height: 11px; border-radius: 50%; background: currentColor;
+    color: var(--check, var(--faint)); transform: scale(0); transition: transform .15s ease;
+  }
+  .check:hover { transform: scale(1.08); }
+  .check:hover::after { transform: scale(0.55); }
+
+  .task-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .task-title { font-size: 15.5px; font-weight: 600; line-height: 1.35; word-break: break-word; }
+  .task-title a { color: var(--info); text-decoration: none; }
+  .task-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent;
+    background: var(--surface-hi); color: var(--muted); white-space: nowrap;
+  }
+  .chip.bereich { background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) 78%, var(--text)); border-color: color-mix(in srgb, var(--c) 32%, transparent); }
+  .chip.prio-hoch { color: var(--prio-hoch); }
+  .chip.prio-mittel { color: var(--prio-mittel); }
+  .chip.prio-low { color: var(--prio-low); }
+  .chip.due { color: var(--muted); }
+  .chip.due.over { color: var(--prio-hoch); }
+  .chip.state { color: var(--info); }
+
+  .empty {
+    text-align: center; color: var(--faint); font-size: 14px; padding: 26px 10px;
+    border: 1px dashed var(--border); border-radius: var(--radius);
+  }
+
+  /* ---- Done section ---- */
+  .done-toggle {
+    align-self: flex-start; background: none; border: none; color: var(--muted);
+    font-size: 13.5px; font-weight: 600; cursor: pointer; padding: 6px 6px; margin-top: 2px;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .done-toggle .caret { transition: transform .2s ease; }
+  .done-toggle[aria-expanded="true"] .caret { transform: rotate(90deg); }
+  .done-list .task { opacity: 0.62; }
+  .done-list .task-title { text-decoration: line-through; text-decoration-color: var(--faint); }
+  .done-list .check { --check: var(--good); border-color: var(--good); background: var(--good); }
+  .done-list .check::after { color: var(--bg); transform: scale(0.55); }
+
+  /* ---- Coming-soon modules (the dashboard vision) ---- */
+  .modules { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  @media (max-width: 460px) { .modules { grid-template-columns: 1fr; } }
+  .module {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px dashed var(--border); border-radius: var(--radius); padding: 15px;
+    display: flex; flex-direction: column; gap: 6px; min-height: 104px;
+  }
+  .module .m-ico { font-size: 22px; }
+  .module .m-title { font-weight: 700; font-size: 15px; }
+  .module .m-desc { font-size: 12.5px; color: var(--muted); }
+  .module.wide { grid-column: 1 / -1; }
+  .module .m-tag {
+    margin-top: auto; align-self: flex-start; font-size: 10.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); padding: 3px 8px; border-radius: 999px;
+  }
+
+  /* ---- Kalender (Phase 2) ---- */
+  .cal { display: flex; flex-direction: column; gap: 14px; }
+  .cal-block { display: flex; flex-direction: column; gap: 8px; }
+  .cal-sub {
+    font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--faint); font-weight: 700; padding: 0 6px;
+  }
+  .cal-event {
+    position: relative; overflow: hidden; display: flex; gap: 13px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow);
+  }
+  .cal-event::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); opacity: 0.65; }
+  .cal-time { flex: 0 0 auto; min-width: 56px; display: flex; flex-direction: column; gap: 2px; }
+  .cal-time .t { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14.5px; color: var(--accent); }
+  .cal-time .d { font-size: 11px; color: var(--faint); font-weight: 600; }
+  .cal-time.allday .t { font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+  .cal-ev-main { min-width: 0; }
+  .cal-ev-title { font-weight: 600; font-size: 14.5px; line-height: 1.3; word-break: break-word; }
+  .cal-ev-loc { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .cal-none { color: var(--faint); font-size: 13.5px; padding: 4px 6px 2px; }
+  .cal-hint {
+    display: flex; gap: 11px; align-items: flex-start; border: 1px dashed var(--border);
+    border-radius: 14px; padding: 13px 15px; color: var(--muted); font-size: 12.5px; line-height: 1.45;
+  }
+  .cal-hint b { color: var(--text); font-weight: 700; }
+  .cal-hint code { background: var(--surface-hi); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+
+  .foot { text-align: center; color: var(--faint); font-size: 12px; padding: 8px 0 4px; }
+  .foot .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--good); margin-right: 5px; vertical-align: middle; }
+  .foot.offline .status-dot { background: var(--prio-mittel); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom));
+    transform: translateX(-50%) translateY(20px); opacity: 0;
+    background: var(--surface-hi); color: var(--text); border: 1px solid var(--border);
+    padding: 10px 16px; border-radius: 12px; font-size: 13.5px; box-shadow: var(--shadow);
+    transition: all .25s ease; pointer-events: none; z-index: 50; max-width: 90vw;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="eyebrow">
+        <span id="dateline">Abend-Hub</span>
+        <button class="theme-btn" id="themeBtn" type="button" aria-label="Hell/Dunkel wechseln">☾</button>
+      </div>
+      <h1 class="greeting" id="greeting">Guten Abend, <span class="name">Hakan</span></h1>
+      <p class="sub" id="subline">Dein Abend im Blick.</p>
+      <div class="stats">
+        <div class="stat open"><span class="num" id="stat-open">–</span><span class="lbl">Offen</span></div>
+        <div class="stat progress"><span class="num" id="stat-progress">–</span><span class="lbl">In Arbeit</span></div>
+        <div class="stat done"><span class="num" id="stat-done">–</span><span class="lbl">Erledigt</span></div>
+      </div>
+    </header>
+
+    <section class="cal" id="calSection" aria-label="Kalender" hidden>
+      <div class="section-label">📅 Kalender</div>
+      <div id="calBody"></div>
+    </section>
+
+    <nav class="filters" id="filters" aria-label="Bereiche filtern"></nav>
+
+    <section aria-label="Offene Aufgaben">
+      <div class="section-label" id="open-label">Offen</div>
+      <div class="tasks" id="tasklist"></div>
+    </section>
+
+    <button class="done-toggle" id="doneToggle" type="button" aria-expanded="false" aria-controls="donelist" hidden>
+      <span class="caret">▸</span> <span id="doneToggleText">Erledigt</span>
+    </button>
+    <div class="tasks done-list" id="donelist" hidden></div>
+
+    <section class="modules" aria-label="Kommende Bausteine">
+      <div class="module wide">
+        <div class="m-ico">🍳</div>
+        <div class="m-title">Kochkiste</div>
+        <div class="m-desc">Was ist im Kühlschrank? Bald schlägt dir der Hub vor, was ihr kochen könnt.</div>
+        <div class="m-tag">Phase 3</div>
+      </div>
+    </section>
+
+    <footer class="foot" id="foot"><span class="status-dot"></span><span id="footText">verbunden</span></footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  // Farben & Reihenfolge der Bereiche (aus der Notion-DB "Abend-Tasks").
+  const BEREICH = {
+    "📹 Short Video": "#f2555a",
+    "📦 FBA":         "#f0913c",
+    "🖥️ Server":      "#6fb3ff",
+    "💰 Investieren": "#56cf94",
+    "🏠 Privat":      "#9aa0ad",
+    "🎓 Ausbildung":  "#b98cff",
+    "💪 Sport":       "#ff8ec2",
+    "📚 Bildung":     "#6fb3ff",
+  };
+  const PRIO_KEY = { "🔴 Hoch": "hoch", "🟡 Mittel": "mittel", "🟢 Low": "low" };
+  const PRIO_RANK = { hoch: 0, mittel: 1, low: 2, "": 3 };
+
+  // Fallback / Vorschau-Daten = echte Aufgaben aus deiner Notion-DB.
+  // Werden nur genutzt, wenn kein Backend erreichbar ist (z.B. in der Vorschau).
+  const SEED = [
+    { id: "s1", title: "Buchhaltungsapp weiter arbeiten", bereich: null, prioritaet: null, status: "Not started", faellig: "2026-07-25" },
+    { id: "s2", title: "Buchhaltungssoftware ausbauen: Inventar/Anlagevermögen darstellen und abschreiben lassen, dauerhaft speichern, BWA-Auswertung ermöglichen", bereich: null, prioritaet: null, status: "Not started", faellig: null },
+    { id: "s3", title: "Kochkiste-App zu Ende bauen + Bereich zum Testen von Saucen (idealer Geschmack, z.B. Döner-Sauce)", bereich: null, prioritaet: null, status: "In progress", faellig: null },
+    { id: "s4", title: "Whispr Upload App auf Tower einrichten", bereich: "🖥️ Server", prioritaet: "🟡 Mittel", status: "Not started", faellig: null },
+    { id: "s5", title: "Kevin King Seminar angucken", bereich: "📦 FBA", prioritaet: "🟢 Low", status: "Not started", faellig: null, url: "https://www.youtube.com/watch?v=95rqvHjgo-c" },
+    { id: "s6", title: "FBA Produktideen sammeln & erste Nischenrecherche", bereich: "📦 FBA", prioritaet: "🟡 Mittel", status: "Not started", faellig: null },
+    { id: "s7", title: "Amazon Growth Seminare angucken", bereich: "🏠 Privat", prioritaet: "🟡 Mittel", status: "Done", faellig: null },
+    { id: "s8", title: "Lovable kündigen, Apps nur noch mit Claude bauen, Finanzblick übertragen", bereich: "🏠 Privat", prioritaet: "🟡 Mittel", status: "Done", faellig: null },
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const state = { tasks: [], filter: "alle", offline: false, doneOpen: false };
+
+  // ---- Helpers -------------------------------------------------------------
+  const isDone = (t) => t.status === "Done";
+  const prioKey = (t) => PRIO_KEY[t.prioritaet] || "";
+
+  function startOfToday() { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+
+  function formatDue(iso) {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    const today = startOfToday();
+    const due = new Date(d); due.setHours(0, 0, 0, 0);
+    const diff = Math.round((due - today) / 86400000);
+    let label;
+    if (diff === 0) label = "Heute";
+    else if (diff === 1) label = "Morgen";
+    else if (diff === -1) label = "Gestern";
+    else label = d.toLocaleDateString("de-DE", { day: "numeric", month: "short" });
+    return { label, over: diff < 0, soon: diff <= 0 };
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  // Titel escapen, aber URLs klickbar machen.
+  function renderTitle(title) {
+    const parts = title.split(/(https?:\/\/[^\s]+)/g);
+    return parts.map((p) => /^https?:\/\//.test(p)
+      ? `<a href="${escapeHtml(p)}" target="_blank" rel="noopener">Link ↗</a>`
+      : escapeHtml(p)).join("");
+  }
+
+  function sortTasks(a, b) {
+    const ip = (t) => (t.status === "In progress" ? 0 : 1);
+    if (ip(a) !== ip(b)) return ip(a) - ip(b);
+    const pa = PRIO_RANK[prioKey(a)] ?? 3, pb = PRIO_RANK[prioKey(b)] ?? 3;
+    if (pa !== pb) return pa - pb;
+    const da = a.faellig ? Date.parse(a.faellig) : Infinity;
+    const db = b.faellig ? Date.parse(b.faellig) : Infinity;
+    return da - db;
+  }
+
+  // ---- Rendering -----------------------------------------------------------
+  function taskEl(t, done) {
+    const el = document.createElement("article");
+    el.className = "task" + (t.status === "In progress" ? " inprogress" : "");
+    el.dataset.id = t.id;
+    const pk = prioKey(t);
+    if (pk) el.dataset.prio = pk;
+
+    const meta = [];
+    if (t.bereich) {
+      const c = BEREICH[t.bereich] || "var(--faint)";
+      meta.push(`<span class="chip bereich" style="--c:${c}">${escapeHtml(t.bereich)}</span>`);
+    }
+    if (t.prioritaet) meta.push(`<span class="chip prio-${pk}">${escapeHtml(t.prioritaet)}</span>`);
+    if (t.status === "In progress" && !done) meta.push(`<span class="chip state">In Arbeit</span>`);
+    const due = formatDue(t.faellig);
+    if (due) meta.push(`<span class="chip due${due.over && !done ? " over" : ""}">📅 ${due.label}</span>`);
+
+    el.innerHTML = `
+      <button class="check" type="button" aria-label="${done ? "Wieder öffnen" : "Als erledigt markieren"}"></button>
+      <div class="task-main">
+        <div class="task-title">${renderTitle(t.title)}</div>
+        ${meta.length ? `<div class="task-meta">${meta.join("")}</div>` : ""}
+      </div>`;
+
+    el.querySelector(".check").addEventListener("click", () => toggleTask(t, el, done));
+    return el;
+  }
+
+  function render() {
+    const open = state.tasks.filter((t) => !isDone(t));
+    const done = state.tasks.filter(isDone);
+
+    $("stat-open").textContent = open.length;
+    $("stat-progress").textContent = state.tasks.filter((t) => t.status === "In progress").length;
+    $("stat-done").textContent = done.length;
+
+    // Bereich-Filter
+    const present = [...new Set(open.map((t) => t.bereich).filter(Boolean))];
+    const filters = $("filters");
+    const pills = [`<button class="pill${state.filter === "alle" ? " active" : ""}" data-f="alle">Alle</button>`]
+      .concat(present.map((b) =>
+        `<button class="pill${state.filter === b ? " active" : ""}" data-f="${escapeHtml(b)}"><span class="dot" style="--c:${BEREICH[b] || "var(--faint)"}"></span>${escapeHtml(b)}</button>`));
+    filters.innerHTML = pills.join("");
+    filters.querySelectorAll(".pill").forEach((p) =>
+      p.addEventListener("click", () => { state.filter = p.dataset.f; render(); }));
+
+    // Offene Aufgaben
+    const list = $("tasklist");
+    list.innerHTML = "";
+    const shown = open
+      .filter((t) => state.filter === "alle" || t.bereich === state.filter)
+      .sort(sortTasks);
+    $("open-label").textContent = `Offen · ${shown.length}`;
+    if (shown.length === 0) {
+      list.innerHTML = `<div class="empty">Nichts offen hier – schöner Abend! 🌙</div>`;
+    } else {
+      shown.forEach((t) => list.appendChild(taskEl(t, false)));
+    }
+
+    // Erledigt
+    const dt = $("doneToggle"), dl = $("donelist");
+    if (done.length) {
+      dt.hidden = false;
+      $("doneToggleText").textContent = `Erledigt · ${done.length}`;
+      dt.setAttribute("aria-expanded", String(state.doneOpen));
+      dl.hidden = !state.doneOpen;
+      dl.innerHTML = "";
+      if (state.doneOpen) done.sort(sortTasks).forEach((t) => dl.appendChild(taskEl(t, true)));
+    } else {
+      dt.hidden = true; dl.hidden = true;
+    }
+  }
+
+  // ---- Actions -------------------------------------------------------------
+  async function toggleTask(t, el, wasDone) {
+    const newStatus = wasDone ? "Not started" : "Done";
+    el.classList.add("leaving");
+    await new Promise((r) => setTimeout(r, 220));
+    t.status = newStatus;
+
+    if (!state.offline) {
+      try {
+        const res = await fetch(`/api/tasks/${encodeURIComponent(t.id)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Fehler");
+        toast(wasDone ? "Wieder geöffnet" : "Erledigt ✓");
+      } catch (err) {
+        t.status = wasDone ? "Done" : "Not started"; // revert
+        toast("Konnte nicht speichern: " + err.message);
+      }
+    } else {
+      toast(wasDone ? "Wieder geöffnet (Vorschau)" : "Erledigt ✓ (Vorschau)");
+    }
+    render();
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  // ---- Header / theme ------------------------------------------------------
+  function setupHeader() {
+    const now = new Date();
+    $("dateline").textContent = now.toLocaleDateString("de-DE",
+      { weekday: "long", day: "numeric", month: "long" }).toUpperCase();
+    const h = now.getHours();
+    const greet = h >= 18 || h < 5 ? "Guten Abend" : h < 11 ? "Guten Morgen" : h < 17 ? "Guten Tag" : "Hallo";
+    $("greeting").innerHTML = `${greet}, <span class="name">Hakan</span>`;
+
+    const saved = localStorage.getItem("hub-theme");
+    if (saved) document.documentElement.setAttribute("data-theme", saved);
+    const btn = $("themeBtn");
+    const sync = () => { btn.textContent = document.documentElement.getAttribute("data-theme") === "light" ? "☀" : "☾"; };
+    sync();
+    btn.addEventListener("click", () => {
+      const next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("hub-theme", next);
+      sync();
+    });
+
+    $("doneToggle").addEventListener("click", () => { state.doneOpen = !state.doneOpen; render(); });
+  }
+
+  function setSub() {
+    const open = state.tasks.filter((t) => !isDone(t)).length;
+    const ip = state.tasks.filter((t) => t.status === "In progress").length;
+    $("subline").textContent = open === 0
+      ? "Alles erledigt für heute. 🌙"
+      : `${open} ${open === 1 ? "Aufgabe" : "Aufgaben"} offen${ip ? `, ${ip} in Arbeit` : ""}.`;
+  }
+
+  // ---- Kalender ------------------------------------------------------------
+  function calSeed() {
+    const mk = (off, h, m, title, loc, allDay) => {
+      const d = new Date(); d.setDate(d.getDate() + off);
+      if (allDay) d.setHours(0, 0, 0, 0); else d.setHours(h, m, 0, 0);
+      const end = new Date(d.getTime() + (allDay ? 86400000 : 3600000));
+      return { summary: title, location: loc || null, start: d.toISOString(), end: end.toISOString(), allDay: !!allDay };
+    };
+    return [
+      mk(0, 18, 30, "Sport – Push Day", "McFit", false),
+      mk(0, 20, 0, "Abendessen mit der Familie", null, false),
+      mk(1, 9, 30, "Termin Steuerkanzlei (taxnovis)", "Buchholz i.d.N.", false),
+      mk(2, 0, 0, "🎂 Geburtstag Papa", null, true),
+      mk(4, 14, 0, "FBA Wareneingang prüfen", null, false),
+    ];
+  }
+
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  const fmtTime = (iso) => new Date(iso).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+  const shortDay = (d) => d.toLocaleDateString("de-DE", { weekday: "short", day: "numeric" });
+
+  function calEventEl(ev, withDate) {
+    const el = document.createElement("div");
+    el.className = "cal-event";
+    const start = new Date(ev.start);
+    const dtag = withDate ? `<span class="d">${escapeHtml(shortDay(start))}</span>` : "";
+    const time = ev.allDay
+      ? `<div class="cal-time allday"><span class="t">ganztägig</span>${dtag}</div>`
+      : `<div class="cal-time"><span class="t">${escapeHtml(fmtTime(ev.start))}</span>${dtag}</div>`;
+    el.innerHTML = `${time}<div class="cal-ev-main"><div class="cal-ev-title">${escapeHtml(ev.summary)}</div>${ev.location ? `<div class="cal-ev-loc">📍 ${escapeHtml(ev.location)}</div>` : ""}</div>`;
+    return el;
+  }
+
+  function renderCalendar(events, mode) {
+    const sec = $("calSection"), body = $("calBody");
+    sec.hidden = false; body.innerHTML = "";
+
+    if (mode === "connect") {
+      const hint = document.createElement("div");
+      hint.className = "cal-hint";
+      hint.innerHTML = `📅 <div><b>Kalender verbinden:</b> Trag deine geheime iCal-URL als <code>GOOGLE_ICAL_URL</code> ein (Google&nbsp;Kalender → Einstellungen → „Geheime Adresse im iCal-Format"). Danach erscheinen hier deine Termine – Anleitung steht in der README.</div>`;
+      body.appendChild(hint);
+      return;
+    }
+
+    const now = new Date();
+    const today = events.filter((e) => sameDay(new Date(e.start), now));
+    const upcoming = events.filter((e) => { const s = new Date(e.start); return s > now && !sameDay(s, now); }).slice(0, 5);
+
+    const b1 = document.createElement("div");
+    b1.className = "cal-block";
+    b1.innerHTML = `<div class="cal-sub">Heute</div>`;
+    if (today.length === 0) {
+      const n = document.createElement("div"); n.className = "cal-none"; n.textContent = "Keine Termine heute. 🌙";
+      b1.appendChild(n);
+    } else today.forEach((e) => b1.appendChild(calEventEl(e, false)));
+    body.appendChild(b1);
+
+    if (upcoming.length) {
+      const b2 = document.createElement("div");
+      b2.className = "cal-block";
+      b2.innerHTML = `<div class="cal-sub">Demnächst</div>`;
+      upcoming.forEach((e) => b2.appendChild(calEventEl(e, true)));
+      body.appendChild(b2);
+    }
+  }
+
+  async function loadCalendar() {
+    try {
+      const res = await fetch("/api/calendar", { headers: { Accept: "application/json" } });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Kalenderfehler");
+      renderCalendar(data.events || [], data.configured ? "ok" : "connect");
+    } catch {
+      renderCalendar(calSeed(), "preview"); // kein Backend -> Beispieltermine
+    }
+  }
+
+  // ---- Load ----------------------------------------------------------------
+  async function load() {
+    try {
+      const res = await fetch("/api/tasks", { headers: { Accept: "application/json" } });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Ladefehler");
+      state.tasks = data.tasks;
+      state.offline = false;
+      $("foot").classList.remove("offline");
+      $("footText").textContent = "mit Notion verbunden";
+    } catch (err) {
+      state.tasks = SEED;
+      state.offline = true;
+      $("foot").classList.add("offline");
+      $("footText").textContent = "Vorschau-Modus (kein Backend) – zeigt Beispiel-Aufgaben";
+    }
+    setSub();
+    render();
+  }
+
+  setupHeader();
+  load();
+  loadCalendar();
+})();
+</script>
+</body>
+</html>
