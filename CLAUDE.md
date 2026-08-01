@@ -23,7 +23,12 @@ Live-Adresse: **https://kochkiste.erenstower.de**
   Rezepte, gespeichert in `localStorage` (`kk_userRecipes`), werden beim Laden in
   `RECIPES` gemischt. Diese sind **gerätegebunden** (nur im jeweiligen Browser).
 - Ansichten (`<section class="view">`): Kühlschrank, Kochen, Reste, Einkauf, Verlauf, Detail.
+  Startansicht ist **Einkauf**.
 - Modale = `.sheet-bg`/`.sheet`, ein-/ausgeblendet über die CSS-Klasse `.open`.
+- **`buyStats`** (`kk_buyStats`): lernt, was oft gekauft wird → „Häufig gekauft"-Vorschläge.
+- **Geräte-Sync (optional, standardmäßig aus):** `syncCfg` (`kk_syncCfg` = `{url,key}`).
+  Ist er gesetzt, gleicht die App den **geteilten Haushalt** (`shop, fridge, pantry, spices,
+  buyStats`) über das Mini-Backend ab (Polling + Push, Konflikt-Merge). Siehe `sync/server.js`.
 
 ### Rezept-Schema (beim Hinzufügen exakt einhalten)
 
@@ -57,6 +62,9 @@ und pusht. Bei Kochbüchern: nur die **Fakten** (Zutaten + Zubereitung) im knapp
 - App-Ordner auf dem Server: `/mnt/user/appdata/kochkiste`
 - Unraid hat **kein git** → Updates laufen per `curl` aus diesem öffentlichen Repo.
 - Details/Schritt-für-Schritt: **`deploy/UNRAID-CLOUDFLARE.md`**.
+- **Optionaler Sync-Server** (für den geteilten Haushalt / Geräte-Sync): eigener
+  Node-Container (`sync/server.js`), Anleitung in **`deploy/SYNC-BACKEND.md`**,
+  erreichbar unter `kk-api.erenstower.de`.
 
 **Nach jeder Änderung an `index.html`:** committen + pushen. Dann holt Hakan die neue
 Version auf den Server (eine Zeile, danach Browser neu laden):
