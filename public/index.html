@@ -216,11 +216,40 @@
   .module .m-ico { font-size: 22px; }
   .module .m-title { font-weight: 700; font-size: 15px; }
   .module .m-desc { font-size: 12.5px; color: var(--muted); }
+  .module.wide { grid-column: 1 / -1; }
   .module .m-tag {
     margin-top: auto; align-self: flex-start; font-size: 10.5px; letter-spacing: 0.08em;
     text-transform: uppercase; font-weight: 700; color: var(--accent);
     background: var(--accent-soft); padding: 3px 8px; border-radius: 999px;
   }
+
+  /* ---- Kalender (Phase 2) ---- */
+  .cal { display: flex; flex-direction: column; gap: 14px; }
+  .cal-block { display: flex; flex-direction: column; gap: 8px; }
+  .cal-sub {
+    font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--faint); font-weight: 700; padding: 0 6px;
+  }
+  .cal-event {
+    position: relative; overflow: hidden; display: flex; gap: 13px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow);
+  }
+  .cal-event::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); opacity: 0.65; }
+  .cal-time { flex: 0 0 auto; min-width: 56px; display: flex; flex-direction: column; gap: 2px; }
+  .cal-time .t { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14.5px; color: var(--accent); }
+  .cal-time .d { font-size: 11px; color: var(--faint); font-weight: 600; }
+  .cal-time.allday .t { font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+  .cal-ev-main { min-width: 0; }
+  .cal-ev-title { font-weight: 600; font-size: 14.5px; line-height: 1.3; word-break: break-word; }
+  .cal-ev-loc { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .cal-none { color: var(--faint); font-size: 13.5px; padding: 4px 6px 2px; }
+  .cal-hint {
+    display: flex; gap: 11px; align-items: flex-start; border: 1px dashed var(--border);
+    border-radius: 14px; padding: 13px 15px; color: var(--muted); font-size: 12.5px; line-height: 1.45;
+  }
+  .cal-hint b { color: var(--text); font-weight: 700; }
+  .cal-hint code { background: var(--surface-hi); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
 
   .foot { text-align: center; color: var(--faint); font-size: 12px; padding: 8px 0 4px; }
   .foot .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--good); margin-right: 5px; vertical-align: middle; }
@@ -256,6 +285,11 @@
       </div>
     </header>
 
+    <section class="cal" id="calSection" aria-label="Kalender" hidden>
+      <div class="section-label">📅 Kalender</div>
+      <div id="calBody"></div>
+    </section>
+
     <nav class="filters" id="filters" aria-label="Bereiche filtern"></nav>
 
     <section aria-label="Offene Aufgaben">
@@ -269,16 +303,10 @@
     <div class="tasks done-list" id="donelist" hidden></div>
 
     <section class="modules" aria-label="Kommende Bausteine">
-      <div class="module">
-        <div class="m-ico">📅</div>
-        <div class="m-title">Kalender</div>
-        <div class="m-desc">Termine aus deinem Google-Kalender – was heute ansteht.</div>
-        <div class="m-tag">Phase 2</div>
-      </div>
-      <div class="module">
+      <div class="module wide">
         <div class="m-ico">🍳</div>
         <div class="m-title">Kochkiste</div>
-        <div class="m-desc">Was ist im Kühlschrank? Vorschläge, was ihr kochen könnt.</div>
+        <div class="m-desc">Was ist im Kühlschrank? Bald schlägt dir der Hub vor, was ihr kochen könnt.</div>
         <div class="m-tag">Phase 3</div>
       </div>
     </section>
@@ -504,6 +532,84 @@
       : `${open} ${open === 1 ? "Aufgabe" : "Aufgaben"} offen${ip ? `, ${ip} in Arbeit` : ""}.`;
   }
 
+  // ---- Kalender ------------------------------------------------------------
+  function calSeed() {
+    const mk = (off, h, m, title, loc, allDay) => {
+      const d = new Date(); d.setDate(d.getDate() + off);
+      if (allDay) d.setHours(0, 0, 0, 0); else d.setHours(h, m, 0, 0);
+      const end = new Date(d.getTime() + (allDay ? 86400000 : 3600000));
+      return { summary: title, location: loc || null, start: d.toISOString(), end: end.toISOString(), allDay: !!allDay };
+    };
+    return [
+      mk(0, 18, 30, "Sport – Push Day", "McFit", false),
+      mk(0, 20, 0, "Abendessen mit der Familie", null, false),
+      mk(1, 9, 30, "Termin Steuerkanzlei (taxnovis)", "Buchholz i.d.N.", false),
+      mk(2, 0, 0, "🎂 Geburtstag Papa", null, true),
+      mk(4, 14, 0, "FBA Wareneingang prüfen", null, false),
+    ];
+  }
+
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  const fmtTime = (iso) => new Date(iso).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+  const shortDay = (d) => d.toLocaleDateString("de-DE", { weekday: "short", day: "numeric" });
+
+  function calEventEl(ev, withDate) {
+    const el = document.createElement("div");
+    el.className = "cal-event";
+    const start = new Date(ev.start);
+    const dtag = withDate ? `<span class="d">${escapeHtml(shortDay(start))}</span>` : "";
+    const time = ev.allDay
+      ? `<div class="cal-time allday"><span class="t">ganztägig</span>${dtag}</div>`
+      : `<div class="cal-time"><span class="t">${escapeHtml(fmtTime(ev.start))}</span>${dtag}</div>`;
+    el.innerHTML = `${time}<div class="cal-ev-main"><div class="cal-ev-title">${escapeHtml(ev.summary)}</div>${ev.location ? `<div class="cal-ev-loc">📍 ${escapeHtml(ev.location)}</div>` : ""}</div>`;
+    return el;
+  }
+
+  function renderCalendar(events, mode) {
+    const sec = $("calSection"), body = $("calBody");
+    sec.hidden = false; body.innerHTML = "";
+
+    if (mode === "connect") {
+      const hint = document.createElement("div");
+      hint.className = "cal-hint";
+      hint.innerHTML = `📅 <div><b>Kalender verbinden:</b> Trag deine geheime iCal-URL als <code>GOOGLE_ICAL_URL</code> ein (Google&nbsp;Kalender → Einstellungen → „Geheime Adresse im iCal-Format"). Danach erscheinen hier deine Termine – Anleitung steht in der README.</div>`;
+      body.appendChild(hint);
+      return;
+    }
+
+    const now = new Date();
+    const today = events.filter((e) => sameDay(new Date(e.start), now));
+    const upcoming = events.filter((e) => { const s = new Date(e.start); return s > now && !sameDay(s, now); }).slice(0, 5);
+
+    const b1 = document.createElement("div");
+    b1.className = "cal-block";
+    b1.innerHTML = `<div class="cal-sub">Heute</div>`;
+    if (today.length === 0) {
+      const n = document.createElement("div"); n.className = "cal-none"; n.textContent = "Keine Termine heute. 🌙";
+      b1.appendChild(n);
+    } else today.forEach((e) => b1.appendChild(calEventEl(e, false)));
+    body.appendChild(b1);
+
+    if (upcoming.length) {
+      const b2 = document.createElement("div");
+      b2.className = "cal-block";
+      b2.innerHTML = `<div class="cal-sub">Demnächst</div>`;
+      upcoming.forEach((e) => b2.appendChild(calEventEl(e, true)));
+      body.appendChild(b2);
+    }
+  }
+
+  async function loadCalendar() {
+    try {
+      const res = await fetch("/api/calendar", { headers: { Accept: "application/json" } });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Kalenderfehler");
+      renderCalendar(data.events || [], data.configured ? "ok" : "connect");
+    } catch {
+      renderCalendar(calSeed(), "preview"); // kein Backend -> Beispieltermine
+    }
+  }
+
   // ---- Load ----------------------------------------------------------------
   async function load() {
     try {
@@ -526,6 +632,7 @@
 
   setupHeader();
   load();
+  loadCalendar();
 })();
 </script>
 </body>

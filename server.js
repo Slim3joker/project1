@@ -7,6 +7,7 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { eventsFromICS } from './ical.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const PUBLIC_DIR = join(__dirname, 'public');
@@ -15,6 +16,10 @@ const PORT = Number(process.env.PORT) || 3000;
 const NOTION_TOKEN = process.env.NOTION_TOKEN || '';
 const NOTION_DB_ID = process.env.NOTION_DB_ID || '';
 const NOTION_VERSION = '2022-06-28';
+
+// Phase 2: geheime iCal-URL des Google-Kalenders (nur lesen, serverseitig).
+const GOOGLE_ICAL_URL = process.env.GOOGLE_ICAL_URL || '';
+const CAL_DAYS = Number(process.env.CAL_DAYS) || 14;
 
 // --- Notion property names (must match the Abend-Tasks database exactly) ----
 const PROP = {
@@ -118,6 +123,36 @@ async function setTaskStatus(id, statusName) {
   });
 }
 
+// --- Kalender (iCal) --------------------------------------------------------
+const calCache = { at: 0, events: null };
+const CAL_TTL_MS = 5 * 60 * 1000; // 5 Min. Cache, damit Google nicht gehaemmert wird
+
+async function fetchCalendar() {
+  const now = Date.now();
+  if (calCache.events && now - calCache.at < CAL_TTL_MS) return calCache.events;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
+  try {
+    const res = await fetch(GOOGLE_ICAL_URL, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'abend-hub' },
+    });
+    if (!res.ok) {
+      const err = new Error(`Kalender-Feed HTTP ${res.status}`);
+      err.status = 502;
+      throw err;
+    }
+    const text = await res.text();
+    const events = eventsFromICS(text, { days: CAL_DAYS });
+    calCache.at = now;
+    calCache.events = events;
+    return events;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let raw = '';
@@ -170,7 +205,20 @@ const server = createServer(async (req, res) => {
     return sendJson(res, 200, {
       ok: true,
       notionConfigured: Boolean(NOTION_TOKEN && NOTION_DB_ID),
+      calendarConfigured: Boolean(GOOGLE_ICAL_URL),
     });
+  }
+
+  if (url.pathname === '/api/calendar' && req.method === 'GET') {
+    if (!GOOGLE_ICAL_URL) {
+      return sendJson(res, 200, { ok: true, configured: false, events: [] });
+    }
+    try {
+      const events = await fetchCalendar();
+      return sendJson(res, 200, { ok: true, configured: true, events });
+    } catch (err) {
+      return sendJson(res, err.status || 502, { ok: false, error: err.message });
+    }
   }
 
   if (url.pathname === '/api/tasks' && req.method === 'GET') {

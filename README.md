@@ -6,7 +6,7 @@ deine kleine Kommandozentrale werden.
 
 **Roadmap**
 - **Phase 1 (fertig):** Aufgaben aus Notion anzeigen, nach Bereich filtern, abhaken (schreibt zurück nach Notion). Ruhiges, dunkles Design, handytauglich.
-- **Phase 2 (geplant):** Google-Kalender – „was steht heute an" (per geheimer iCal-URL, ohne Google-OAuth).
+- **Phase 2 (fertig):** Google-Kalender-Agenda „Heute / Demnächst" (per geheimer iCal-URL, ohne Google-OAuth).
 - **Phase 3 (geplant):** Kochkiste-Anbindung – Kühlschrank/gekochtes ansehen → Essensvorschläge.
 
 ---
@@ -22,6 +22,7 @@ Ein einziger kleiner Node-Container:
 |---|---|
 | `GET /api/tasks` | Aufgaben aus Notion laden |
 | `PATCH /api/tasks/:id` | Status ändern (z. B. auf `Done`) |
+| `GET /api/calendar` | Termine aus dem Google-Kalender (iCal) |
 | `GET /api/health` | Statuscheck |
 
 > Ohne Backend (z. B. beim direkten Öffnen der HTML-Datei) läuft die App im **Vorschau-Modus**
@@ -37,6 +38,19 @@ Ein einziger kleiner Node-Container:
    die Integration „Abend-Hub" hinzufügen. (Sonst sieht der Server die Daten nicht.)
 
 Die DB-ID ist bereits bekannt: `77d8a1796e0140cc8e4505021007d15f`.
+
+---
+
+## Schritt 1b (optional) – Google-Kalender verbinden
+
+Für die Kalender-Agenda „Heute / Demnächst":
+
+1. Google Kalender (Web) öffnen → **Einstellungen** (Zahnrad) → links deinen Kalender wählen.
+2. Runterscrollen zu **„Geheime Adresse im iCal-Format"** → die URL kopieren (endet auf `.../basic.ics`).
+3. Diese URL in der `.env` als `GOOGLE_ICAL_URL` eintragen.
+
+> Die Adresse ist ein Geheimlink – deshalb liest **nur der Server** sie, nie der Browser.
+> Ohne diesen Eintrag läuft alles weiter, die App zeigt dann nur einen „Kalender verbinden"-Hinweis.
 
 ---
 

@@ -6,6 +6,7 @@ WORKDIR /app
 # Nur die noetigen Dateien kopieren
 COPY package.json ./
 COPY server.js ./
+COPY ical.js ./
 COPY public ./public
 
 ENV NODE_ENV=production

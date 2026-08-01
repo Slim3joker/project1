@@ -10,8 +10,7 @@ services:
     environment:
       - PORT=3000
       - TZ=Europe/Berlin
-      - NOTION_TOKEN=${NOTION_TOKEN}
-      - NOTION_DB_ID=${NOTION_DB_ID}
-    # Liest Werte aus einer .env-Datei neben dieser docker-compose.yml
+    # Liest alle Werte (NOTION_TOKEN, NOTION_DB_ID, GOOGLE_ICAL_URL, ...)
+    # aus einer .env-Datei neben dieser docker-compose.yml
     env_file:
       - .env
