@@ -1,0 +1,962 @@
+# Kuratierte Übersetzungen für die Goldwörter-App
+# Format: lemma|anzeige|deutsch|englisch
+# - lemma: muss exakt dem Lemma in der Frequenzliste (CSV) entsprechen
+# - anzeige: korrigierte/schönere Form (leer = lemma übernehmen).
+#   Wird auch genutzt, um Lemmatisierungs-Artefakte zu reparieren (z.B. laz -> lazım)
+# Zeilen mit # sind Kommentare.
+bir||ein, eins|one, a
+olmak||sein, werden|to be, become
+bu||dieser, diese, dieses|this
+ben||ich|I
+o||er, sie, es; jener|he, she, it; that
+ne||was|what
+sen||du|you (sg.)
+ve||und|and
+mi|mi / mı / mu / mü|Fragepartikel (macht den Satz zur Frage)|question particle
+yapmak||machen, tun|to do, make
+iç|için|für, wegen|for
+etmek||machen, tun (Hilfsverb)|to do (auxiliary)
+şey||Ding, Sache|thing
+de|de / da|auch; und|also, too
+var||es gibt, vorhanden|there is, exists
+değil||nicht (ist nicht)|not
+çok||sehr, viel|very, much
+istemek||wollen, möchten|to want
+ama||aber|but
+bilmek||wissen, kennen|to know
+evet||ja|yes
+gitmek||gehen|to go
+gelmek||kommen|to come
+iyi||gut|good
+bura|burada|hier|here
+söylemek||sagen|to say, tell
+sanmak||glauben, meinen|to think, suppose
+hayır||nein|no
+daha||noch, mehr|more, yet
+yok||es gibt nicht; nein|there isn't; no
+demek||sagen; bedeuten|to say; to mean
+vermek||geben|to give
+kadar||bis; so viel wie|until; as much as
+zaman||Zeit|time
+gibi||wie, ähnlich wie|like, as
+görmek||sehen|to see
+biz||wir|we
+tamam||okay, in Ordnung|okay
+bakmak||schauen, gucken|to look
+iş||Arbeit, Job; Sache|work, job
+siz||ihr, Sie|you (pl./formal)
+her||jeder, jede, jedes|every
+ki||dass; denn (Partikel)|that (particle)
+almak||nehmen, kaufen, bekommen|to take, buy, get
+kendi||selbst, eigen|self, own
+şu||dieser da, jener|that (over there)
+nasıl||wie|how
+sade|sadece|nur, bloß|only, just
+ya||ach; oder; was ist mit ...?|oh; what about ...?
+öyle||so, derart|so, like that
+sonra||danach, später|after, later
+kalmak||bleiben|to stay, remain
+gerçek||echt, wahr; Wahrheit|real, true
+şimdi||jetzt|now
+hiç||gar nicht, nie; überhaupt|never, at all
+bulmak||finden|to find
+yemek||essen; Essen|to eat; food
+çalışmak||arbeiten; versuchen; lernen|to work; to try
+en||am meisten (Superlativ: en iyi = am besten)|most (superlative)
+çocuk||Kind|child
+konuşmak||sprechen, reden|to speak, talk
+önce||vorher, zuerst; vor|before, first
+güzel||schön|beautiful, nice
+düşünmek||denken, nachdenken|to think
+baba||Vater, Papa|father
+olur||geht klar, in Ordnung|alright, okay
+kim||wer|who
+iki||zwei|two
+pek||sehr, ziemlich; (verneint) kaum|quite; hardly
+ev||Haus, Zuhause|house, home
+ora|orada|dort|there
+böyle||so, auf diese Weise|like this
+çıkmak||hinausgehen, herauskommen|to go out, come out
+biraz||ein bisschen, etwas|a little
+anlamak||verstehen|to understand
+anne||Mutter, Mama|mother
+gerekmek||nötig sein, müssen|to be necessary
+kız||Mädchen, Tochter|girl, daughter
+hadi||los!, komm schon!|come on!
+gün||Tag|day
+teşekkür||Dank (teşekkür ederim = danke)|thanks
+insan||Mensch|human, person
+son||Ende; letzte(r)|end; last
+hak||Recht, Anrecht|right (entitlement)
+yüz||Gesicht; hundert|face; hundred
+yani||also, das heißt|that is, I mean
+bırakmak||lassen, verlassen, aufhören|to leave, quit
+hayat||Leben|life
+geri||zurück|back
+sormak||fragen|to ask
+sevmek||lieben, mögen|to love, like
+tanrı||Gott (Tanrım! = mein Gott!)|god
+işte||na also; hier; eben|well; here it is
+başka||andere(r), sonst|other
+bile||sogar, selbst|even
+lütfen||bitte|please
+durmak||stehen bleiben, anhalten|to stop, stand
+eğmek|eğer|falls, wenn|if
+doğru||richtig, wahr; Richtung|correct, true
+çünkü||weil, denn|because
+artık||nunmehr, jetzt; (verneint) nicht mehr|from now on; anymore
+bay||Herr (Anrede)|Mr.
+tek||einzig, einzeln|single, only
+zor||schwer, schwierig|difficult
+yol||Weg, Straße|way, road
+el||Hand|hand
+ölmek||sterben|to die
+öldürmek||töten|to kill
+duymak||hören|to hear
+belki||vielleicht|maybe
+başlamak||anfangen, beginnen|to start
+yardım||Hilfe (yardım et! = hilf!)|help
+inmek||aussteigen, hinuntergehen|to get off, descend
+arkadaş||Freund, Freundin|friend
+büyük||groß|big
+gece||Nacht|night
+aramak||suchen; anrufen|to search; to call
+yer||Ort, Platz; Boden|place; ground
+ara||Pause; Zwischenraum (ara sıra = ab und zu)|break; interval
+nere|nerede|wo|where
+adam||Mann, Typ|man, guy
+fazla||zu viel, mehr|too much, excess
+girmek||hineingehen, eintreten|to enter
+dönmek||zurückkehren; sich drehen|to return; to turn
+getirmek||bringen, holen|to bring
+ile||mit; und|with; and
+baş||Kopf; Anfang; Haupt-|head; beginning
+hey||hey|hey
+kötü||schlecht, schlimm|bad
+hiçbir||kein einziger, gar kein|no, none
+ad||Name|name
+kimse||niemand; irgendjemand|nobody; anyone
+ihtiyaç||Bedarf, Bedürfnis (ihtiyacım var = ich brauche)|need
+ilgi||Interesse|interest
+kadın||Frau|woman
+efendi|efendim|wie bitte?; mein Herr (höfliche Anrede)|pardon?; sir
+hep||immer; alle|always; all
+harika||großartig, wunderbar|great, wonderful
+yeni||neu|new
+iz||Spur|trace, track
+tüm||ganz, gesamt, alle|all, whole
+hâlâ||immer noch|still
+gerek||nötig; Notwendigkeit (gerek yok = nicht nötig)|necessary; need
+yaşamak||leben|to live
+on||zehn|ten
+merhaba||hallo|hello
+beklemek||warten; erwarten|to wait; expect
+inanmak||glauben|to believe
+emin||sicher (emin misin? = bist du sicher?)|sure, certain
+herkes||jeder, alle|everyone
+pekâlâ|pekala|na gut, also gut|very well, alright
+karşı||gegen; gegenüber|against; opposite
+bayan||Frau (Anrede), Dame|Ms., lady
+geçmek||vorbeigehen, passieren; bestehen|to pass
+saat||Uhr; Stunde|clock; hour
+durum||Situation, Lage, Zustand|situation
+üzgün||traurig (üzgünüm = es tut mir leid)|sad, sorry
+konu||Thema|topic
+fark||Unterschied (fark etmek = bemerken)|difference
+kullanmak||benutzen, verwenden|to use
+ilk||erste(r), zuerst|first
+bütün||ganz, alle|whole, all
+tam||genau, exakt; vollständig|exact; complete
+dinlemek||zuhören, anhören|to listen
+küçük||klein|small
+dünya||Welt, Erde|world
+yıl||Jahr|year
+alt||unten, Unterseite|bottom, under
+önem||Wichtigkeit (önemli = wichtig; önemli değil = macht nichts)|importance
+araba||Auto|car
+diye||sagend; damit; namens|saying; so that
+hemen||sofort, gleich|immediately
+yan||Seite; neben (yanımda = bei mir)|side
+taraf||Seite, Richtung|side
+görünmek||erscheinen, aussehen|to seem, appear
+aile||Familie|family
+dost||enger Freund, Kumpel|close friend
+ayn|aynı|gleich, derselbe|same
+yaş||Alter; Lebensjahr|age
+göz||Auge|eye
+tabiî|tabii|natürlich, klar|of course
+devam||Fortsetzung (devam et = mach weiter)|continuation
+hepsi||alle, alles davon|all of it
+hissetmek||fühlen|to feel
+az||wenig|little, few
+hoş||nett, angenehm (hoş geldin = willkommen)|pleasant, nice
+dakika||Minute|minute
+kişi||Person|person
+göstermek||zeigen|to show
+şekil||Form; Art und Weise (bu şekilde = auf diese Weise)|shape; way
+olmaz||geht nicht, ausgeschlossen|no way, won't do
+bugün||heute|today
+güç||Kraft, Macht; schwierig|power; hard
+tutmak||halten, festhalten|to hold
+tanımak||kennen (Personen)|to know (a person)
+polis||Polizei, Polizist|police
+birlik|birlikte|zusammen, gemeinsam|together
+hazır||bereit, fertig|ready
+şans||Glück, Chance (iyi şanslar = viel Glück)|luck, chance
+sela|selam|hallo, Gruß|hi, greeting
+para||Geld|money
+diğer||andere(r)|other
+kardeş||Geschwister, Bruder/Schwester|sibling
+özür||Entschuldigung (özür dilerim = es tut mir leid)|apology
+söz||Wort; Versprechen (söz veriyorum = ich verspreche es)|word; promise
+üç||drei|three
+anlatmak||erzählen, erklären|to tell, explain
+bitmek||enden, zu Ende gehen (bitti = es ist vorbei)|to end, finish
+haber||Nachricht|news
+tekrar||nochmal, Wiederholung|again
+göre||laut, gemäß, nach (bana göre = meiner Meinung nach)|according to
+erkek||Mann, männlich|man, male
+oh||oh; puh|oh
+eski||alt (Sachen), ehemalig|old, former
+içeri||hinein, drinnen (içeri gel = komm rein)|inside, in
+hatırlamak||sich erinnern|to remember
+dışarı||hinaus, draußen|outside, out
+öğrenmek||lernen, erfahren|to learn
+can||Leben, Seele (canım = Schatz/Liebling)|life, soul; dear
+unutmak||vergessen|to forget
+görüşmek||sich sehen, sich treffen (görüşürüz = bis dann)|to meet, see each other
+bebek||Baby|baby
+yine||wieder|again
+üzeri||auf, über; Oberseite|on, over
+bence||meiner Meinung nach, ich finde|in my opinion
+haydi||los, komm schon|come on
+kafa||Kopf|head
+orta||Mitte; mittel|middle
+oturmak||sitzen, sich setzen; wohnen|to sit; to live
+an||Moment, Augenblick (şu anda = im Moment)|moment
+sürmek||dauern; fahren; auftragen|to last; to drive
+götürmek||wegbringen, mitnehmen|to take (somewhere)
+çıkarmak||herausnehmen, ausziehen|to take out/off
+oğul||Sohn (oğlum = mein Sohn)|son
+laz|lazım|nötig (bana lazım = ich brauche es)|necessary, needed
+fikir||Idee, Meinung (iyi fikir = gute Idee)|idea, opinion
+tatlı||süß; Nachtisch|sweet; dessert
+bakal|bakalım|mal sehen, schauen wir mal|let's see
+zaten||sowieso, ohnehin|anyway, already
+üst||oben, Oberseite|top, upper
+olay||Ereignis, Vorfall|event, incident
+biri||jemand, einer|someone
+soru||Frage|question
+değişmek||sich ändern|to change
+birkaç||einige, ein paar|a few
+bahsetmek||erwähnen, sprechen von|to mention
+yalnız||allein; einsam; nur|alone; only
+oda||Zimmer|room
+hal||Zustand, Lage|state, condition
+silâh|silah|Waffe|weapon
+doktor||Arzt, Ärztin|doctor
+geçirmek||verbringen; durchmachen|to spend (time)
+telefon||Telefon|phone
+sağ||rechts; am Leben (sağ ol = danke)|right; alive
+korkmak||Angst haben, sich fürchten|to be afraid
+hafta||Woche|week
+ay||Monat; Mond|month; moon
+kaybetmek||verlieren|to lose
+yazmak||schreiben|to write
+ön||Vorderseite, vorne|front
+kesmek||schneiden, abschneiden (kes şunu! = hör auf damit!)|to cut
+açmak||öffnen, aufmachen; einschalten|to open; turn on
+lanet||verflucht (lanet olsun = verdammt!)|damned
+kaç||wie viele|how many
+mutlu||glücklich|happy
+karar||Entscheidung (karar vermek = entscheiden)|decision
+arka||Rückseite, hinten|back, rear
+koymak||stellen, legen, setzen|to put
+ses||Stimme; Geräusch, Ton|voice; sound
+oynamak||spielen|to play
+aptal||dumm; Idiot|stupid; idiot
+uzak||weit, fern (uzak dur = bleib fern)|far
+kontrol||Kontrolle (kontrol etmek = überprüfen)|control, check
+su||Wasser|water
+düş||Traum|dream
+çekmek||ziehen; ertragen; fotografieren|to pull; to endure; to shoot (photo)
+tane||Stück (Zählwort: iki tane = zwei Stück)|piece (counter)
+fakat||aber, jedoch|but, however
+kesinlikle||auf jeden Fall, definitiv|definitely
+yalan||Lüge (yalan söyleme = lüg nicht)|lie
+açık||offen; hell; klar|open; light; clear
+rahat||bequem, entspannt (rahat bırak = lass in Ruhe)|comfortable
+kaçmak||fliehen, weglaufen|to escape, flee
+gelecek||Zukunft; kommend|future
+ders||Unterricht, Lektion|lesson
+vurmak||schlagen; schießen, treffen|to hit; to shoot
+dikkat||Achtung, Aufmerksamkeit (dikkat et = pass auf)|attention
+okul||Schule|school
+izlemek||zuschauen, verfolgen|to watch
+at||Pferd|horse
+yarın||morgen|tomorrow
+ayrı||getrennt, verschieden|separate
+niye||warum, wieso|why
+kabul||Annahme (kabul etmek = akzeptieren)|acceptance
+yanlış||falsch; Fehler|wrong
+atmak||werfen; wegwerfen|to throw
+kurtarmak||retten|to save, rescue
+boy||Körpergröße, Länge|height, size
+aman||oh je!; bloß (aman Tanrım = oh mein Gott)|oh dear
+hava||Wetter; Luft|weather; air
+sabah||Morgen|morning
+birşey|bir şey|etwas|something
+kez||Mal (bir kez = einmal)|time (occurrence)
+koca||Ehemann; riesig|husband; huge
+denemek||versuchen, ausprobieren|to try
+elbette||selbstverständlich, natürlich|certainly
+geç||spät (geç kaldım = ich bin zu spät)|late
+tanışmak||sich kennenlernen (memnun oldum = freut mich)|to meet (first time)
+yakalamak||fangen, erwischen|to catch
+savaş||Krieg|war
+falan||und so weiter, oder so|and so on, or something
+yetmek||genügen, reichen (yeter = es reicht)|to suffice
+göndermek||schicken, senden|to send
+hem||sowohl; außerdem (hem de = und auch)|both; also
+özel||besonders; privat|special; private
+dış||Außenseite, außen|outside, exterior
+numara||Nummer|number
+kazanmak||gewinnen, verdienen|to win, earn
+akşam||Abend|evening
+düşmek||fallen|to fall
+ateş||Feuer; Fieber (ateş etmek = schießen)|fire; fever
+sakin||ruhig, gelassen (sakin ol = beruhig dich)|calm
+yürümek||laufen, gehen|to walk
+anlaşmak||sich einigen (anlaştık = abgemacht)|to agree
+kapı||Tür|door
+hangi||welche(r)|which
+kalp||Herz|heart
+aşk||Liebe (aşkım = mein Schatz)|love
+merak||Neugier; Sorge (merak etme = keine Sorge)|curiosity; worry
+vakit||Zeit (Zeitpunkt)|time
+akıl||Verstand, Vernunft|mind, reason
+okumak||lesen; studieren|to read; to study
+beri||seit (-den beri = seitdem)|since
+görev||Aufgabe, Mission, Dienst|task, mission
+film||Film|movie
+dolmak||sich füllen, voll werden|to fill up
+anlam||Bedeutung (ne anlama geliyor? = was bedeutet das?)|meaning
+şehir||Stadt|city
+dün||gestern|yesterday
+ödemek||bezahlen|to pay
+parça||Stück, Teil|piece, part
+ciddi||ernst, ernsthaft (ciddi misin? = ist das dein Ernst?)|serious
+ah||ach, oh|ah
+bey||Herr (nach dem Vornamen: Ali Bey)|Mr., sir
+ayrılmak||sich trennen, weggehen|to leave, separate
+hareket||Bewegung; Abfahrt (hareket etmek = sich bewegen)|movement
+genç||jung; Jugendliche(r)|young
+affetmek||verzeihen (affedersiniz = Entschuldigung)|to forgive
+birbiri||einander, gegenseitig|each other
+aşağı||nach unten, unten|down
+sebep||Grund, Ursache|reason
+korumak||schützen, beschützen|to protect
+güvenmek||vertrauen (sana güveniyorum = ich vertraue dir)|to trust
+parti||Party; Partei|party
+cevap||Antwort (cevap vermek = antworten)|answer
+davranmak||sich verhalten, behandeln|to behave
+beş||fünf|five
+hata||Fehler (hata yaptım = ich habe einen Fehler gemacht)|mistake
+kolay||einfach, leicht (kolay gelsin = frohes Schaffen)|easy
+gülmek||lachen|to laugh
+yakın||nah; Nähe|near, close
+ölü||tot; Tote(r)|dead
+içmek||trinken; rauchen|to drink; to smoke
+nefret||Hass (nefret ediyorum = ich hasse es)|hatred
+geçen||vergangen, letzte(r) (geçen hafta = letzte Woche)|last, past
+sahip||Besitzer (sahip olmak = besitzen)|owner
+sanki||als ob, gleichsam|as if
+yardımcı||Helfer, Assistent (yardımcı olmak = helfen)|helper, assistant
+plan||Plan|plan
+aç||hungrig (açım = ich habe Hunger)|hungry
+umar|umarım|hoffentlich, ich hoffe|hopefully, I hope
+top||Ball|ball
+bilgi||Wissen, Information|knowledge, information
+çalmak||stehlen; (Instrument) spielen; klingeln|to steal; to play (music); to ring
+beraber||zusammen|together
+veya||oder|or
+çabuk||schnell, rasch (çabuk ol = beeil dich)|quick
+kitap||Buch|book
+yerine||anstatt, anstelle von|instead of
+evlenmek||heiraten|to marry
+yatmak||sich hinlegen, ins Bett gehen|to lie down, go to bed
+isim||Name (ismin ne? = wie heißt du?)|name
+benzemek||ähneln, aussehen wie|to resemble
+dört||vier|four
+suç||Schuld; Straftat (benim suçum = meine Schuld)|fault; crime
+tamamen||völlig, komplett|completely
+oldukça||ziemlich, recht|quite
+kalkmak||aufstehen; abfahren|to get up; to depart
+bulunmak||sich befinden, vorhanden sein|to be located
+işlemek||begehen (Verbrechen); verarbeiten|to commit; to process
+hikâye|hikaye|Geschichte, Erzählung|story
+sevgili||Liebling, Freund/Freundin; lieb|darling, sweetheart
+tehlike||Gefahr (tehlikede = in Gefahr)|danger
+halletmek||erledigen, regeln (hallederim = ich regel das)|to sort out, handle
+sorun||Problem (sorun değil = kein Problem)|problem
+sefer||Mal; Fahrt (bu sefer = diesmal)|time, trip
+hayal||Traum, Fantasie (hayal etmek = sich vorstellen)|dream, imagination
+ölüm||Tod|death
+herif||Kerl, Typ (abwertend)|guy, bloke
+başkan||Präsident, Vorsitzender|president, chairman
+saniye||Sekunde|second
+resim||Bild, Foto|picture
+kapatmak||schließen; ausschalten; auflegen|to close; turn off; hang up
+eş||Ehepartner(in)|spouse
+çekilmek||sich zurückziehen (çekil! = geh weg!)|to withdraw
+bitirmek||beenden, fertigmachen|to finish
+herşey|her şey|alles|everything
+kaçırmak||verpassen; entführen|to miss; to kidnap
+süre||Dauer, Zeitraum|duration
+köpek||Hund|dog
+cinayet||Mord|murder
+yatak||Bett|bed
+sikmek||ficken (vulgär)|to fuck (vulgar)
+bazen||manchmal|sometimes
+ise||hingegen, aber; wenn|whereas; if
+ancak||jedoch; nur, erst|however; only
+hızlı||schnell|fast
+acı||Schmerz; bitter; scharf|pain; bitter; spicy
+takip||Verfolgung (takip etmek = folgen)|following, pursuit
+sağlamak||gewährleisten, sicherstellen|to provide, ensure
+henüz||noch (nicht), gerade erst|yet, just
+mükemmel||perfekt, ausgezeichnet|perfect
+etraf||Umgebung (etrafında = ringsherum)|surroundings
+gizli||geheim, versteckt|secret
+tür||Art, Sorte|kind, type
+dans||Tanz (dans etmek = tanzen)|dance
+seks||Sex|sex
+sıra||Reihe; Reihenfolge (sıra sende = du bist dran)|queue; turn
+kahretmek||verdammen (kahretsin! = verdammt!)|to damn (kahretsin! = damn it!)
+sonuç||Ergebnis, Resultat (sonuçta = letztendlich)|result
+boş||leer; frei (boş ver = vergiss es)|empty; free
+varmak||ankommen, erreichen|to arrive
+endişelenmek||sich sorgen (endişelenme = mach dir keine Sorgen)|to worry
+deli||verrückt; Verrückte(r)|crazy
+uyumak||schlafen|to sleep
+hoşlanmak||mögen, gefallen (senden hoşlanıyorum = ich mag dich)|to like
+üzere||um zu; im Begriff zu|in order to; about to
+eğlence||Spaß, Unterhaltung|fun, entertainment
+satmak||verkaufen|to sell
+neredeyse||fast, beinahe|almost
+muhtemelen||wahrscheinlich|probably
+acele||Eile (acele et = beeil dich)|hurry
+dek||bis (-e dek = bis zu)|until
+garip||seltsam, merkwürdig|strange
+şaka||Witz, Scherz (şaka yapıyorum = ich mache nur Spaß)|joke
+yukarı||nach oben, oben|up
+ikinci||zweite(r)|second (ordinal)
+herhangi||irgendein|any
+yeniden||erneut, von neuem|again, anew
+doğu||Osten|east
+bin||tausend|thousand
+katılmak||teilnehmen, beitreten; zustimmen|to join; to agree
+vay||wow, oha (vay canına = Wahnsinn)|wow
+neden||warum; Grund|why; reason
+şura|şurada|da drüben, dort|over there
+asker||Soldat; Militär|soldier
+evlât|evlat|Kind (mein Junge/Mädchen)|child, son
+güvenlik||Sicherheit|security
+komik||lustig, witzig|funny
+katil||Mörder|murderer
+kulak||Ohr|ear
+mesaj||Nachricht (SMS etc.)|message
+giymek||anziehen, tragen (Kleidung)|to wear, put on
+dolu||voll|full
+saymak||zählen; halten für|to count
+ilişki||Beziehung|relationship
+kat||Stockwerk, Etage; Schicht|floor, storey
+ülke||Land, Staat|country
+seçmek||wählen, aussuchen|to choose
+çağırmak||rufen, herbeirufen; einladen|to call (someone over)
+alo||hallo (am Telefon)|hello (phone)
+ait||gehörend (bana ait = gehört mir)|belonging to
+şirket||Firma, Unternehmen|company
+bölge||Gebiet, Region|region
+hastane||Krankenhaus|hospital
+kayıt||Aufnahme, Registrierung, Eintrag|record, registration
+uymak||passen zu; sich halten an|to fit, comply
+çeviri||Übersetzung|translation
+emir||Befehl|order, command
+galiba||wahrscheinlich, wohl, glaube ich|probably, I guess
+yüksek||hoch|high
+normal||normal|normal
+memnun||zufrieden, erfreut (memnun oldum = freut mich)|pleased
+kısa||kurz|short
+patron||Chef|boss
+uygun||passend, geeignet|suitable
+yarı||Hälfte, halb (yarısı = die Hälfte)|half
+sevinmek||sich freuen|to be glad
+ruh||Seele, Geist|soul, spirit
+kral||König|king
+geçmiş||Vergangenheit (geçmiş olsun = gute Besserung)|past
+durdurmak||anhalten, stoppen (etwas)|to stop (something)
+amerika|Amerika|Amerika|America
+çene||Kinn; Kiefer (çeneni kapa = halt den Mund)|chin, jaw
+tahmin||Vermutung, Schätzung (tahmin et = rate mal)|guess
+kesin||sicher, definitiv|certain
+dert||Kummer, Sorge, Problem (derdin ne? = was ist dein Problem?)|trouble, worry
+ağız||Mund|mouth
+başarmak||schaffen, erfolgreich sein (başardık = wir haben's geschafft)|to succeed
+hatta||sogar|even
+kusur||Fehler, Makel (kusura bakma = nimm's nicht übel)|flaw
+değmek||wert sein; berühren (değer mi? = lohnt es sich?)|to be worth; to touch
+içki||alkoholisches Getränk|alcoholic drink
+peşin|peşinde|hinterher, auf den Fersen|after, in pursuit
+ana||Haupt-; Mutter|main; mother
+bağ||Verbindung, Band|bond, tie
+acaba||ob wohl ...?, ich frage mich|I wonder
+sürekli||ständig, dauernd|constantly
+uçak||Flugzeug|airplane
+fotoğraf||Foto|photo
+sır||Geheimnis|secret
+tuhaf||seltsam, komisch|weird
+teklif||Angebot, Vorschlag (teklif etmek = vorschlagen)|offer, proposal
+terk||Verlassen (terk etmek = verlassen)|(terk etmek = to abandon)
+buluşmak||sich treffen|to meet up
+merkez||Zentrum, Zentrale|center
+müzik||Musik|music
+beyaz||weiß|white
+kurban||Opfer|victim
+kol||Arm|arm
+korkunç||schrecklich, furchtbar|terrible
+patlamak||explodieren, platzen|to explode
+duygu||Gefühl|feeling
+yeterince||genug, ausreichend|enough
+kurtulmak||entkommen, loswerden|to escape, get rid of
+ceset||Leiche|corpse
+sistem||System|system
+milyon||Million|million
+kaldırmak||hochheben; wegräumen|to lift; remove
+değer||Wert; wert|value
+mümkün||möglich (mümkün değil = unmöglich)|possible
+günaydın||guten Morgen|good morning
+kaybolmak||verloren gehen, verschwinden (kaybol! = verschwinde!)|to get lost
+sokak||Straße, Gasse|street
+nokta||Punkt|point, dot
+şüphe||Zweifel, Verdacht|doubt, suspicion
+yavaş||langsam|slow
+sıcak||heiß, warm|hot
+bell|belli|offensichtlich, klar (belli değil = unklar)|obvious, evident
+takmak||anstecken, aufsetzen; (takma kafana = mach dir nichts draus)|to attach, wear
+büyümek||wachsen, aufwachsen|to grow (up)
+sessiz||leise, still|quiet
+aynen||genau, ganz genau|exactly
+masa||Tisch|table
+yıldız||Stern; Star|star
+gemi||Schiff|ship
+ajan||Agent|agent
+berbat||furchtbar, mies|awful
+ulaşmak||erreichen, ankommen|to reach
+ofis||Büro|office
+karışmak||sich einmischen; durcheinandergeraten|to interfere; get mixed up
+bok||Scheiße (vulgär)|shit (vulgar)
+ışık||Licht|light
+hayvan||Tier|animal
+kahve||Kaffee|coffee
+kural||Regel|rule
+avukat||Anwalt, Anwältin|lawyer
+kayıp||verloren; Verlust; vermisst|lost; loss
+dikkatli||vorsichtig, aufmerksam (dikkatli ol = pass auf)|careful
+ortak||Partner; gemeinsam|partner; common
+temiz||sauber|clean
+pislik||Dreck; Mistkerl|filth; scumbag
+kızmak||sich ärgern, wütend werden (bana kızma = sei mir nicht böse)|to get angry
+açıklamak||erklären, erläutern|to explain
+taş||Stein|stone
+millet||Volk; Leute|nation; people
+şöyle||so, folgendermaßen|like this/that
+koşmak||rennen, laufen|to run
+anahtar||Schlüssel|key
+parmak||Finger|finger
+balık||Fisch|fish
+hediye||Geschenk|gift
+âşık|aşık|verliebt (âşık olmak = sich verlieben)|in love
+dalga||Welle (dalga geçmek = sich lustig machen)|wave; (dalga geçmek = to mock)
+nefes||Atem (nefes al = atme)|breath
+sokmak||hineinstecken; stechen|to insert; to sting
+ayak||Fuß|foot
+saklamak||verstecken; aufbewahren|to hide; to keep
+hazırlamak||vorbereiten, zubereiten|to prepare
+doğmak||geboren werden; aufgehen (Sonne)|to be born; to rise
+noel|Noel|Weihnachten|Christmas
+dokunmak||berühren, anfassen (dokunma! = nicht anfassen!)|to touch
+taşımak||tragen, transportieren|to carry
+hapis||Gefängnis(strafe)|prison
+suçlu||schuldig; Täter|guilty; culprit
+çevirmek||drehen, wenden; übersetzen|to turn; to translate
+çift||Paar; doppelt|pair, couple
+umur||Belang (umurumda değil = ist mir egal)|concern (umurumda değil = I don't care)
+cehennem||Hölle (cehenneme git = fahr zur Hölle)|hell
+yaramak||nützen, guttun (işe yaramaz = nutzlos)|to be of use
+oyun||Spiel|game
+yaklaşmak||sich nähern, näherkommen|to approach
+dair||bezüglich, über|regarding
+çoğu||die meisten|most of
+park||Park; Parken (park etmek = parken)|park
+araştırmak||erforschen, untersuchen, recherchieren|to research, investigate
+sınıf||Klasse|class
+kaza||Unfall (kaza geçirdim = ich hatte einen Unfall)|accident
+özlemek||vermissen (seni özledim = ich vermisse dich)|to miss (someone)
+ummak||hoffen|to hope
+imkân|imkan|Möglichkeit (imkânı yok = unmöglich)|possibility
+tarih||Geschichte; Datum|history; date
+asıl||eigentlich, wahr; Original|actual, real
+kısım||Teil, Abschnitt|part, section
+başarı||Erfolg (başarılar! = viel Erfolg!)|success
+allah|Allah|Gott, Allah (Allah'ım = mein Gott)|God
+pardo|pardon|Entschuldigung, Verzeihung|pardon, excuse me
+bayılmak||in Ohnmacht fallen; (bayılıyorum = ich liebe es)|to faint; to adore
+kurmak||aufbauen, gründen; (Falle) stellen|to set up, found
+rüya||Traum (rüya görmek = träumen)|dream
+vücut||Körper|body
+saç||Haar|hair
+keşke||wenn doch nur ..., schade|if only
+yaşam||Leben|life
+kart||Karte|card
+güneş||Sonne|sun
+yetenek||Talent, Fähigkeit|talent
+saygı||Respekt (saygı duymak = respektieren)|respect
+etkilemek||beeindrucken, beeinflussen|to impress, influence
+kutu||Schachtel, Kiste, Box|box
+saldırı||Angriff|attack
+basit||einfach, simpel|simple
+kan||Blut|blood
+sağolmak|sağ olmak|danke (sağ ol = danke dir)|thanks (sağ ol)
+sol||links|left
+öğle||Mittag (öğle yemeği = Mittagessen)|noon
+dedektif||Detektiv, Ermittler|detective
+kıç||Hintern, Arsch|butt, ass
+yeterli||ausreichend, genug|sufficient
+muhteşem||großartig, prächtig|magnificent
+bağlantı||Verbindung|connection
+herhâlde|herhalde|wahrscheinlich, vermutlich|probably
+suçlamak||beschuldigen|to accuse
+program||Programm|program
+derece||Grad; Stufe|degree
+fırsat||Gelegenheit, Chance|opportunity
+ifade||Aussage; Ausdruck (ifade vermek = aussagen)|statement; expression
+yakmak||anzünden, verbrennen; (Licht) anmachen|to burn, light
+mektup||Brief|letter
+görünüş||Aussehen, Erscheinung|appearance
+yolcu||Passagier, Reisender|passenger
+otel||Hotel|hotel
+dayanmak||aushalten, ertragen; sich stützen|to endure; to lean
+ağlamak||weinen (ağlama = wein nicht)|to cry
+şaşırmak||überrascht sein, staunen|to be surprised
+saçma||Unsinn, Quatsch (saçmalama = red keinen Unsinn)|nonsense
+güven||Vertrauen|trust
+donmak||frieren, gefrieren|to freeze
+yaratmak||erschaffen|to create
+sinir||Nerv (sinirlenmek = wütend werden)|nerve
+ilâç|ilaç|Medikament, Medizin|medicine
+karanlık||Dunkelheit, dunkel|darkness, dark
+kavga||Streit, Schlägerei (kavga etmek = sich streiten)|fight
+izin||Erlaubnis; Urlaub (izin ver = erlaube / lass mich)|permission; leave
+ufak||klein, winzig|small, tiny
+ağır||schwer (Gewicht); langsam|heavy
+dürüst||ehrlich|honest
+çanta||Tasche|bag
+belâ|bela|Ärger, Unglück (başım belada = ich stecke in Schwierigkeiten)|trouble
+kamera||Kamera|camera
+yedi||sieben|seven
+amca||Onkel; Anrede für ältere Männer|uncle
+kanıt||Beweis|evidence, proof
+şef||Chef; Küchenchef|chief; chef
+ilginç||interessant|interesting
+cidden||ernsthaft, im Ernst|seriously
+düşman||Feind|enemy
+gayet||sehr, durchaus|quite, very
+yıldır||seit ... Jahren (üç yıldır = seit drei Jahren)|for ... years
+zavallı||arm, bedauernswert (zavallı adam = der arme Mann)|poor (pitiable)
+toplantı||Besprechung, Meeting, Versammlung|meeting
+birçok||viele, zahlreiche|many
+duvar||Wand, Mauer|wall
+çözmek||lösen|to solve
+yollamak||schicken|to send
+tıpkı||genau wie|just like
+soğuk||kalt|cold
+rapor||Bericht|report
+defa||Mal (bir defa = einmal)|time (occurrence)
+mal||Ware, Besitz; (ugs.) Idiot|goods; (slang) idiot
+karı||Ehefrau (ugs.); Weib|wife (colloquial)
+acil||dringend; Notfall (acil servis = Notaufnahme)|urgent; emergency
+uyanmak||aufwachen (uyan! = wach auf!)|to wake up
+oluşmak||entstehen, sich bilden|to form, occur
+çılgın||verrückt, wild|crazy
+ileri||vorwärts, voraus; fortgeschritten|forward, ahead
+elbise||Kleid, Kleidung|dress, clothes
+ordu||Armee|army
+kırmak||brechen, zerbrechen; kränken|to break; to hurt (feelings)
+gurur||Stolz (gurur duyuyorum = ich bin stolz)|pride
+halk||Volk, Bevölkerung|people, public
+zeki||klug, intelligent|smart
+şeref||Ehre (şerefe! = Prost!)|honor (şerefe! = cheers!)
+amaç||Ziel, Zweck|goal, purpose
+eşya||Sachen, Gegenstände|belongings, stuff
+bilgisayar||Computer|computer
+uçmak||fliegen|to fly
+bina||Gebäude|building
+fena||schlimm, übel (fena değil = nicht schlecht)|bad (fena değil = not bad)
+ceza||Strafe|punishment
+bacak||Bein|leg
+bölüm||Abteilung; Folge (Serie); Kapitel|section; episode
+davet||Einladung (davet etmek = einladen)|invitation
+beğenmek||gefallen, mögen (beğendin mi? = gefällt es dir?)|to like
+ihtimal||Wahrscheinlichkeit, Möglichkeit|probability
+üzülmek||traurig sein (üzülme = sei nicht traurig)|to be sad
+kaynak||Quelle|source
+toplamak||sammeln, aufsammeln; aufräumen|to collect
+evlilik||Ehe|marriage
+alman|Alman|Deutscher, deutsch|German
+uğramak||vorbeischauen, kurz besuchen|to drop by
+üniversite||Universität|university
+korkutmak||erschrecken, Angst machen (beni korkuttun = du hast mich erschreckt)|to scare
+zevk||Vergnügen, Genuss (zevkle = mit Vergnügen)|pleasure
+ayarlamak||einstellen; organisieren|to adjust; arrange
+takılmak||abhängen, rumhängen; hängen bleiben|to hang out; get stuck
+tercih||Vorliebe, Wahl (tercih etmek = bevorzugen)|preference
+bağlamak||binden, festbinden; verbinden|to tie, connect
+özellikle||besonders, vor allem|especially
+sıkmak||drücken, pressen; langweilen (canımı sıkma = nerv mich nicht)|to squeeze; to bore
+yanmak||brennen, verbrennen|to burn
+problem||Problem|problem
+dava||Prozess, Gerichtsverfahren; Sache|lawsuit; cause
+uzay||Weltraum|space
+rağmen||trotz (buna rağmen = trotzdem)|despite
+risk||Risiko|risk
+kuş||Vogel|bird
+test||Test|test
+umut||Hoffnung|hope
+hesap||Rechnung; Konto (hesabı alabilir miyim? = die Rechnung, bitte)|bill; account
+yön||Richtung|direction
+uyuşturmak|uyuşturucu|Droge, Rauschgift|drug, narcotic
+uğraşmak||sich abmühen, sich beschäftigen mit (benimle uğraşma = leg dich nicht mit mir an)|to struggle with
+mantık||Logik (mantıklı = logisch, sinnvoll)|logic
+hedef||Ziel|target
+daire||Wohnung; Kreis|apartment; circle
+liste||Liste|list
+hastalık||Krankheit|illness
+lan||ey, Alter (derb)|dude, man (rude)
+etki||Wirkung, Einfluss|effect
+ağaç||Baum|tree
+meşgul||beschäftigt; besetzt|busy
+his||Gefühl (hislerim = meine Gefühle)|feeling
+öğrenci||Schüler, Student|student
+olası||möglich, wahrscheinlich|possible, likely
+şeytan||Teufel|devil
+iğrenç||ekelhaft, widerlich|disgusting
+ziyaret||Besuch (ziyaret etmek = besuchen)|visit
+heyecan||Aufregung (heyecanlıyım = ich bin aufgeregt)|excitement
+kara||schwarz; Festland|black; land
+bira||Bier|beer
+ekip||Team|team
+maç||Spiel, Match (Sport)|match (sports)
+buyurmak||(buyurun = bitte sehr / treten Sie ein)|(buyurun = here you go, please)
+süper||super|super
+şeker||Zucker; Süßigkeit; süß (Person)|sugar; candy
+takım||Team, Mannschaft; Anzug; Satz|team; suit; set
+susmak||schweigen, still sein (sus! = sei still!)|to be quiet
+destek||Unterstützung|support
+sert||hart, streng|hard, tough
+ters||verkehrt, falsch herum (ters gitti = ist schiefgelaufen)|reverse, wrong way
+sanat||Kunst|art
+kırmız|kırmızı|rot|red
+canlı||lebendig, lebend; live|alive; live
+deri||Haut; Leder|skin; leather
+tren||Zug|train
+harcamak||ausgeben, verbrauchen|to spend
+müşteri||Kunde|customer
+cep||Hosentasche (cep telefonu = Handy)|pocket; (cep telefonu = mobile)
+memur||Beamter, Angestellter|official, officer
+gazete||Zeitung|newspaper
+korku||Angst, Furcht|fear
+banka||Bank (Geldinstitut)|bank
+dosya||Akte, Datei|file
+basmak||drücken (Knopf); treten auf|to press
+alaka||Zusammenhang, Interesse (alakası yok = hat nichts damit zu tun)|relevance
+gösteri||Show, Vorstellung; Demonstration|show
+hanımefendi||gnädige Frau, Dame|madam, lady
+tat||Geschmack|taste
+borç||Schulden (borç vermek = Geld leihen)|debt
+tedavi||Behandlung, Therapie|treatment
+bazı||einige, manche|some
+çıkartmak||herausnehmen, entfernen|to take out, remove
+çiçek||Blume|flower
+saçmalık||Unsinn, Blödsinn|nonsense
+sarhoş||betrunken|drunk
+kenar||Rand, Kante (kenara çek = fahr rechts ran)|edge
+ayakkabı||Schuh|shoe
+yiyecek||Essen, Lebensmittel|food
+teslim||Übergabe (teslim ol = ergib dich)|delivery; surrender
+çeşit||Sorte, Art|variety, kind
+kimlik||Ausweis; Identität|ID; identity
+saye|sayesinde|dank (senin sayende = dank dir)|thanks to
+yaban|yabancı|fremd; Fremder, Ausländer|foreign; stranger
+hasta||krank; Patient|sick; patient
+kedi||Katze|cat
+tuvalet||Toilette|toilet
+renk||Farbe|color
+sahne||Bühne; Szene|stage; scene
+kelime||Wort|word
+salak||dumm, Trottel|stupid, moron
+derin||tief|deep
+defolmak||abhauen, verschwinden (defol! = hau ab!)|to get lost (defol! = get lost!)
+not||Note; Notiz (not almak = notieren)|grade; note
+tanık||Zeuge|witness
+siyah||schwarz|black
+kahraman||Held|hero
+sık||oft, häufig (sık sık = sehr oft); dicht|often; dense
+eğlenmek||sich amüsieren, Spaß haben (iyi eğlenceler = viel Spaß)|to have fun
+indirmek||herunterlassen, absetzen; herunterladen|to lower; to download
+kâğıt|kağıt|Papier|paper
+temizlemek||putzen, säubern|to clean
+işaret||Zeichen, Signal|sign, signal
+örnek||Beispiel (örneğin = zum Beispiel)|example
+beyin||Gehirn|brain
+grup||Gruppe|group
+öğretmek||beibringen, lehren|to teach
+kurt||Wolf; Wurm|wolf; worm
+kıyafet||Kleidung, Outfit|clothing, outfit
+gezegen||Planet|planet
+orospu||Hure (vulgär; orospu çocuğu = Hurensohn)|whore (vulgar)
+kuzey||Norden|north
+üye||Mitglied|member
+meselâ|mesela|zum Beispiel|for example
+öğretmen||Lehrer, Lehrerin|teacher
+abi||großer Bruder; Kumpel-Anrede (abi = Bruder/Alter)|big brother; bro
+seçenek||Option, Auswahlmöglichkeit|option
+orman||Wald|forest
+hırsız||Dieb|thief
+ameliyat||Operation (ameliyat olmak = operiert werden)|surgery
+evli||verheiratet|married
+kalın||dick (Gegenstände)|thick
+kırık||kaputt, gebrochen|broken
+planlamak||planen|to plan
+savaşmak||kämpfen|to fight (war)
+ikna||Überzeugung (ikna etmek = überzeugen)|persuasion (ikna etmek = to convince)
+randevu||Termin, Verabredung|appointment, date
+güney||Süden|south
+tehdit||Drohung (tehdit etmek = drohen)|threat
+buz||Eis (gefroren)|ice
+yarım||halb (yarım saat = eine halbe Stunde)|half
+uyku||Schlaf (uykum var = ich bin müde)|sleep
+sekiz||acht|eight
+tarz||Stil, Art|style
+dua||Gebet (dua etmek = beten)|prayer
+kasaba||Kleinstadt|town
+sağlık||Gesundheit|health
+serbest||frei, freigelassen (serbestsin = du kannst gehen)|free
+general||General|general
+canavar||Monster, Ungeheuer|monster
+televizyon||Fernseher, Fernsehen|television
+yazık||schade (ne yazık ki = leider)|pity (ne yazık ki = unfortunately)
+itiraf||Geständnis (itiraf et = gib es zu)|confession
+üçüncü||dritte(r)|third
+dükkân|dükkan|Laden, Geschäft|shop
+diş||Zahn|tooth
+benimki||meiner, meins|mine
+şarkı||Lied (şarkı söylemek = singen)|song
+eğitim||Bildung, Ausbildung|education
+dönüşmek||sich verwandeln in|to turn into
+makine||Maschine|machine
+toprak||Erde, Boden; Land|soil, land
+birinci||erste(r)|first (ordinal)
+yarar||Nutzen (ne yararı var? = was bringt das?)|benefit
+şarap||Wein|wine
+pazar||Sonntag; Markt|Sunday; market
+hizmet||Dienst, Service|service
+bahis||Wette (bahse girerim = ich wette)|bet
+delik||Loch|hole
+sevgi||Liebe, Zuneigung|love, affection
+hiçbiri||keine(r) davon|none of them
+hamil|hamile|schwanger|pregnant
+zeng|zengin|reich|rich
+aferin||bravo, gut gemacht|well done
+endişe||Sorge, Besorgnis|worry, anxiety
+sürpriz||Überraschung|surprise
+ekmek||Brot|bread
+mahvetmek||ruinieren, zerstören (mahvoldum = ich bin erledigt)|to ruin
+dâhil|dahil|inbegriffen, einschließlich|included
+ilerlemek||vorankommen, fortschreiten|to advance
+koku||Geruch, Duft|smell
+mavi||blau|blue
+kızgın||wütend, sauer|angry
+niçin||warum, wozu|why
+düşünce||Gedanke|thought
+çay||Tee|tea
+bar||Bar, Kneipe|bar
+öte||jenseits, drüben (öte yandan = andererseits)|beyond
+ödül||Belohnung, Preis|reward, prize
+saldırmak||angreifen|to attack
+özgür||frei (özgürlük = Freiheit)|free
+sorumlu||verantwortlich|responsible
+dolaşmak||herumlaufen, spazieren, bummeln|to wander, stroll
+ahbap||Kumpel, Alter|buddy, pal
+yaklaşık||ungefähr, circa|approximately
+cesaret||Mut|courage
+tartışmak||diskutieren, streiten|to argue, discuss
+servis||Service; Shuttle; Bedienung|service
+kimi||manche; wen|some (people); whom
+aşırı||übermäßig, extrem|excessive
+rica||Bitte (rica ederim = gern geschehen)|request (rica ederim = you're welcome)
+rol||Rolle|role
+sigar|sigara|Zigarette (sigara içmek = rauchen)|cigarette
+bağırmak||schreien, rufen (bağırma = schrei nicht)|to shout
+yağmur||Regen (yağmur yağıyor = es regnet)|rain
+adres||Adresse|address
+şükür||Dank (çok şükür = Gott sei Dank)|gratitude (çok şükür = thank God)
+lise||Gymnasium, Oberschule|high school
+yüzbaşı||Hauptmann|captain (military)
+sunmak||präsentieren, anbieten|to present, offer
+bilet||Ticket, Fahrkarte|ticket
+salon||Wohnzimmer; Saal|living room; hall
+yo||nö, nein|nope
+laf||Gerede, Wort (laf aramızda = unter uns gesagt)|talk, word
+huzur||innere Ruhe, Frieden|peace (of mind)
+kanıtlamak||beweisen|to prove
+dilemek||wünschen (özür dilerim = ich entschuldige mich)|to wish
+kokmak||riechen (nach) (güzel kokuyor = riecht gut)|to smell
+tavsiye||Empfehlung, Rat (tavsiye ederim = ich empfehle)|advice
+yanılmak||sich irren (yanılıyorsun = du irrst dich)|to be mistaken
+ayırmak||trennen; reservieren|to separate; reserve
+kapalı||geschlossen, zu; bedeckt|closed
+alınmak||beleidigt sein, es persönlich nehmen (alınma = nimm's nicht persönlich)|to take offense
+piç||Bastard (vulgär)|bastard (vulgar)
+tip||Typ, Erscheinung|type, look
+sahte||gefälscht, falsch|fake
+dağ||Berg|mountain
+söylenmek||meckern, vor sich hin schimpfen|to grumble
+dil||Sprache; Zunge|language; tongue
+devlet||Staat|state, government
+önceden||im Voraus, vorher|beforehand
+benzer||ähnlich|similar
+göğüs||Brust|chest
+gözükmek||erscheinen, aussehen|to appear
+birazdan||gleich, in Kürze|in a moment
+bahçe||Garten|garden
+sınır||Grenze|border, limit
+tatil||Urlaub, Ferien|vacation
+hani||wo ist denn ...?; weißt du noch|where is ...?; remember?
+rahatlamak||sich entspannen, erleichtert sein|to relax
+kişisel||persönlich|personal
+enerji||Energie|energy
+kutsal||heilig|holy
+değişik||anders, verschieden; ungewöhnlich|different
+uç||Spitze, Ende; Rand|tip, end
+itmek||schieben, drücken|to push
+metre||Meter|meter
+niyet||Absicht|intention
+kahrolası||verdammt, verflucht|damn, cursed
+surat||Gesicht, Miene (surat asma = zieh kein Gesicht)|face (sullen)
+kale||Burg, Festung; Tor (Fußball)|castle; goal
+amerikan|Amerikan|amerikanisch|American
+öpmek||küssen|to kiss
+bayağı||ziemlich, ganz schön|quite, pretty
+bıçak||Messer|knife
+mahkeme||Gericht|court
