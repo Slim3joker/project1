@@ -218,6 +218,8 @@ button { font: inherit; color: inherit; border: none; background: none; cursor: 
 .wrow .status.s-learn { background: #1f3a52; color: #7cc4ff; }
 .wrow .status.s-master { background: #234a35; color: #7ee2ae; }
 .wrow .status.s-known { background: #3d3555; color: #c9bfe8; }
+.wrow .status.s-shaky { background: #43305f; color: #cfa6ff; }
+.mbtn .badge.shaky { background: #7c5cd6; }
 .wrow .knownbtn { font-size: 1.15rem; opacity: 0.5; padding: 4px; }
 .wrow .knownbtn.on { opacity: 1; }
 .loadmore { width: 100%; margin: 8px 0 16px; }
@@ -328,6 +330,7 @@ const ACHIEVEMENTS = [
   { id: "words500", ico: "🚀", name: "500 Wörter", desc: "500 Wörter im Training", gold: 200, test: (s) => countLearning(s) >= 500 },
   { id: "master25", ico: "⭐", name: "25 gemeistert", desc: "25 Wörter in Box 5+", gold: 50, test: (s) => countMastered(s) >= 25 },
   { id: "master100", ico: "🌟", name: "100 gemeistert", desc: "100 Wörter in Box 5+", gold: 150, test: (s) => countMastered(s) >= 100 },
+  { id: "shaky10", ico: "🧠", name: "Langzeitgedächtnis", desc: "10 Wackelkandidaten gefestigt", gold: 100, test: (s) => (s.stats.shakyMastered || 0) >= 10 },
   { id: "combo10", ico: "🔥", name: "10er-Combo", desc: "10 richtige am Stück", gold: 30, test: (s) => s.stats.bestCombo >= 10 },
   { id: "combo25", ico: "☄️", name: "25er-Combo", desc: "25 richtige am Stück", gold: 75, test: (s) => s.stats.bestCombo >= 25 },
   { id: "streak3", ico: "🗓️", name: "3 Tage", desc: "3 Tage in Folge gelernt", gold: 30, test: (s) => s.streak.days >= 3 },
@@ -351,7 +354,7 @@ function defaultState() {
     words: {}, // tr -> {box, due, c, w, known}
     settings: { lang: "de", tts: true },
     ach: [],
-    stats: { answered: 0, correctTotal: 0, bestCombo: 0, sessions: 0 },
+    stats: { answered: 0, correctTotal: 0, bestCombo: 0, sessions: 0, shakyMastered: 0 },
   };
 }
 
@@ -408,6 +411,9 @@ function countMastered(s) {
 }
 function countKnown(s) {
   return Object.values(s.words).filter((r) => r.known).length;
+}
+function countShaky(s) {
+  return Object.values(s.words).filter((r) => r.shaky && !r.known).length;
 }
 function coverage(s) {
   let c = 0;
@@ -539,6 +545,13 @@ function gradeSRS(word, correct) {
     r.c++;
     r.box = Math.min(r.box + 1, INTERVALS.length - 1);
     r.due = addDays(today(), INTERVALS[r.box]);
+    if (r.shaky && r.box >= MASTER_BOX) {
+      delete r.shaky;
+      S.stats.shakyMastered = (S.stats.shakyMastered || 0) + 1;
+      S.gold += 20;
+      S.xp += 20;
+      toast(`🧠 „${esc(word.tr)}" sitzt jetzt im Langzeitgedächtnis! +20 🪙`);
+    }
   } else {
     r.w++;
     r.box = 1;
@@ -604,6 +617,11 @@ function viewHome() {
         <span>Wiederholen<span class="sub">Spaced Repetition – fällige Wörter</span></span>
         ${due > 0 ? `<span class="badge">${due}</span>` : `<span class="badge green">0</span>`}
       </button>
+      <button class="mbtn" id="btn-shaky" ${countShaky(S) === 0 ? "disabled" : ""}>
+        <span class="ico">🧠</span>
+        <span>Auffrischen<span class="sub">Wackelkandidaten aktiv abrufen (Deutsch → Türkisch)</span></span>
+        ${countShaky(S) > 0 ? `<span class="badge shaky">${countShaky(S)}</span>` : ""}
+      </button>
       <button class="mbtn" id="btn-new" ${fresh ? "" : "disabled"}>
         <span class="ico">✨</span>
         <span>Neue Wörter lernen<span class="sub">${NEW_PER_SESSION} neue Wörter nach Häufigkeit</span></span>
@@ -636,6 +654,7 @@ function viewHome() {
     </div>
   `);
   $("#btn-review").onclick = () => startSession("review");
+  $("#btn-shaky").onclick = () => startSession("shaky");
   $("#btn-new").onclick = () => startSession("new");
   $("#btn-blitz").onclick = () => startSession("blitz");
   $("#btn-type").onclick = () => startSession("type");
@@ -658,6 +677,23 @@ function startSession(mode) {
       return r && (r.known || r.box >= 1);
     });
     queue = shuffle(pool.slice()).slice(0, SESSION_SIZE).map((w) => ({ w, kind: "mc" }));
+  } else if (mode === "shaky") {
+    const pool = WORDS.filter((w) => {
+      const r = rec(w.tr);
+      return r && r.shaky && !r.known;
+    });
+    // Fällige zuerst, dann nach Rang
+    const t = today();
+    pool.sort((a, b) => {
+      const ra = rec(a.tr), rb = rec(b.tr);
+      const da = ra.due <= t ? 0 : 1, db = rb.due <= t ? 0 : 1;
+      return da - db || a.r - b.r;
+    });
+    queue = pool.slice(0, SESSION_SIZE + 2).map((w, idx) => {
+      const typable = /^[a-zA-ZçğıöşüÇĞİÖŞÜâîûÂÎÛ]+$/.test(w.tr) && rec(w.tr).box >= 2;
+      return { w, kind: typable && idx % 3 === 2 ? "type" : "mc" };
+    });
+    shuffle(queue);
   } else if (mode === "type") {
     const pool = WORDS.filter((w) => {
       const r = rec(w.tr);
@@ -714,7 +750,10 @@ function viewIntro(session, item) {
       <div class="rankinfo">deckt ${w.cov.toFixed(2).replace(".", ",")} % aller gesprochenen Wörter ab</div>
     </div>
     <div class="introbtns">
-      <button class="bigbtn secondary" id="s-known">✅ Kenne ich schon</button>
+      <button class="bigbtn secondary" id="s-known">✅ Kenne ich</button>
+      <button class="bigbtn secondary" id="s-shakymark">🔄 Vergesse ich oft</button>
+    </div>
+    <div class="nextrow">
       <button class="bigbtn" id="s-learn">🎓 Lernen</button>
     </div>
   `);
@@ -723,6 +762,14 @@ function viewIntro(session, item) {
   $("#s-speak").onclick = () => speak(w.tr);
   $("#s-known").onclick = () => {
     S.words[w.tr] = { box: 0, due: today(), c: 0, w: 0, known: true };
+    save();
+    session.pos++;
+    stepSession(session);
+  };
+  $("#s-shakymark").onclick = () => {
+    S.words[w.tr] = { box: 1, due: today(), c: 0, w: 0, shaky: true };
+    session.introduced++;
+    session.queue.push({ w, kind: "mc" });
     save();
     session.pos++;
     stepSession(session);
@@ -741,7 +788,9 @@ function viewIntro(session, item) {
 // --- Multiple Choice
 function viewMC(session, item) {
   const w = item.w;
-  const trToDe = Math.random() < 0.55;
+  const wr = rec(w.tr);
+  // Wackelkandidaten überwiegend aktiv abrufen: Deutsch -> Türkisch
+  const trToDe = Math.random() < (wr && wr.shaky ? 0.25 : 0.55);
   const opts = shuffle([w, ...distractors(w, 3)]);
   const prompt = trToDe ? w.tr : trans(w);
   const qtype = trToDe
@@ -795,7 +844,7 @@ function viewMC(session, item) {
         const g = base + bonus;
         session.gold += g;
         earnGold(g, $(".qcard"));
-      } else if (isSRS && session.mode === "review") {
+      } else if (isSRS && (session.mode === "review" || session.mode === "shaky")) {
         // falsch beantwortete Wörter kommen in der Session nochmal dran
         session.queue.push({ w, kind: "mc" });
       }
@@ -940,7 +989,7 @@ function viewDict() {
     <h2 class="pagetitle">📖 Wörterliste</h2>
     <input class="searchbox" id="dsearch" placeholder="Suchen (Türkisch oder Deutsch) …" value="${esc(dictQuery)}">
     <div class="tabs" id="dtabs">
-      ${["alle", "neu", "training", "gemeistert", "bekannt"]
+      ${["alle", "neu", "training", "wackelig", "gemeistert", "bekannt"]
         .map((t) => `<button data-t="${t}" class="${dictFilter === t ? "active" : ""}">${t[0].toUpperCase() + t.slice(1)}</button>`)
         .join("")}
     </div>
@@ -966,6 +1015,10 @@ function wordStatus(w) {
   const r = rec(w.tr);
   if (!r) return ["neu", "Neu", ""];
   if (r.known) return ["bekannt", "Bekannt ✓", "s-known"];
+  if (r.shaky) {
+    const due = r.due <= today();
+    return ["wackelig", due ? "🔄 fällig" : `🔄 Box ${r.box}`, "s-shaky"];
+  }
   if (r.box >= MASTER_BOX) return ["gemeistert", `Box ${r.box} ⭐`, "s-master"];
   if (r.box >= 1) {
     const due = r.due <= today();
@@ -993,9 +1046,11 @@ function renderDictList() {
         const [, label, cls] = wordStatus(w);
         const r = rec(w.tr);
         const known = r && r.known;
+        const shaky = r && r.shaky;
         return `
         <div class="wrow">
           <button class="knownbtn ${known ? "on" : ""}" data-tr="${esc(w.tr)}" title="kenne ich schon">✅</button>
+          <button class="knownbtn ${shaky ? "on" : ""}" data-shaky="${esc(w.tr)}" title="kenne ich, vergesse ich aber oft">🔄</button>
           <div class="grow">
             <div class="wtr">${esc(w.tr)} <span style="color:#6c6488;font-weight:400;font-size:0.75rem">#${w.r}</span></div>
             <div class="wde">${esc(w.de)}</div>
@@ -1014,6 +1069,25 @@ function renderDictList() {
       const r = rec(tr);
       if (r && r.known) delete S.words[tr];
       else S.words[tr] = { box: 0, due: today(), c: 0, w: 0, known: true };
+      checkAchievements();
+      save();
+      renderDictList();
+    };
+  });
+  $("#dlist").querySelectorAll("[data-shaky]").forEach((b) => {
+    b.onclick = () => {
+      const tr = b.dataset.shaky;
+      const r = rec(tr);
+      if (r && r.shaky) {
+        delete r.shaky;
+      } else {
+        const prev = r || { box: 0, due: today(), c: 0, w: 0 };
+        prev.box = Math.max(prev.box, 1);
+        prev.due = today();
+        delete prev.known;
+        prev.shaky = true;
+        S.words[tr] = prev;
+      }
       checkAchievements();
       save();
       renderDictList();

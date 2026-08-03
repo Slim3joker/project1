@@ -21,6 +21,10 @@ türkischen Alltagssprache du schon verstehst.
   16 Abzeichen
 - **„Kenne ich schon"**: Basiswortschatz mit einem Tipp aussortieren –
   zählt trotzdem zur Abdeckung
+- **Wackelkandidaten 🔄**: Wörter, die man kennt, aber schnell vergisst,
+  separat markieren; eigener „Auffrischen"-Modus mit aktivem Abruf
+  (überwiegend Deutsch→Türkisch). Erreicht ein Wackelkandidat Box 5,
+  gilt er als im Langzeitgedächtnis verankert (Bonus-Gold + Abzeichen)
 - **Aussprache**: Vorlesen per Browser-Sprachausgabe (tr-TR)
 - Fortschritt wird lokal gespeichert (localStorage), Export/Import als JSON
 - Kein Build, keine Abhängigkeiten – reines HTML/CSS/JS, läuft auch am Handy
