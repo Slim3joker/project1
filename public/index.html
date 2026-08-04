@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health · Erens Tower</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>❤️ Health Dashboard</h1>
+    <div id="status" class="status">…</div>
+  </header>
+
+  <main>
+    <section class="cards" id="kpi-cards">
+      <div class="card kpi"><div class="kpi-label">😴 Schlaf</div><div class="kpi-value" id="kpi-sleep">–</div><div class="kpi-sub" id="kpi-sleep-score"></div></div>
+      <div class="card kpi"><div class="kpi-label">🔋 Body Battery (Morgen)</div><div class="kpi-value" id="kpi-bb">–</div><div class="kpi-sub" id="kpi-bb-now"></div></div>
+      <div class="card kpi"><div class="kpi-label">💓 HRV</div><div class="kpi-value" id="kpi-hrv">–</div><div class="kpi-sub">letzte Nacht Ø</div></div>
+      <div class="card kpi"><div class="kpi-label">👣 Schritte heute</div><div class="kpi-value" id="kpi-steps">–</div><div class="kpi-sub" id="kpi-rhr"></div></div>
+      <div class="card kpi"><div class="kpi-label">😰 Stress Ø heute</div><div class="kpi-value" id="kpi-stress">–</div><div class="kpi-sub" id="kpi-stress-max"></div></div>
+      <div class="card kpi"><div class="kpi-label">🏃 VO2 Max</div><div class="kpi-value" id="kpi-vo2">–</div><div class="kpi-sub">letzter Wert</div></div>
+    </section>
+
+    <section class="cards charts">
+      <div class="card"><h2>Schlafphasen letzte Nacht</h2><canvas id="chart-sleep"></canvas></div>
+      <div class="card"><h2>Body Battery heute</h2><canvas id="chart-bb"></canvas></div>
+      <div class="card"><h2>Stress heute</h2><canvas id="chart-stress"></canvas></div>
+      <div class="card"><h2>Schlafdauer — 7 Tage</h2><canvas id="chart-sleep7"></canvas></div>
+      <div class="card"><h2>HRV — 7 Tage</h2><canvas id="chart-hrv7"></canvas></div>
+      <div class="card"><h2>Schritte — 7 Tage</h2><canvas id="chart-steps7"></canvas></div>
+    </section>
+  </main>
+
+  <footer>Garmin Vivoactive 5 · health.erenstower.de · aktualisiert <span id="updated"></span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+{
+  "name": "Garmin → Notion Gesundheits-Journal",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "schedule-0700",
+      "name": "Täglich 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.178.32:8100/api/day/yesterday",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "fetch-garmin",
+      "name": "Garmin-Daten holen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "a60873bb-8deb-4c0f-8217-02fd288a383d",
+        "title": "={{ DateTime.fromISO($json.date).setLocale('de').toFormat('cccc, dd.MM.yyyy') }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Datum|date",
+              "includeTime": false,
+              "date": "={{ $json.date }}"
+            },
+            {
+              "key": "Schlafdauer (h)|number",
+              "numberValue": "={{ $json.sleep ? $json.sleep.durationHours : null }}"
+            },
+            {
+              "key": "Tiefschlaf (min)|number",
+              "numberValue": "={{ $json.sleep ? $json.sleep.deepMin : null }}"
+            },
+            {
+              "key": "Leichtschlaf (min)|number",
+              "numberValue": "={{ $json.sleep ? $json.sleep.lightMin : null }}"
+            },
+            {
+              "key": "REM (min)|number",
+              "numberValue": "={{ $json.sleep ? $json.sleep.remMin : null }}"
+            },
+            {
+              "key": "Schlaf-Score|number",
+              "numberValue": "={{ $json.sleep ? $json.sleep.score : null }}"
+            },
+            {
+              "key": "HRV (ms)|number",
+              "numberValue": "={{ $json.hrv ? $json.hrv.lastNightAvg : null }}"
+            },
+            {
+              "key": "Body Battery (Morgen)|number",
+              "numberValue": "={{ $json.bodyBatteryMorning }}"
+            },
+            {
+              "key": "Stress (Ø)|number",
+              "numberValue": "={{ $json.avgStress }}"
+            },
+            {
+              "key": "Schritte|number",
+              "numberValue": "={{ $json.steps }}"
+            },
+            {
+              "key": "VO2 Max|number",
+              "numberValue": "={{ $json.vo2max }}"
+            },
+            {
+              "key": "Auto-Import|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "notion-create",
+      "name": "Notion-Eintrag anlegen",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [440, 0],
+      "credentials": {
+        "notionApi": {
+          "id": "HIER-DEINE-NOTION-CREDENTIAL",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Täglich 07:00": {
+      "main": [
+        [
+          {
+            "node": "Garmin-Daten holen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Garmin-Daten holen": {
+      "main": [
+        [
+          {
+            "node": "Notion-Eintrag anlegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Europe/Berlin",
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

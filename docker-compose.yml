@@ -1,0 +1,16 @@
+services:
+  garmin-health:
+    build: .
+    image: garmin-health
+    container_name: garmin-health
+    restart: unless-stopped
+    ports:
+      - "8100:3000"
+    volumes:
+      - /mnt/user/appdata/garmin-health/data:/data
+    environment:
+      TZ: Europe/Berlin
+      GARMIN_CLIENT_ID: "${GARMIN_CLIENT_ID}"
+      GARMIN_CLIENT_SECRET: "${GARMIN_CLIENT_SECRET}"
+      GARMIN_REDIRECT_URI: "https://health.erenstower.de/auth/garmin/callback"
+      WEBHOOK_SECRET: "${WEBHOOK_SECRET}"

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>garmin-health</Name>
+  <Repository>garmin-health</Repository>
+  <Registry/>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support/>
+  <Project/>
+  <Overview>Garmin Health Webhook-Empfaenger + Dashboard fuer health.erenstower.de. Image wird lokal gebaut (docker build -t garmin-health), nicht aus einer Registry gezogen.</Overview>
+  <Category>Tools:</Category>
+  <WebUI>http://[IP]:[PORT:8100]/</WebUI>
+  <Icon>https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/garmin.png</Icon>
+  <ExtraParams>--restart unless-stopped</ExtraParams>
+  <Config Name="Port" Target="3000" Default="8100" Mode="tcp" Description="Web/API Port" Type="Port" Display="always" Required="true" Mask="false">8100</Config>
+  <Config Name="Daten (SQLite)" Target="/data" Default="/mnt/user/appdata/garmin-health/data" Mode="rw" Description="Persistente SQLite-Datenbank" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/garmin-health/data</Config>
+  <Config Name="TZ" Target="TZ" Default="Europe/Berlin" Mode="" Description="Zeitzone" Type="Variable" Display="always" Required="true" Mask="false">Europe/Berlin</Config>
+  <Config Name="GARMIN_CLIENT_ID" Target="GARMIN_CLIENT_ID" Default="" Mode="" Description="Client ID aus dem Garmin Developer Portal" Type="Variable" Display="always" Required="true" Mask="false"></Config>
+  <Config Name="GARMIN_CLIENT_SECRET" Target="GARMIN_CLIENT_SECRET" Default="" Mode="" Description="Client Secret aus dem Garmin Developer Portal" Type="Variable" Display="always" Required="true" Mask="true"></Config>
+  <Config Name="GARMIN_REDIRECT_URI" Target="GARMIN_REDIRECT_URI" Default="https://health.erenstower.de/auth/garmin/callback" Mode="" Description="OAuth Redirect URI (muss exakt so im Garmin Portal stehen)" Type="Variable" Display="always" Required="true" Mask="false">https://health.erenstower.de/auth/garmin/callback</Config>
+  <Config Name="WEBHOOK_SECRET" Target="WEBHOOK_SECRET" Default="" Mode="" Description="Frei waehlbares Geheimnis — Garmin-Webhook-URL dann mit ?secret=... eintragen" Type="Variable" Display="always" Required="false" Mask="true"></Config>
+</Container>
