@@ -442,14 +442,15 @@
   <div class="sheet">
     <h3>🔗 Geräte-Sync (gemeinsamer Haushalt)</h3>
     <div style="font-size:13px;color:var(--ink-soft);margin-bottom:6px">
-      Trage auf <b>jedem</b> Gerät dieselbe Adresse und denselben Haushalts-Schlüssel ein
-      (auch am Handy deiner Frau). Dann sind Einkaufsliste, Kühlschrank und Vorrat überall gleich.
+      Diese App verbindet sich <b>automatisch</b> mit eurem gemeinsamen Haushalt — normalerweise
+      musst du hier nichts eingeben. Einkaufsliste, Kühlschrank und Vorrat sind bei allen gleich.
+      Dieses Fenster zeigt nur den Status bzw. lässt dich die Verbindung ändern oder trennen.
     </div>
     <div id="syncStatus" style="font-size:13px;font-weight:600;margin-bottom:6px">Noch nicht verbunden.</div>
     <label>Sync-Adresse</label>
     <input id="syncUrl" placeholder="https://kk-api.erenstower.de" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <label>Haushalts-Schlüssel</label>
-    <input id="syncKey" placeholder="der Schlüssel vom Server" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>Schlüssel (optional – normalerweise leer lassen)</label>
+    <input id="syncKey" placeholder="nur falls der Server einen Schlüssel verlangt" autocomplete="off" autocapitalize="off" spellcheck="false">
     <div style="display:flex;gap:8px;margin-top:14px">
       <button class="btn btn-ghost" style="flex:1" onclick="closeSyncSheet()">Schließen</button>
       <button class="btn btn-pri" style="flex:2" onclick="syncConnect()">Verbinden</button>
@@ -1114,6 +1115,8 @@ let buyStats = Store.read('buyStats', {}); // {normName:{n,count}} – lernt, wa
 let syncCfg = Store.read('syncCfg', null); // {url,key} oder null
 let syncVersion = 0, _syncApplying = false, _syncState = 'off', _syncPoll = null, _syncPushTimer = null;
 const SYNC_KEYS = ['shop','fridge','pantry','spices','buyStats'];
+const SYNC_DEFAULT_URL = 'https://kk-api.erenstower.de'; // fest eingebaut -> App verbindet sich von allein, ohne Eingabe
+let syncOff = Store.read('syncOff', false);              // true = Nutzer hat den Sync bewusst getrennt
 let leftovers = Store.read('leftovers', []); // [{id,n}, ...] freie Resteliste, eigene Eingaben
 let craving = null;                      // aktiver Lust-Filter (taste-key oder region)
 let emojiTarget = null;
@@ -1561,6 +1564,7 @@ function quickAdd(name){
    GERÄTE-SYNC (optional) — gemeinsamer Haushalt über das Mini-Backend
 ============================================================ */
 function syncApi(){ return (syncCfg&&syncCfg.url? syncCfg.url.replace(/\/+$/,''):'') + '/api/state'; }
+function syncHeaders(json){ const h = json ? {'Content-Type':'application/json'} : {}; if(syncCfg && syncCfg.key) h['X-KK-Key']=syncCfg.key; return h; }
 function collectShared(){ return {shop,fridge,pantry,spices,buyStats}; }
 function itemKey(it){ return it && (it.id || norm(it.n||'')); }
 function applyShared(data){
@@ -1616,14 +1620,14 @@ function syncMaybePush(){
 async function syncPushNow(){
   if(!syncCfg) return;
   try{
-    const r=await fetch(syncApi(),{method:'PUT',headers:{'Content-Type':'application/json','X-KK-Key':syncCfg.key},
+    const r=await fetch(syncApi(),{method:'PUT',headers:syncHeaders(true),
       body:JSON.stringify({baseVersion:syncVersion, data:collectShared()})});
     if(r.status===401){ syncSetStatus('badkey'); return; }
     if(r.status===409){
       const j=await r.json(); const cur=j.current||{version:0,data:{}};
       const merged=mergeShared(collectShared(), cur.data||{});
       applyShared(merged);
-      const r2=await fetch(syncApi(),{method:'PUT',headers:{'Content-Type':'application/json','X-KK-Key':syncCfg.key},
+      const r2=await fetch(syncApi(),{method:'PUT',headers:syncHeaders(true),
         body:JSON.stringify({baseVersion:cur.version, data:merged})});
       if(r2.ok){ const j2=await r2.json(); syncVersion=j2.version; syncSetStatus('ok'); }
       else { syncSetStatus('conflict'); }
@@ -1636,7 +1640,7 @@ async function syncPushNow(){
 async function syncPull(){
   if(!syncCfg) return;
   try{
-    const r=await fetch(syncApi(),{headers:{'X-KK-Key':syncCfg.key}});
+    const r=await fetch(syncApi(),{headers:syncHeaders()});
     if(r.status===401){ syncSetStatus('badkey'); return; }
     if(!r.ok){ syncSetStatus('error'); return; }
     const s=await r.json();
@@ -1644,6 +1648,20 @@ async function syncPull(){
       if(s.data) applyShared(s.data);
       syncVersion=s.version;
     }
+    syncSetStatus('ok');
+  }catch(e){ syncSetStatus('offline'); }
+}
+async function syncBootstrap(){
+  if(!syncCfg) return;
+  try{
+    const r=await fetch(syncApi(),{headers:syncHeaders()});
+    if(!r.ok){ syncSetStatus(r.status===401?'badkey':'error'); return; }
+    const s=await r.json();
+    // Lokales mit geteiltem Stand VEREINEN (nie überschreiben) — egal wer zuerst verbindet
+    const merged=mergeShared(collectShared(), s.data||{});
+    applyShared(merged);
+    syncVersion=s.version||0;
+    await syncPushNow();      // Server auf die Vereinigung bringen -> alle gleich
     syncSetStatus('ok');
   }catch(e){ syncSetStatus('offline'); }
 }
@@ -1659,27 +1677,20 @@ function openSyncSheet(){
 function closeSyncSheet(){ document.getElementById('syncSheet').classList.remove('open'); }
 async function syncConnect(){
   const url=document.getElementById('syncUrl').value.trim().replace(/\/+$/,'');
-  const key=document.getElementById('syncKey').value.trim();
-  if(!url||!key){ toast('Adresse und Schlüssel eingeben'); return; }
+  const key=document.getElementById('syncKey').value.trim(); // meist leer – kein Passwort nötig
+  if(!url){ toast('Adresse eingeben'); return; }
+  syncCfg={url,key}; syncOff=false;
+  Store.write('syncCfg',syncCfg); Store.write('syncOff',false);
   syncSetStatus('connecting');
-  try{
-    const r=await fetch(url+'/api/state',{headers:{'X-KK-Key':key}});
-    if(r.status===401){ toast('Schlüssel stimmt nicht'); syncSetStatus('badkey'); return; }
-    if(!r.ok){ toast('Server nicht erreichbar'); syncSetStatus('error'); return; }
-    const s=await r.json();
-    syncCfg={url,key}; Store.write('syncCfg',syncCfg);
-    if(s.data){                     // bestehenden Haushalt übernehmen
-      applyShared(s.data); syncVersion=s.version||0;
-      toast('Verbunden – gemeinsamer Stand übernommen 🔗');
-    } else {                        // leeres Backend: eigene Daten hochladen
-      syncVersion=s.version||0; await syncPushNow();
-      toast('Verbunden – Daten hochgeladen 🔗');
-    }
-    syncStartPolling(); renderSyncStatus(); closeSyncSheet();
-  }catch(e){ toast('Verbindung fehlgeschlagen'); syncSetStatus('offline'); }
+  await syncBootstrap();
+  if(_syncState==='ok') toast('Verbunden 🔗');
+  else if(_syncState==='badkey') toast('Schlüssel stimmt nicht');
+  else toast('Server noch nicht erreichbar – die App versucht es weiter');
+  syncStartPolling(); renderSyncStatus(); closeSyncSheet();
 }
 function syncDisconnect(){
-  syncStopPolling(); syncCfg=null; Store.write('syncCfg',null);
+  syncStopPolling(); syncCfg=null; syncOff=true;
+  Store.write('syncCfg',null); Store.write('syncOff',true);
   syncVersion=0; _syncState='off'; renderSyncStatus(); closeSyncSheet();
   toast('Sync getrennt – deine Daten bleiben auf dem Gerät');
 }
@@ -2036,8 +2047,9 @@ function stamp(){
 }
 stamp();renderFridge();renderCraving();renderRecipes();renderShop();renderLog();
 
-/* Geräte-Sync starten, falls auf diesem Gerät eingerichtet */
-if(syncCfg){ _syncState='connecting'; syncPull(); syncStartPolling(); }
+/* Geräte-Sync: Adresse ist fest eingebaut -> App verbindet sich automatisch (außer bewusst getrennt) */
+if(!syncCfg && SYNC_DEFAULT_URL && !syncOff){ syncCfg={url:SYNC_DEFAULT_URL, key:''}; }
+if(syncCfg){ _syncState='connecting'; syncBootstrap(); syncStartPolling(); }
 renderSyncStatus();
 /* Bei Rückkehr in die App sofort abgleichen (fühlt sich „live" an) */
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) syncPull(); });

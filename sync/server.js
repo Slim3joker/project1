@@ -52,8 +52,8 @@ const server = http.createServer((req, res) => {
   if (req.method === 'OPTIONS')      return send(res, 204);
   if (url === '/api/health')         return send(res, 200, { ok:true, version: state.version });
 
-  // Ab hier: Haushalts-Schlüssel nötig
-  if (!KEY || req.headers['x-kk-key'] !== KEY) return send(res, 401, { error:'unauthorized' });
+  // Schlüssel nur prüfen, wenn überhaupt einer gesetzt ist (KK_KEY leer = offen erreichbar)
+  if (KEY && req.headers['x-kk-key'] !== KEY) return send(res, 401, { error:'unauthorized' });
 
   if (url === '/api/state' && req.method === 'GET') return send(res, 200, state);
 
@@ -77,5 +77,5 @@ const server = http.createServer((req, res) => {
   send(res, 404, { error:'not found' });
 });
 
-if (!KEY) console.warn('WARNUNG: KK_KEY ist leer — alle geschützten Anfragen werden mit 401 abgelehnt. Bitte KK_KEY setzen.');
+if (!KEY) console.log('Hinweis: KK_KEY nicht gesetzt — Backend läuft OHNE Schlüssel (offen, nur über die geheime Adresse geschützt).');
 server.listen(PORT, () => console.log('Kochkiste-Sync läuft auf Port ' + PORT + ' (Daten: ' + DATA_FILE + ')'));

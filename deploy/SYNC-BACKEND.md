@@ -1,30 +1,21 @@
-# Geräte-Sync für die Kochkiste (gemeinsamer Haushalt)
+# Geräte-Sync für die Kochkiste (gemeinsamer Haushalt) — einfache Variante
 
 Damit du **und deine Frau** dieselbe Einkaufsliste, denselben Kühlschrank und Vorrat
 seht — egal von welchem Handy. Dafür läuft ein **winziger Zusatz-Container** auf dem
-Tower, der den gemeinsamen Stand speichert. Geschützt über einen **Haushalts-Schlüssel**
-(ein langes Passwort), das die App einmal speichert.
+Tower, der den gemeinsamen Stand speichert.
 
-> Reihenfolge: **erst dieses Backend aufsetzen**, danach schalte ich die Sync-Funktion
-> in der App frei. Bis dahin läuft die App wie gewohnt (pro Gerät).
+**Ohne Passwort:** Die App-Adresse ist fest eingebaut, die App verbindet sich von allein.
+Ihr müsst auf keinem Gerät etwas eintippen — einfach die App öffnen. Geschützt ist die
+Liste über die **nicht öffentliche Adresse** (`kk-api.erenstower.de`), also so „privat" wie
+deine App ohnehin schon ist.
 
----
-
-## Schritt 1 — Haushalts-Schlüssel erzeugen
-
-Per SSH auf dem Tower (`ssh root@192.168.178.32`) einen zufälligen Schlüssel erzeugen:
-
-```bash
-head -c 24 /dev/urandom | base64
-```
-
-→ Es kommt so etwas wie `NWLTzhh6j6OBmROIiX5rgDZ6bjQFJb97` heraus.
-**Kopier ihn dir raus** — den brauchst du gleich beim Container und später einmal in der App
-(auch auf dem Handy deiner Frau). Behandle ihn wie ein Passwort.
+> Reihenfolge: **erst dieses Backend aufsetzen**, dann die neue App-Version ziehen — fertig.
 
 ---
 
-## Schritt 2 — Backend-Dateien holen
+## Schritt 1 — Backend-Datei holen
+
+Per SSH auf dem Tower (`ssh root@192.168.178.32`):
 
 ```bash
 mkdir -p /mnt/user/appdata/kochkiste-sync
@@ -34,16 +25,13 @@ curl -fL -o /mnt/user/appdata/kochkiste-sync/server.js "$B/sync/server.js"
 
 ---
 
-## Schritt 3 — Container starten
-
-**Ersetze `DEIN_SCHLUESSEL`** durch den Schlüssel aus Schritt 1:
+## Schritt 2 — Container starten (ohne Passwort)
 
 ```bash
 docker run -d \
   --name kochkiste-sync \
   --restart unless-stopped \
   -p 8089:8089 \
-  -e KK_KEY="DEIN_SCHLUESSEL" \
   -e KK_DATA="/app/state.json" \
   -v /mnt/user/appdata/kochkiste-sync:/app \
   -w /app \
@@ -57,11 +45,15 @@ curl -s http://localhost:8089/api/health
 ```
 → Erwartet: `{"ok":true,"version":0}` ✅
 
+> Ohne gesetzten `KK_KEY` läuft das Backend bewusst **offen** (nur über die geheime Adresse
+> geschützt) — genau die einfache Variante. Willst du später doch ein Passwort, sag Bescheid,
+> dann ergänzen wir `-e KK_KEY="…"` und tragen es einmalig in der App ein.
+
 ---
 
-## Schritt 4 — Über Cloudflare erreichbar machen
+## Schritt 3 — Über Cloudflare erreichbar machen
 
-Genau wie bei der App selbst: **Zero Trust → Tunnels → dein Tunnel → Public Hostnames → Add**
+**Zero Trust → Tunnels → dein Tunnel → Public Hostnames → Add**
 
 - **Subdomain:** `kk-api`
 - **Domain:** `erenstower.de`
@@ -69,17 +61,23 @@ Genau wie bei der App selbst: **Zero Trust → Tunnels → dein Tunnel → Publi
 - **URL:** `192.168.178.32:8089`
 
 Speichern. Nach ~30 Sek. testen (vom Handy/überall):
-
-**https://kk-api.erenstower.de/api/health** → sollte `{"ok":true,"version":0}` zeigen.
+**https://kk-api.erenstower.de/api/health** → `{"ok":true,"version":0}`
 
 ---
 
-## Schritt 5 — Bescheid geben
+## Schritt 4 — Neue App-Version ziehen
 
-Sobald das läuft, sag mir Bescheid. Dann schalte ich die Sync-Funktion in der App frei.
-Du gibst dann **einmal** die Sync-Adresse (`https://kk-api.erenstower.de`) und den
-**Haushalts-Schlüssel** in der App ein — auf jedem Gerät, das mitmachen soll (dein Handy,
-das deiner Frau, PC …). Ab dann ist der Stand überall gleich.
+```bash
+B="https://raw.githubusercontent.com/Slim3joker/project1/refs/heads/claude/koch-app-unraid-cloudflare-ex3k2n"
+curl -fL -o /mnt/user/appdata/kochkiste/index.html "$B/index.html"
+```
+
+**Das war's.** Ab jetzt: Du und deine Frau öffnet einfach `kochkiste.erenstower.de` — die App
+verbindet sich automatisch. Einer legt „Milch" rein → kurz drauf sieht's der andere; jemand
+hakt „Brot" ab → verschwindet bei beiden; frisch Gekauftes landet im gemeinsamen Kühlschrank.
+
+> Den Status siehst du in der App unter **🛒 Einkauf → 🔗 Geräte-Sync**
+> („Verbunden ✓"). Dort kann man den Sync bei Bedarf auch trennen.
 
 ---
 
@@ -93,11 +91,9 @@ das deiner Frau, PC …). Ab dann ist der Stand überall gleich.
 | Neu starten | `docker restart kochkiste-sync` |
 | Gemeinsamen Stand ansehen | `cat /mnt/user/appdata/kochkiste-sync/state.json` |
 
-**Sicherung:** Der komplette geteilte Stand liegt in einer einzigen Datei:
-`/mnt/user/appdata/kochkiste-sync/state.json` — die wird von deinem normalen AppData-Backup
-mitgesichert.
+**Sicherung:** Der komplette geteilte Stand liegt in einer Datei:
+`/mnt/user/appdata/kochkiste-sync/state.json` — die nimmt dein AppData-Backup automatisch mit.
 
-**Technik-Kurzfassung:** Das Backend hält genau einen gemeinsamen Zustand mit einer
-hochzählenden `version`. Beim Speichern schickt die App die `version`, auf der sie basiert;
-hat in der Zwischenzeit jemand anderes gespeichert, meldet das Backend einen Konflikt (409)
-und schickt den aktuellen Stand zurück, damit nichts überschrieben wird.
+**Kein Datenverlust:** Beim ersten Verbinden werden lokale und geteilte Daten **vereint**
+(nicht überschrieben) — egal, welches Gerät zuerst online geht. Ändern zwei Geräte gleichzeitig,
+führt das Backend die Listen zusammen und schickt bei einem Konflikt den aktuellen Stand zurück.

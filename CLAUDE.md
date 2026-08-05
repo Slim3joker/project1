@@ -26,9 +26,11 @@ Live-Adresse: **https://kochkiste.erenstower.de**
   Startansicht ist **Einkauf**.
 - Modale = `.sheet-bg`/`.sheet`, ein-/ausgeblendet über die CSS-Klasse `.open`.
 - **`buyStats`** (`kk_buyStats`): lernt, was oft gekauft wird → „Häufig gekauft"-Vorschläge.
-- **Geräte-Sync (optional, standardmäßig aus):** `syncCfg` (`kk_syncCfg` = `{url,key}`).
-  Ist er gesetzt, gleicht die App den **geteilten Haushalt** (`shop, fridge, pantry, spices,
-  buyStats`) über das Mini-Backend ab (Polling + Push, Konflikt-Merge). Siehe `sync/server.js`.
+- **Geräte-Sync (geteilter Haushalt):** Die Adresse (`SYNC_DEFAULT_URL = kk-api.erenstower.de`)
+  ist **fest eingebaut** → die App verbindet sich automatisch, ohne Passwort. Sie gleicht
+  `shop, fridge, pantry, spices, buyStats` über das Mini-Backend ab (Polling alle 5s + Push,
+  Konflikt-/Erst-Merge = Vereinigung, nie Überschreiben). `syncOff` (`kk_syncOff`) merkt sich
+  ein bewusstes Trennen. Backend `sync/server.js` läuft ohne `KK_KEY` offen (optional Schlüssel).
 
 ### Rezept-Schema (beim Hinzufügen exakt einhalten)
 
