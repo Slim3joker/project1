@@ -5,13 +5,13 @@ In diesem Repo liegen zwei unabhängige Projekte nebeneinander.
 ## 🩺 Garmin Health Integration — Tower + Notion
 
 Garmin-Vivoactive-5-Daten (Schlaf, Schritte, Body Battery, HRV, Stress, VO2 Max)
-automatisch empfangen, auf dem Unraid-Tower in SQLite speichern und anzeigen:
-Dashboard unter **health.erenstower.de** plus täglicher Notion-Eintrag via n8n.
+automatisch aus Garmin Connect abholen, auf dem Unraid-Tower in SQLite speichern und
+anzeigen: Dashboard unter **health.erenstower.de** plus täglicher Notion-Eintrag via n8n.
 
 📖 **Anleitung: [`docs/garmin-health.md`](docs/garmin-health.md)**
 
-Dateien: `src/` (Node.js-Backend), `public/` (Dashboard), `Dockerfile`,
-`unraid/`, `n8n/`
+Dateien: `src/` (Node.js-Backend), `poller/` (Garmin-Abruf, Python), `public/`
+(Dashboard), `Dockerfile`, `unraid/`, `n8n/`
 
 ## 📦 FBA Cockpit — Amazon Business Dashboard
 

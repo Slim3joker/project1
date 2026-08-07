@@ -62,20 +62,62 @@ function lineChart(canvasId, labels, data, color, opts = {}) {
   });
 }
 
-async function main() {
+async function refreshStatus() {
   const statusEl = document.getElementById('status');
-  document.getElementById('updated').textContent = new Date().toLocaleTimeString('de-DE');
-
   try {
     const auth = await getJSON('/auth/status');
+    const poller = auth.poller || {};
+
+    if (poller.running) {
+      statusEl.textContent = '⟳ Synchronisiere …';
+      statusEl.className = 'status';
+      return poller;
+    }
     if (auth.connected) {
-      statusEl.textContent = '● Garmin verbunden';
+      const last = poller.lastSuccessAt
+        ? ` · zuletzt ${new Date(poller.lastSuccessAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`
+        : '';
+      statusEl.textContent = `● Garmin verbunden${last}`;
       statusEl.className = 'status ok';
     } else {
-      statusEl.innerHTML = '⚠ Garmin nicht verbunden — <a href="/auth/garmin" style="color:inherit">jetzt verbinden</a>';
+      statusEl.textContent = '⚠ Nicht angemeldet — einmalig login.py ausführen';
+      statusEl.title = 'docker exec -it garmin-health /opt/venv/bin/python3 /app/poller/login.py';
       statusEl.className = 'status warn';
     }
-  } catch { /* Status ist nice-to-have */ }
+    return poller;
+  } catch {
+    return {}; // Status ist nice-to-have — Dashboard funktioniert auch ohne
+  }
+}
+
+function setupSyncButton() {
+  const button = document.getElementById('sync-btn');
+  if (!button) return;
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    button.textContent = '⟳ …';
+    try {
+      const res = await fetch('/api/sync?days=2', { method: 'POST' });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const statusEl = document.getElementById('status');
+        statusEl.textContent = '⚠ ' + (body.error || `Sync fehlgeschlagen (${res.status})`);
+        statusEl.className = 'status warn';
+        return;
+      }
+      location.reload(); // frische Daten anzeigen
+    } finally {
+      button.disabled = false;
+      button.textContent = '⟳ Sync';
+    }
+  });
+}
+
+async function main() {
+  document.getElementById('updated').textContent = new Date().toLocaleTimeString('de-DE');
+
+  await refreshStatus();
+  setupSyncButton();
 
   const [range, seriesToday] = await Promise.all([
     getJSON('/api/range?days=7'),

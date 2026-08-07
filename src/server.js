@@ -3,6 +3,7 @@ const express = require('express');
 const db = require('./db');
 const { processWebhookBody } = require('./garmin/normalize');
 const garmin = require('./garmin/oauth');
+const sync = require('./sync');
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -142,7 +143,33 @@ app.get('/auth/garmin/callback', async (req, res) => {
   }
 });
 
-app.get('/auth/status', (req, res) => res.json(garmin.status()));
+app.get('/auth/status', (req, res) => {
+  const oauth = garmin.status();
+  const poller = sync.status();
+  res.json({
+    // "connected" ist true, sobald einer der beiden Wege nutzbar ist
+    connected: oauth.connected || poller.loggedIn,
+    mode: poller.loggedIn ? 'connect' : oauth.connected ? 'webhook' : null,
+    oauth,
+    poller,
+  });
+});
+
+// ---------- Garmin-Connect-Abruf ----------
+
+app.post('/api/sync', async (req, res) => {
+  if (!sync.isLoggedIn()) {
+    return res.status(409).json({
+      error: 'Noch nicht bei Garmin Connect angemeldet.',
+      hinweis: 'docker exec -it garmin-health /opt/venv/bin/python3 /app/poller/login.py',
+    });
+  }
+  const days = Math.min(Math.max(Number(req.query.days) || 2, 1), 90);
+  const result = await sync.runOnce(days);
+  res.status(result.ok ? 200 : 500).json({ ...result, status: sync.status() });
+});
+
+app.get('/api/sync/status', (req, res) => res.json(sync.status()));
 
 // ---------- Lese-API (Dashboard + n8n) ----------
 
@@ -182,6 +209,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.listen(PORT, () => {
   console.log(`garmin-health läuft auf Port ${PORT}`);
   console.log('Webhook:  POST /webhook/garmin');
-  console.log('OAuth:    GET  /auth/garmin');
+  console.log('Abruf:    POST /api/sync?days=2');
   console.log('API:      GET  /api/day/yesterday · /api/range?days=7 · /api/series/today');
+  sync.start();
 });

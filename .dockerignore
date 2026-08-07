@@ -7,3 +7,5 @@ docs
 n8n
 unraid
 index.html
+poller/__pycache__
+poller/test_mapping.py

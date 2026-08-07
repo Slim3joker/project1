@@ -28,9 +28,23 @@ header {
 
 h1 { font-size: 1.25rem; }
 
+.header-right { display: flex; align-items: center; gap: 0.75rem; }
+
 .status { font-size: 0.85rem; color: var(--muted); }
 .status.ok { color: #6fe07f; }
 .status.warn { color: #f0b95d; }
+
+#sync-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+#sync-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+#sync-btn:disabled { opacity: 0.5; cursor: default; }
 
 main { flex: 1; padding: 1.5rem; max-width: 1200px; margin: 0 auto; width: 100%; }
 

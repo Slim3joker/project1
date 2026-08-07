@@ -13,12 +13,25 @@ FROM node:20-bookworm-slim
 ENV NODE_ENV=production \
     TZ=Europe/Berlin \
     DATA_DIR=/data \
-    PORT=3000
+    PORT=3000 \
+    GARTH_TOKEN_DIR=/data/garth \
+    PYTHON_BIN=/opt/venv/bin/python3
 WORKDIR /app
+
+# Python-Umgebung für den Garmin-Connect-Abruf (poller/)
+COPY poller/requirements.txt /tmp/requirements.txt
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates \
+  && python3 -m venv /opt/venv \
+  && /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
+  && /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt \
+  && rm -rf /var/lib/apt/lists/* /tmp/requirements.txt
+
 COPY --from=build /app/node_modules ./node_modules
 COPY package.json ./
 COPY src ./src
 COPY public ./public
+COPY poller ./poller
 VOLUME /data
 EXPOSE 3000
 CMD ["node", "src/server.js"]
