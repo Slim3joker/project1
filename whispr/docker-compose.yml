@@ -1,0 +1,49 @@
+services:
+  whispr:
+    build: .
+    # Alternativ nach dem ersten Build: image: whispr:latest
+    container_name: whispr
+    restart: unless-stopped
+    ports:
+      - "8098:8098"
+    environment:
+      TRANSCRIBE_BACKEND: local
+      WHISPER_URL: http://whisper:9000
+      WHISPER_LANG: de
+      CONCURRENCY: "1"
+      MAX_UPLOAD_MB: "500"
+      JOB_TIMEOUT_MIN: "120"
+      TIMESTAMPS: "true"
+      # Zugriffsschutz – unbedingt setzen, wenn die App über einen
+      # Cloudflare-Tunnel o. Ä. von außen erreichbar ist:
+      # AUTH_TOKEN: "dein-passwort"
+      # Original-Audio behalten statt löschen:
+      # AUDIO_ARCHIVE_DIR: /audio-archiv
+    volumes:
+      # Job-Datenbank + Uploads während der Verarbeitung
+      - ./data:/data
+      # HIER LANDEN DIE MARKDOWN-DATEIEN -> auf Unraid den Share eintragen,
+      # z. B. /mnt/user/Notizen/Transkripte
+      - ./transkripte:/transkripte
+      # - /mnt/user/Aufnahmen:/audio-archiv
+    depends_on:
+      - whisper
+
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: whisper
+    restart: unless-stopped
+    environment:
+      ASR_ENGINE: faster_whisper
+      ASR_MODEL: large-v3       # ohne GPU besser: small oder medium
+      ASR_MODEL_PATH: /models
+    volumes:
+      - ./whisper-models:/models   # Modell wird einmal geladen und bleibt liegen
+    # GPU (nur mit Nvidia-Treiber-Plugin auf Unraid, sonst diesen Block entfernen):
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
