@@ -1,30 +1,22 @@
 # FBA Cockpit – Amazon Business Dashboard
 
-Ein schlankes Dashboard für den Aufbau eines Amazon-FBA-Business (Amazon.de).
-Eine einzige Datei, kein Server, kein Build-Tool: **`index.html` im Browser
-öffnen – fertig.**
+Dashboard für den Aufbau eines Amazon-FBA-Business (Amazon.de), gebaut als
+kleine Server-App für den Unraid-Server **Tower**. Alle Geräte – Laptop, Handy,
+Tablet – greifen auf **denselben Datenstand** zu.
 
-## Was es kann (Sprint 1)
+## Was es kann
 
 - **Übersicht:** KPI-Kacheln (FBA-Bestand, unterwegs, zuhause, Alarme),
-  Lagerreichweiten-Chart mit 28-Tage-Fee-Grenze, Handlungsbedarf,
+  Lagerreichweiten-Chart mit der 28-Tage-Fee-Grenze, Handlungsbedarf,
   Bewegungsjournal.
-- **Bestand & SKUs:** Bestände je SKU an drei Orten (FBA / unterwegs zu
-  Amazon / zuhause). Bewegungen werden gebucht statt überschrieben –
-  Wareneingang, Sendung an Amazon, Einlagerung, Inventur – so bleiben die
-  Bestände abgeglichen und nachvollziehbar.
-- **Nachschub:** Automatische Empfehlungen nach der eCommerce.de-Methodik:
-  - *An Amazon senden*, wenn die Amazon-Reichweite (FBA + unterwegs) unter
-    35 Tage fällt – Ziel: nie unter die 28-Tage-Grenze
-    (Low-Inventory-Level-Fee).
-  - *Beim Lieferanten bestellen*, wenn der Gesamtbestand unter den
-    **Nachbestellpunkt** fällt.
-  - *Überbestand*-Hinweis ab 120 Tagen Reichweite (Aged-Inventory-Fee).
+- **Bestand & SKUs:** Bestände je SKU an drei Orten (bei Amazon / unterwegs zu
+  Amazon / zuhause). Bewegungen werden **gebucht**, nicht überschrieben –
+  Wareneingang, Sendung an Amazon, Einlagerung, Inventur.
+- **Nachschub:** Automatische Empfehlungen nach der eCommerce.de-Methodik –
+  wann an Amazon senden, wann beim Lieferanten bestellen, wo Überbestand liegt.
 - **Firma & Dokumente:** Firmendaten (USt-IdNr., Steuernummer, EORI, IBAN,
-  Amazon Seller-ID …) mit Kopieren-Button, plus Dokumentenliste mit
-  Ablageort/Link (Gewerbeanmeldung, Zertifikate, Lieferantenverträge …).
-- **PPC:** Platzhalter – wird mit der Amazon-MCP-Anbindung befüllt
-  (Impressions, CTR, Conversion Rate, ACoS, TACoS).
+  Amazon Seller-ID) mit Kopieren-Button, plus Dokumentenliste mit Ablageort.
+- **PPC:** Platzhalter – wird mit der Amazon-MCP-Anbindung befüllt.
 
 ## Formeln
 
@@ -35,57 +27,135 @@ Bestellmenge        = max(MOQ, Ziel-Reichweite × Ø Verkäufe/Tag)
 Sendemenge (an FBA) = Ziel-Reichweite × Ø Verkäufe/Tag − FBA − unterwegs
 ```
 
-Schwellen: **28 Tage** kritisch (Low-Inventory-Fee), **35 Tage** Warnung
-(Vorlauf zum Einsenden), **120 Tage** Überbestand.
+Schwellen: **28 Tage** kritisch (Low-Inventory-Level-Fee), **35 Tage** Warnung
+(Vorlauf zum Einsenden), **120 Tage** Überbestand (Aged-Inventory-Fee).
 
-## Datenhaltung & Backup
+---
 
-Alle Daten liegen im Browser (`localStorage`, Schlüssel `fba-cockpit-v1`) –
-nichts verlässt deinen Rechner. Über **Export (JSON)** sicherst du den
-kompletten Stand als Datei, über **Import** spielst du ihn zurück (auch auf
-einem anderen Gerät nutzbar).
+# Installation auf Tower (Unraid, 192.168.178.32)
 
-> Wichtig: Browserdaten löschen = Dashboard-Daten weg. Regelmäßig
-> exportieren.
+## Schritt 1 – Code holen und Image bauen
 
-### Datenschema (Export-Format)
+Per SSH auf den Server (`ssh root@192.168.178.32`), dann Block für Block:
 
-```jsonc
-{
-  "version": 1,
-  "firma":     { "firma": "", "ustIdNr": "", "steuernummer": "", "eori": "", ... },
-  "skus": [
-    {
-      "id": "…", "sku": "KUV-CUBE-WS-01", "asin": "", "name": "…",
-      "fba": 220,          // Bestand bei Amazon
-      "inbound": 0,        // an Amazon gesendet, noch nicht eingelagert
-      "home": 130,         // Bestand zuhause
-      "salesPerDay": 3,    // Ø Verkäufe/Tag (30 Tage)
-      "leadTime": 45,      // Lieferzeit Lieferant → FBA in Tagen
-      "moq": 500,          // Mindestbestellmenge Lieferant
-      "targetDays": 60     // Ziel-Lagerreichweite
-    }
-  ],
-  "dokumente": [ { "name": "", "kategorie": "", "datum": "", "link": "", "notiz": "" } ],
-  "journal":   [ { "ts": "ISO-Zeit", "sku": "", "typ": "", "menge": 0, "notiz": "" } ],
-  "ppc": null              // reserviert für die MCP-Anbindung
-}
+```bash
+mkdir -p /mnt/user/appdata/fba-cockpit-src
+cd /mnt/user/appdata/fba-cockpit-src
+wget -O master.tar.gz https://github.com/Slim3joker/project1/archive/refs/heads/master.tar.gz
+tar xzf master.tar.gz --strip-components=1
+docker build -t fba-cockpit .
 ```
+
+Am Ende muss `Successfully tagged fba-cockpit:latest` stehen.
+
+## Schritt 2 – Container starten
+
+**Passwort vorher festlegen** und unten einsetzen. Ohne Passwort startet das
+Dashboard bewusst nicht – es wäre sonst über den Tunnel offen im Internet.
+
+```bash
+docker run -d --name fba-cockpit --restart unless-stopped \
+  -p 8477:8477 \
+  -v /mnt/user/appdata/fba-cockpit:/data \
+  -e FBA_PASSWORD='HIER-DEIN-PASSWORT' \
+  -e TZ='Europe/Berlin' \
+  fba-cockpit
+```
+
+Prüfen:
+
+```bash
+docker logs fba-cockpit | tail -5
+```
+
+Erwartet: `[start] FBA Cockpit läuft auf Port 8477` und `[start] Passwortschutz aktiv`.
+Steht dort stattdessen `FBA_PASSWORD ist nicht gesetzt`, war der Wert leer –
+Container löschen (`docker rm -f fba-cockpit`) und Schritt 2 wiederholen.
+
+**Jetzt im Browser testen:** http://192.168.178.32:8477
+
+## Schritt 3 – Von außen erreichbar machen (Cloudflare Tunnel)
+
+Der Tunnel-Container läuft bereits. Nur einen neuen Hostnamen ergänzen:
+
+1. **Cloudflare Zero Trust → Networks → Tunnels → <dein Tunnel> → Configure → Public Hostnames**
+2. **Add a public hostname:**
+   - Subdomain: `fba`
+   - Domain: `derpixel.com`
+   - Type: **HTTP**
+   - URL: `192.168.178.32:8477`  ← intern **http**, nicht https, sonst Zertifikatsfehler
+3. Speichern. Danach erreichbar unter **https://fba.derpixel.com**
+
+## Schritt 4 (empfohlen) – Zweite Schutzschicht
+
+Das eingebaute Passwort schützt die App. Weil dort Steuernummer und IBAN
+liegen, ist eine zweite Schicht davor sinnvoll: **Cloudflare Zero Trust →
+Access → Applications → Add an application → Self-hosted**, Domain
+`fba.derpixel.com`, Policy z. B. „E-Mail = deine Adresse" mit Einmal-Code.
+Dann kommt niemand ohne deine Mailadresse überhaupt bis zur Login-Seite.
+
+## Updates einspielen
+
+```bash
+cd /mnt/user/appdata/fba-cockpit-src
+wget -O master.tar.gz https://github.com/Slim3joker/project1/archive/refs/heads/master.tar.gz
+tar xzf master.tar.gz --strip-components=1
+docker build -t fba-cockpit .
+docker rm -f fba-cockpit
+# danach Schritt 2 erneut ausführen
+```
+
+Deine Daten liegen im Volume `/mnt/user/appdata/fba-cockpit/` und bleiben dabei
+erhalten – der Container darf jederzeit gelöscht und neu gebaut werden.
+
+---
+
+## Wo die Daten liegen
+
+Eine Datei: **`/mnt/user/appdata/fba-cockpit/fba-cockpit.json`**.
+Geschrieben wird atomar (erst temporäre Datei, dann umbenennen), damit bei einem
+Stromausfall keine halb geschriebene Datei zurückbleibt. Ist die Datei einmal
+unlesbar, startet der Server **nicht** und überschreibt sie auch nicht – so geht
+nichts verloren, du kannst aus einem Export wiederherstellen.
+
+Zusätzlich sichert der **Export-Button** den kompletten Stand als JSON-Datei,
+**Import** spielt ihn zurück (überschreibt dann alles auf dem Server).
+
+Bestandsbewegungen rechnet **der Server**, nicht der Browser. Deshalb können sich
+Handy und Laptop nicht gegenseitig die Bestände überschreiben, auch wenn beide
+gleichzeitig offen sind. Alle Ansichten laden alle 30 Sekunden und beim
+Zurückwechseln zum Tab neu.
+
+## Umgebungsvariablen
+
+| Variable | Pflicht | Bedeutung |
+|---|---|---|
+| `FBA_PASSWORD` | **ja** | Login-Passwort. Leer = Dashboard bleibt gesperrt. |
+| `PORT` | nein | Standard `8477`. |
+| `DATA_DIR` | nein | Standard `/data` (im Container). |
+| `TZ` | nein | Zeitzone, z. B. `Europe/Berlin`. |
+
+## Hinweis zum Repository
+
+Dieses GitHub-Repo ist **öffentlich**. Der Code darf das sein – deine
+Geschäftsdaten liegen ausschließlich auf Tower und nie im Repo. Trage also keine
+echten Firmendaten, Passwörter oder Tunnel-Token in Dateien dieses Projekts ein.
 
 ## Roadmap: Amazon-MCP-Anbindung
 
-Das Schema oben ist bewusst die Andockstelle für die geplante
-MCP-Verbindung zum Seller-Account. Sobald sie steht, ersetzt sie die
-manuelle Eingabe:
+Die Datenstruktur ist die Andockstelle für die geplante MCP-Verbindung zum
+Seller-Account:
 
-1. **FBA-Bestand & Absatz automatisch:** `skus[].fba` und
-   `skus[].salesPerDay` kommen aus dem Seller-Account statt aus der
-   Inventur-Buchung (SP-API: FBA Inventory / Sales & Traffic).
-2. **PPC-Daten:** `ppc` wird mit Kampagnendaten befüllt (Impressions,
-   Klicks, CTR, CVR, ACoS, TACoS) und der PPC-Tab freigeschaltet.
-3. Ablauf dann: Claude ruft die Daten per MCP ab, aktualisiert das JSON und
-   du importierst es – oder das Dashboard wird auf direkten Datenabruf
-   umgestellt.
+1. **Bestand & Absatz automatisch:** `skus[].fba` und `skus[].salesPerDay` kommen
+   aus dem Seller-Account statt aus der Inventur-Buchung (SP-API: FBA Inventory /
+   Sales & Traffic).
+2. **PPC-Daten:** Impressions, Klicks, CTR, CVR, ACoS, TACoS füllen den PPC-Tab.
 
-Beim ersten Start ist eine Beispiel-SKU (Kuvio Steckdosenwürfel) angelegt,
-damit man sieht, wie alles funktioniert – einfach bearbeiten oder löschen.
+## Technik
+
+Node.js 22, **keine npm-Abhängigkeiten** – nur Bordmittel. Dadurch kann der
+Container nicht an kaputten Paketen scheitern und das Image bleibt klein.
+
+- `server.js` – HTTP-Server, JSON-API, Sessions, Datenhaltung
+- `public/index.html` – die komplette Oberfläche (eine Datei)
+- `Dockerfile` / `docker-compose.yml` – Container

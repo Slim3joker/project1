@@ -1,0 +1,15 @@
+# Alternative zum Unraid-Template: Start per docker compose auf Tower.
+#   cd /mnt/user/appdata/fba-cockpit/src && docker compose up -d --build
+services:
+  fba-cockpit:
+    build: .
+    container_name: fba-cockpit
+    restart: unless-stopped
+    ports:
+      - "8477:8477"
+    volumes:
+      - /mnt/user/appdata/fba-cockpit:/data
+    environment:
+      # Pflicht: ohne Passwort bleibt das Dashboard gesperrt.
+      FBA_PASSWORD: "HIER-DEIN-PASSWORT"
+      TZ: "Europe/Berlin"

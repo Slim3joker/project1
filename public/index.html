@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FBA Cockpit – Amazon Business Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📦</text></svg>">
 <style>
   :root {
     color-scheme: light;
@@ -16,15 +17,13 @@
     --baseline:       #c3c2b7;
     --border:         rgba(11,11,11,0.10);
     --series-1:       #2a78d6;
-    --series-1-track: #cde2fb;
     --status-good:    #0ca30c;
     --status-warn:    #fab219;
-    --status-serious: #ec835a;
     --status-crit:    #d03b3b;
     --good-text:      #006300;
   }
   @media (prefers-color-scheme: dark) {
-    :root:where(:not([data-theme="light"])) {
+    :root:not([data-theme="light"]) {
       color-scheme: dark;
       --page:           #0d0d0d;
       --surface-1:      #1a1a19;
@@ -35,7 +34,6 @@
       --baseline:       #383835;
       --border:         rgba(255,255,255,0.10);
       --series-1:       #3987e5;
-      --series-1-track: #184f95;
       --good-text:      #0ca30c;
     }
   }
@@ -50,7 +48,6 @@
     --baseline:       #383835;
     --border:         rgba(255,255,255,0.10);
     --series-1:       #3987e5;
-    --series-1-track: #184f95;
     --good-text:      #0ca30c;
   }
 
@@ -79,6 +76,7 @@
     cursor: pointer;
   }
   .btn:hover { border-color: var(--baseline); }
+  .btn:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
   .btn.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
   .btn.small { padding: 3px 8px; font-size: 12px; }
   .btn.danger { color: var(--status-crit); }
@@ -115,7 +113,6 @@
   .card h2 { font-size: 15px; margin: 0 0 4px; }
   .card .hint { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; }
 
-  /* KPI row */
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
   .tile {
     background: var(--surface-1);
@@ -129,7 +126,6 @@
   .tile .note.good { color: var(--good-text); }
   .tile .note.bad  { color: var(--status-crit); }
 
-  /* Status badges: icon + label, text in ink tokens */
   .badge {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 12px; font-weight: 600;
@@ -141,7 +137,6 @@
   }
   .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
 
-  /* Tables */
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
   th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -150,26 +145,14 @@
   .table-scroll { overflow-x: auto; }
   td .mono { color: var(--text-muted); font-size: 12px; }
 
-  /* Bar chart (Reichweite) */
   .chart { position: relative; padding: 8px 0 4px; }
   .bar-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 10px; min-height: 26px; }
   .bar-row .bar-label { font-size: 13px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bar-track { position: relative; height: 26px; display: flex; align-items: center; }
-  .bar {
-    height: 16px;
-    background: var(--series-1);
-    border-radius: 0 4px 4px 0;
-    min-width: 2px;
-  }
+  .bar { height: 16px; background: var(--series-1); border-radius: 0 4px 4px 0; min-width: 2px; }
   .bar-value { font-size: 12px; color: var(--text-secondary); margin-left: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .threshold {
-    position: absolute; top: 0; bottom: 18px; width: 1px;
-    background: var(--baseline);
-  }
-  .threshold-label {
-    position: absolute; bottom: 0; transform: translateX(-50%);
-    font-size: 11px; color: var(--text-muted); white-space: nowrap;
-  }
+  .threshold { position: absolute; top: 0; bottom: 18px; width: 1px; background: var(--baseline); }
+  .threshold-label { position: absolute; bottom: 0; transform: translateX(-50%); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
   .chart-footer { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
 
   #tooltip {
@@ -184,11 +167,7 @@
   #tooltip .tt-value { font-weight: 700; font-size: 15px; }
   #tooltip .tt-label { color: var(--text-secondary); }
 
-  /* Alerts */
-  .alert-item {
-    display: flex; gap: 10px; align-items: flex-start;
-    padding: 10px 0; border-bottom: 1px solid var(--grid);
-  }
+  .alert-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--grid); }
   .alert-item:last-child { border-bottom: none; }
   .alert-item .icon { font-size: 16px; line-height: 1.4; }
   .alert-item .body { flex: 1; }
@@ -196,7 +175,6 @@
   .alert-item .detail { font-size: 13px; color: var(--text-secondary); }
   .empty { color: var(--text-muted); font-size: 14px; padding: 8px 0; }
 
-  /* Forms */
   form.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
   label.field { display: block; font-size: 12px; color: var(--text-secondary); }
   label.field input, label.field select, label.field textarea {
@@ -221,24 +199,61 @@
   dialog::backdrop { background: rgba(0,0,0,0.4); }
   dialog h3 { margin: 0 0 12px; font-size: 16px; }
 
-  .copy-ok { color: var(--good-text); font-size: 12px; }
   .doc-link { color: var(--series-1); text-decoration: none; word-break: break-all; }
   .doc-link:hover { text-decoration: underline; }
   .muted { color: var(--text-muted); }
   .ppc-soon { border: 1px dashed var(--baseline); border-radius: 12px; padding: 24px; text-align: center; color: var(--text-secondary); }
+
+  /* Anmeldung */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--page);
+    display: none; align-items: center; justify-content: center; padding: 24px;
+  }
+  #login-screen.show { display: flex; }
+  #login-screen .box {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; width: 100%; max-width: 360px;
+  }
+  #login-screen h1 { font-size: 18px; margin: 0 0 4px; }
+  #login-screen p { color: var(--text-muted); font-size: 13px; margin: 0 0 16px; }
+  #login-error { color: var(--status-crit); font-size: 13px; min-height: 1.4em; margin-top: 8px; }
+  #app { display: none; }
+  #app.show { display: block; }
+
+  #sync-note { font-size: 12px; color: var(--text-muted); }
+  #sync-note.error { color: var(--status-crit); }
 </style>
 </head>
 <body>
+
+<div id="login-screen">
+  <form class="box" id="login-form">
+    <h1>FBA Cockpit</h1>
+    <p>Bitte melde dich an, um deine Geschäftsdaten zu sehen.</p>
+    <label class="field">Passwort
+      <input type="password" name="password" autocomplete="current-password" required autofocus>
+    </label>
+    <div id="login-error" role="alert"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn primary" type="submit">Anmelden</button>
+    </div>
+  </form>
+</div>
+
+<div id="app">
 <header>
   <div>
     <h1>FBA Cockpit</h1>
     <div class="sub" id="firma-sub">Dein Amazon-Business im Überblick</div>
   </div>
   <div class="spacer"></div>
+  <span id="sync-note"></span>
   <button class="btn" id="btn-export" title="Alle Daten als JSON-Datei sichern">Export (JSON)</button>
   <button class="btn" id="btn-import" title="JSON-Backup wieder einlesen">Import</button>
   <input type="file" id="import-file" accept="application/json" hidden>
   <button class="btn" id="btn-theme" title="Hell/Dunkel umschalten">🌓</button>
+  <button class="btn" id="btn-logout" title="Abmelden">Abmelden</button>
 </header>
 
 <nav class="tabs" id="tabs">
@@ -321,11 +336,12 @@
       <div class="ppc-soon">
         <p><strong>Kommt mit der Amazon-Anbindung:</strong></p>
         <p>Impressions · Klicks · CTR · Conversion Rate · ACoS · TACoS · Sponsored-Products-Kampagnen</p>
-        <p class="muted">Sobald die MCP-Verbindung zu deinem Seller-Account steht, laufen die Kampagnendaten automatisch hier ein. Die Datenstruktur ist bereits vorbereitet (siehe README).</p>
+        <p class="muted">Sobald die MCP-Verbindung zu deinem Seller-Account steht, laufen die Kampagnendaten automatisch hier ein.</p>
       </div>
     </div>
   </section>
 </main>
+</div>
 
 <dialog id="sku-dialog">
   <h3 id="sku-dialog-title">SKU anlegen</h3>
@@ -342,7 +358,7 @@
     <label class="field">Ziel-Reichweite (Tage)<input name="targetDays" type="number" min="1" step="1" value="60"></label>
     <div class="form-actions">
       <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
-      <button class="btn primary" value="ok" id="sku-save">Speichern</button>
+      <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
 </dialog>
@@ -398,63 +414,24 @@
 <script>
 "use strict";
 
-/* ---------- Datenhaltung ----------
- * Alles liegt unter einem Schlüssel im localStorage.
- * Export/Import (JSON) dient als Backup – und als Schnittstelle:
- * Die spätere Amazon-MCP-Anbindung schreibt in dieselbe Struktur
- * (skus[].fba, skus[].salesPerDay, ppc{…}), statt dass du sie tippst.
- */
-const STORAGE_KEY = "fba-cockpit-v1";
+/* Alle Daten liegen auf dem Server (Tower). Der Browser hält nur eine Kopie
+ * zum Anzeigen und lädt sie regelmäßig neu – so sehen Handy und Laptop
+ * denselben Stand. Nur die Theme-Wahl bleibt lokal. */
+
 const THEME_KEY = "fba-cockpit-theme";
+const REFRESH_MS = 30000;
 
-const DEFAULT_DATA = {
-  version: 1,
-  firma: {
-    firma: "", rechtsform: "", inhaber: "", strasse: "", plzOrt: "",
-    email: "", telefon: "", steuernummer: "", ustIdNr: "", eori: "",
-    iban: "", bank: "", amazonSellerId: "", notizen: ""
-  },
-  skus: [
-    {
-      id: "demo-1", demo: true,
-      sku: "KUV-CUBE-WS-01", asin: "", name: "Kuvio Steckdosenwürfel weiß (Beispiel)",
-      fba: 220, inbound: 0, home: 130,
-      salesPerDay: 3, leadTime: 45, moq: 500, targetDays: 60
-    }
-  ],
-  dokumente: [
-    { id: "demo-d1", demo: true, name: "Gewerbeanmeldung (Beispiel)", kategorie: "Gewerbe & Recht", datum: "", link: "", notiz: "Beispiel-Eintrag – bearbeiten oder löschen" }
-  ],
-  journal: [],
-  ppc: null
-};
+let DATA = { firma: {}, skus: [], dokumente: [], journal: [] };
 
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return structuredClone(DEFAULT_DATA);
-    const d = JSON.parse(raw);
-    return Object.assign(structuredClone(DEFAULT_DATA), d);
-  } catch (e) {
-    console.error("Konnte Daten nicht laden:", e);
-    return structuredClone(DEFAULT_DATA);
-  }
-}
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
-}
-let DATA = loadData();
-
-/* ---------- Helfer ---------- */
 const $ = sel => document.querySelector(sel);
 const fmt = new Intl.NumberFormat("de-DE");
 const fmt1 = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 });
+
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
     if (k === "class") node.className = v;
     else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
-    else if (k === "dataset") Object.assign(node.dataset, v);
     else node.setAttribute(k, v);
   }
   for (const c of children) {
@@ -463,8 +440,6 @@ function el(tag, attrs = {}, ...children) {
   }
   return node;
 }
-function uid() { return "id-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 1e6).toString(36); }
-function nowIso() { return new Date().toISOString(); }
 function fmtDate(iso) {
   if (!iso) return "–";
   const d = new Date(iso);
@@ -472,16 +447,52 @@ function fmtDate(iso) {
     " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
 }
 
-/* ---------- Kennzahlen je SKU ----------
- * Formeln (eCommerce.de-Methodik):
- *   Reichweite            = Bestand ÷ Ø Verkäufe/Tag
- *   Nachbestellpunkt      = Ø Verkäufe/Tag × (Lieferzeit + 14 Tage Puffer)
- *   Bestellmenge          = max(MOQ, Ziel-Reichweite × Ø Verkäufe/Tag)
- *   Sendung an Amazon     = auffüllen auf Ziel-Reichweite, begrenzt auf Bestand zuhause
- */
-const KRITISCH_TAGE = 28;   // Low-Inventory-Level-Fee-Grenze
-const WARN_TAGE = 35;       // Vorlauf, um rechtzeitig zu senden
-const AGED_TAGE = 120;      // Überbestands-Hinweis
+/* ---------- Server-Kommunikation ---------- */
+
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    headers: body ? { "Content-Type": "application/json" } : undefined,
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (res.status === 401) { showLogin(); throw new Error("Nicht angemeldet"); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Serverfehler");
+  return data;
+}
+
+function setSyncNote(text, isError = false) {
+  const note = $("#sync-note");
+  note.textContent = text;
+  note.classList.toggle("error", isError);
+}
+
+async function refresh(silent = false) {
+  try {
+    DATA = await api("GET", "/api/state");
+    renderAll();
+    setSyncNote("Stand: " + new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }));
+  } catch (err) {
+    if (!silent) setSyncNote("Server nicht erreichbar", true);
+  }
+}
+
+/* Nach jeder Änderung frisch vom Server laden – dann stimmt die Anzeige
+ * auch dann, wenn parallel ein anderes Gerät etwas gebucht hat. */
+async function mutate(fn) {
+  try {
+    await fn();
+    await refresh();
+  } catch (err) {
+    if (err.message !== "Nicht angemeldet") alert("Konnte nicht speichern: " + err.message);
+  }
+}
+
+/* ---------- Kennzahlen je SKU ---------- */
+
+const KRITISCH_TAGE = 28;
+const WARN_TAGE = 35;
+const AGED_TAGE = 120;
 
 function calc(sku) {
   const sales = Number(sku.salesPerDay) || 0;
@@ -514,8 +525,8 @@ function fmtTage(t) {
   return fmt.format(Math.round(t)) + " Tage";
 }
 
-const STATUS_COLOR = { good: "var(--status-good)", warn: "var(--status-warn)", crit: "var(--status-crit)", serious: "var(--status-serious)" };
-const STATUS_ICON = { good: "✅", warn: "⚠️", crit: "🚨", serious: "⚠️" };
+const STATUS_COLOR = { good: "var(--status-good)", warn: "var(--status-warn)", crit: "var(--status-crit)" };
+const STATUS_ICON = { good: "✅", warn: "⚠️", crit: "🚨" };
 function badge(status, text) {
   return el("span", { class: "badge" },
     el("span", { class: "dot", style: "background:" + STATUS_COLOR[status] }),
@@ -523,6 +534,7 @@ function badge(status, text) {
 }
 
 /* ---------- Übersicht ---------- */
+
 function renderKpis() {
   const row = $("#kpi-row");
   row.replaceChildren();
@@ -560,17 +572,16 @@ function renderChart() {
     const c = calc(s);
     const val = Math.min(c.reichweiteFba, MAX_ANZEIGE);
     const pct = Math.max(1, (val / maxVal) * 100);
-    const bar = el("div", { class: "bar", style: "width:" + pct + "%" });
-    const track = el("div", { class: "bar-track" }, bar,
+    const track = el("div", { class: "bar-track" },
+      el("div", { class: "bar", style: "width:" + pct + "%" }),
       el("span", { class: "bar-value" }, fmtTage(c.reichweiteFba) + (c.reichweiteFba > MAX_ANZEIGE ? " ▸" : "")));
-    const rowEl = el("div", {
+    wrap.append(el("div", {
       class: "bar-row", tabindex: "0",
       onpointermove: e => showTooltip(e, s, c),
       onpointerleave: hideTooltip,
       onfocus: e => showTooltip(e, s, c),
       onblur: hideTooltip
-    }, el("div", { class: "bar-label", title: s.name }, s.sku), track);
-    wrap.append(rowEl);
+    }, el("div", { class: "bar-label", title: s.name }, s.sku), track));
   }
   // Schwellenlinie bei 28 Tagen: Balkenspur beginnt bei 190px (180px Label + 10px Lücke)
   const frac = KRITISCH_TAGE / maxVal;
@@ -591,10 +602,8 @@ function showTooltip(e, s, c) {
       " · zuhause " + fmt.format(c.home) + " · Ø " + fmt1.format(c.sales) + "/Tag")
   );
   tooltip.style.display = "block";
-  const x = Math.min(e.clientX + 14, window.innerWidth - tooltip.offsetWidth - 8);
-  const y = Math.min(e.clientY + 14, window.innerHeight - tooltip.offsetHeight - 8);
-  tooltip.style.left = x + "px";
-  tooltip.style.top = y + "px";
+  tooltip.style.left = Math.min(e.clientX + 14, window.innerWidth - tooltip.offsetWidth - 8) + "px";
+  tooltip.style.top = Math.min(e.clientY + 14, window.innerHeight - tooltip.offsetHeight - 8) + "px";
 }
 function hideTooltip() { tooltip.style.display = "none"; }
 
@@ -660,6 +669,7 @@ function renderJournal() {
 }
 
 /* ---------- Bestand & SKUs ---------- */
+
 function renderSkuTable() {
   const table = $("#sku-table");
   table.replaceChildren();
@@ -700,90 +710,53 @@ function renderSkuTable() {
 
 const skuDialog = $("#sku-dialog");
 const skuForm = $("#sku-form");
+const SKU_FIELDS = ["sku", "asin", "name", "fba", "inbound", "home", "salesPerDay", "leadTime", "moq", "targetDays"];
 let editSkuId = null;
+
 function openSkuDialog(id) {
   editSkuId = id || null;
   $("#sku-dialog-title").textContent = id ? "SKU bearbeiten" : "SKU anlegen";
   skuForm.reset();
   if (id) {
     const s = DATA.skus.find(x => x.id === id);
-    for (const key of ["sku", "asin", "name", "fba", "inbound", "home", "salesPerDay", "leadTime", "moq", "targetDays"]) {
-      if (skuForm.elements[key]) skuForm.elements[key].value = s[key] ?? "";
-    }
+    for (const key of SKU_FIELDS) skuForm.elements[key].value = s[key] ?? "";
   }
   skuDialog.showModal();
 }
 skuForm.addEventListener("submit", e => {
   if (e.submitter && e.submitter.value === "cancel") return;
   const f = skuForm.elements;
-  const obj = {
-    sku: f.sku.value.trim(), asin: f.asin.value.trim(), name: f.name.value.trim(),
-    fba: Math.max(0, Math.round(Number(f.fba.value) || 0)),
-    inbound: Math.max(0, Math.round(Number(f.inbound.value) || 0)),
-    home: Math.max(0, Math.round(Number(f.home.value) || 0)),
-    salesPerDay: Math.max(0, Number(f.salesPerDay.value) || 0),
-    leadTime: Math.max(0, Math.round(Number(f.leadTime.value) || 0)),
-    moq: Math.max(0, Math.round(Number(f.moq.value) || 0)),
-    targetDays: Math.max(1, Math.round(Number(f.targetDays.value) || 60))
-  };
-  if (editSkuId) {
-    const s = DATA.skus.find(x => x.id === editSkuId);
-    Object.assign(s, obj); delete s.demo;
-  } else {
-    DATA.skus.push(Object.assign({ id: uid() }, obj));
-  }
-  saveData(); renderAll();
+  const obj = {};
+  for (const key of SKU_FIELDS) obj[key] = f[key].value;
+  mutate(() => editSkuId
+    ? api("PUT", "/api/skus/" + editSkuId, obj)
+    : api("POST", "/api/skus", obj));
 });
 function deleteSku(id) {
   const s = DATA.skus.find(x => x.id === id);
   if (!confirm("SKU „" + s.sku + "“ wirklich löschen?")) return;
-  DATA.skus = DATA.skus.filter(x => x.id !== id);
-  saveData(); renderAll();
+  mutate(() => api("DELETE", "/api/skus/" + id));
 }
 
-/* Bewegungen buchen */
 const moveDialog = $("#move-dialog");
 const moveForm = $("#move-form");
 let moveSkuId = null;
 function openMoveDialog(id) {
   moveSkuId = id;
-  const s = DATA.skus.find(x => x.id === id);
-  $("#move-sku-label").textContent = s.sku;
+  $("#move-sku-label").textContent = DATA.skus.find(x => x.id === id).sku;
   moveForm.reset();
   moveDialog.showModal();
 }
-const MOVE_TEXT = {
-  wareneingang: "Lieferung erhalten (zuhause +)",
-  sendung: "Sendung an Amazon (zuhause − / unterwegs +)",
-  eingelagert: "Bei Amazon eingelagert (unterwegs − / FBA +)",
-  inventur_fba: "Inventur FBA (Bestand gesetzt)",
-  inventur_home: "Inventur zuhause (Bestand gesetzt)"
-};
 moveForm.addEventListener("submit", e => {
   if (e.submitter && e.submitter.value === "cancel") return;
-  const s = DATA.skus.find(x => x.id === moveSkuId);
-  if (!s) return;
-  const typ = moveForm.elements.typ.value;
-  const menge = Math.max(0, Math.round(Number(moveForm.elements.menge.value) || 0));
-  const notiz = moveForm.elements.notiz.value.trim();
-  if (typ === "wareneingang") s.home = (s.home || 0) + menge;
-  else if (typ === "sendung") {
-    const m = Math.min(menge, s.home || 0);
-    s.home -= m; s.inbound = (s.inbound || 0) + m;
-  }
-  else if (typ === "eingelagert") {
-    const m = Math.min(menge, s.inbound || 0);
-    s.inbound -= m; s.fba = (s.fba || 0) + m;
-  }
-  else if (typ === "inventur_fba") s.fba = menge;
-  else if (typ === "inventur_home") s.home = menge;
-  delete s.demo;
-  DATA.journal.unshift({ ts: nowIso(), sku: s.sku, typ, text: MOVE_TEXT[typ], menge, notiz });
-  DATA.journal = DATA.journal.slice(0, 200);
-  saveData(); renderAll();
+  const f = moveForm.elements;
+  mutate(() => api("POST", "/api/skus/" + moveSkuId + "/bewegung", {
+    typ: f.typ.value, menge: f.menge.value, notiz: f.notiz.value
+  }));
 });
 
 /* ---------- Nachschub ---------- */
+
 function renderNachschub() {
   const { senden, bestellen, aged } = buildAlerts();
   const fill = (elId, list, build, emptyText) => {
@@ -818,6 +791,7 @@ function renderNachschub() {
 }
 
 /* ---------- Firma & Dokumente ---------- */
+
 const FIRMA_FIELDS = [
   ["firma", "Firmenname"], ["rechtsform", "Rechtsform (z. B. Einzelunternehmen)"],
   ["inhaber", "Inhaber/in"], ["strasse", "Straße & Nr."], ["plzOrt", "PLZ & Ort"],
@@ -825,16 +799,19 @@ const FIRMA_FIELDS = [
   ["steuernummer", "Steuernummer"], ["ustIdNr", "USt-IdNr."], ["eori", "EORI-Nummer"],
   ["iban", "IBAN"], ["bank", "Bank"], ["amazonSellerId", "Amazon Seller-ID (Merchant Token)"]
 ];
+
 function renderFirma() {
   const form = $("#firma-form");
+  // Nicht neu aufbauen, während jemand tippt – sonst springt der Cursor beim Auto-Refresh.
+  if (form.contains(document.activeElement)) return;
   form.replaceChildren();
   for (const [key, label] of FIRMA_FIELDS) {
     const input = el("input", { value: DATA.firma[key] || "", placeholder: label,
-      onchange: e => { DATA.firma[key] = e.target.value.trim(); saveData(); renderFirmaSub(); } });
+      onchange: e => mutate(() => api("PUT", "/api/firma", { [key]: e.target.value.trim() })) });
     const copyBtn = el("button", { class: "btn small", type: "button", title: "Kopieren",
       onclick: async ev => {
         try {
-          await navigator.clipboard.writeText(DATA.firma[key] || input.value || "");
+          await navigator.clipboard.writeText(input.value || "");
           const b = ev.currentTarget; b.textContent = "✓"; setTimeout(() => { b.textContent = "⧉"; }, 1200);
         } catch { alert("Kopieren nicht möglich – bitte manuell markieren."); }
       } }, "⧉");
@@ -842,10 +819,11 @@ function renderFirma() {
       el("div", { class: "field-row" }, input, copyBtn)));
   }
   const notizen = el("textarea", { placeholder: "z. B. Kleinunternehmerregelung ja/nein, Handelsregister, GLN/EAN-Stamm …",
-    onchange: e => { DATA.firma.notizen = e.target.value; saveData(); } });
+    onchange: e => mutate(() => api("PUT", "/api/firma", { notizen: e.target.value })) });
   notizen.value = DATA.firma.notizen || "";
   form.append(el("label", { class: "field", style: "grid-column:1/-1" }, "Notizen", notizen));
 }
+
 function renderFirmaSub() {
   const f = DATA.firma;
   $("#firma-sub").textContent = f.firma ? f.firma + (f.ustIdNr ? " · " + f.ustIdNr : "") : "Dein Amazon-Business im Überblick";
@@ -862,12 +840,9 @@ function renderDocs() {
     el("th", {}, "Dokument"), el("th", {}, "Kategorie"), el("th", {}, "Datum"),
     el("th", {}, "Ablageort"), el("th", {}, "")));
   for (const d of DATA.dokumente) {
-    let linkCell;
-    if (d.link && /^https?:\/\//i.test(d.link)) {
-      linkCell = el("a", { class: "doc-link", href: d.link, target: "_blank", rel: "noopener noreferrer" }, d.link);
-    } else {
-      linkCell = el("span", { class: "muted" }, d.link || "–");
-    }
+    const linkCell = /^https?:\/\//i.test(d.link || "")
+      ? el("a", { class: "doc-link", href: d.link, target: "_blank", rel: "noopener noreferrer" }, d.link)
+      : el("span", { class: "muted" }, d.link || "–");
     table.append(el("tr", {},
       el("td", {}, el("div", {}, d.name), d.notiz ? el("div", { class: "mono" }, d.notiz) : null),
       el("td", {}, d.kategorie || "–"),
@@ -879,47 +854,45 @@ function renderDocs() {
           el("button", { class: "btn small danger", onclick: () => deleteDoc(d.id) }, "Löschen")))));
   }
 }
+
 const docDialog = $("#doc-dialog");
 const docForm = $("#doc-form");
+const DOC_FIELDS = ["name", "kategorie", "datum", "link", "notiz"];
 let editDocId = null;
+
 function openDocDialog(id) {
   editDocId = id || null;
   $("#doc-dialog-title").textContent = id ? "Dokument bearbeiten" : "Dokument erfassen";
   docForm.reset();
   if (id) {
     const d = DATA.dokumente.find(x => x.id === id);
-    for (const key of ["name", "kategorie", "datum", "link", "notiz"]) {
-      if (docForm.elements[key]) docForm.elements[key].value = d[key] ?? "";
-    }
+    for (const key of DOC_FIELDS) docForm.elements[key].value = d[key] ?? "";
   }
   docDialog.showModal();
 }
 docForm.addEventListener("submit", e => {
   if (e.submitter && e.submitter.value === "cancel") return;
   const f = docForm.elements;
-  const obj = { name: f.name.value.trim(), kategorie: f.kategorie.value,
-    datum: f.datum.value, link: f.link.value.trim(), notiz: f.notiz.value.trim() };
-  if (editDocId) {
-    const d = DATA.dokumente.find(x => x.id === editDocId);
-    Object.assign(d, obj); delete d.demo;
-  } else {
-    DATA.dokumente.push(Object.assign({ id: uid() }, obj));
-  }
-  saveData(); renderDocs();
+  const obj = {};
+  for (const key of DOC_FIELDS) obj[key] = f[key].value;
+  mutate(() => editDocId
+    ? api("PUT", "/api/dokumente/" + editDocId, obj)
+    : api("POST", "/api/dokumente", obj));
 });
 function deleteDoc(id) {
   const d = DATA.dokumente.find(x => x.id === id);
   if (!confirm("Dokument „" + d.name + "“ wirklich löschen?")) return;
-  DATA.dokumente = DATA.dokumente.filter(x => x.id !== id);
-  saveData(); renderDocs();
+  mutate(() => api("DELETE", "/api/dokumente/" + id));
 }
 
-/* ---------- Export / Import / Theme / Tabs ---------- */
+/* ---------- Export / Import / Theme / Tabs / Login ---------- */
+
 $("#btn-export").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: "application/json" });
   const a = el("a", { href: URL.createObjectURL(blob),
     download: "fba-cockpit-backup-" + new Date().toISOString().slice(0, 10) + ".json" });
-  a.click(); URL.revokeObjectURL(a.href);
+  a.click();
+  URL.revokeObjectURL(a.href);
 });
 $("#btn-import").addEventListener("click", () => $("#import-file").click());
 $("#import-file").addEventListener("change", async e => {
@@ -928,9 +901,8 @@ $("#import-file").addEventListener("change", async e => {
   try {
     const parsed = JSON.parse(await file.text());
     if (!parsed || !Array.isArray(parsed.skus)) throw new Error("Format unbekannt");
-    if (!confirm("Aktuelle Daten mit dem Backup überschreiben?")) return;
-    DATA = Object.assign(structuredClone(DEFAULT_DATA), parsed);
-    saveData(); renderAll();
+    if (!confirm("Alle Daten auf dem Server mit dem Backup überschreiben?")) return;
+    await mutate(() => api("POST", "/api/import", parsed));
   } catch (err) {
     alert("Import fehlgeschlagen: " + err.message);
   } finally {
@@ -958,6 +930,38 @@ $("#tabs").addEventListener("click", e => {
 $("#btn-add-sku").addEventListener("click", () => openSkuDialog(null));
 $("#btn-add-doc").addEventListener("click", () => openDocDialog(null));
 
+$("#btn-logout").addEventListener("click", async () => {
+  try { await api("POST", "/api/logout"); } catch {}
+  showLogin();
+});
+
+function showLogin() {
+  $("#login-screen").classList.add("show");
+  $("#app").classList.remove("show");
+  const input = $("#login-form").elements.password;
+  input.value = "";
+  input.focus();
+}
+function showApp() {
+  $("#login-screen").classList.remove("show");
+  $("#app").classList.add("show");
+}
+
+$("#login-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const input = e.target.elements.password;
+  try {
+    await api("POST", "/api/login", { password: input.value });
+    $("#login-error").textContent = "";
+    showApp();
+    await refresh();
+  } catch (err) {
+    $("#login-error").textContent = err.message === "Nicht angemeldet"
+      ? "Falsches Passwort." : err.message;
+    input.select();
+  }
+});
+
 function renderAll() {
   renderKpis();
   renderChart();
@@ -969,7 +973,21 @@ function renderAll() {
   renderFirmaSub();
   renderDocs();
 }
-renderAll();
+
+(async function start() {
+  let status = { authenticated: false };
+  try { status = await api("GET", "/api/status"); } catch {}
+  if (status.authenticated) {
+    showApp();
+    await refresh();
+  } else {
+    showLogin();
+  }
+  setInterval(() => { if (!document.hidden && $("#app").classList.contains("show")) refresh(true); }, REFRESH_MS);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && $("#app").classList.contains("show")) refresh(true);
+  });
+})();
 </script>
 </body>
 </html>
