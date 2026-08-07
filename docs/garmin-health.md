@@ -39,8 +39,14 @@ mkdir -p /mnt/user/appdata/garmin-health/data
 cd /mnt/user/appdata/garmin-health
 git clone https://github.com/Slim3joker/project1.git app
 cd app
+git checkout claude/garmin-health-integration-dryveo
 docker build -t garmin-health .
 ```
+
+> ⚠️ Die Zeile mit `git checkout` ist nötig, **solange PR #3 noch nicht gemerged ist** —
+> sonst landest du auf `master`, wo der Garmin-Code noch fehlt (typisches Symptom:
+> `failed to read dockerfile: open Dockerfile: no such file or directory`).
+> Nach dem Merge kannst du sie weglassen.
 
 Der Build dauert beim ersten Mal ein paar Minuten (Node + Python werden eingerichtet).
 Dann starten:
@@ -177,7 +183,7 @@ docker exec garmin-health /opt/venv/bin/python3 /app/poller/sync.py --days 1 --d
 
 ```bash
 cd /mnt/user/appdata/garmin-health/app
-git pull
+git pull origin claude/garmin-health-integration-dryveo   # nach dem Merge: git pull
 docker build -t garmin-health .
 docker rm -f garmin-health
 # … dann den docker run-Befehl aus Schritt 2 erneut ausführen
