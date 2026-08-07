@@ -3,5 +3,7 @@ data
 .env
 .git
 *.md
+docs
 n8n
 unraid
+index.html

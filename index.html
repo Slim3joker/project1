@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FBA Cockpit – Amazon Business Dashboard</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:           #f9f9f7;
+    --surface-1:      #fcfcfb;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6;
+    --series-1-track: #cde2fb;
+    --status-good:    #0ca30c;
+    --status-warn:    #fab219;
+    --status-serious: #ec835a;
+    --status-crit:    #d03b3b;
+    --good-text:      #006300;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page:           #0d0d0d;
+      --surface-1:      #1a1a19;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --grid:           #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #3987e5;
+      --series-1-track: #184f95;
+      --good-text:      #0ca30c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:           #0d0d0d;
+    --surface-1:      #1a1a19;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid:           #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #3987e5;
+    --series-1-track: #184f95;
+    --good-text:      #0ca30c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 16px 24px 0;
+    max-width: 1100px; margin: 0 auto;
+  }
+  header h1 { font-size: 20px; margin: 0; }
+  header .sub { color: var(--text-muted); font-size: 13px; }
+  header .spacer { flex: 1; }
+  .btn {
+    font: inherit; font-size: 13px;
+    color: var(--text-primary);
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--baseline); }
+  .btn.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
+  .btn.small { padding: 3px 8px; font-size: 12px; }
+  .btn.danger { color: var(--status-crit); }
+
+  nav.tabs {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    max-width: 1100px; margin: 16px auto 0;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--grid);
+  }
+  nav.tabs button {
+    font: inherit; font-size: 14px;
+    background: none; border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    padding: 8px 12px; cursor: pointer;
+  }
+  nav.tabs button.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--series-1);
+    font-weight: 600;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 60px; }
+  section.tab { display: none; }
+  section.tab.active { display: block; }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 4px; }
+  .card .hint { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; }
+
+  /* KPI row */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .tile .label { font-size: 13px; color: var(--text-secondary); }
+  .tile .value { font-size: 30px; font-weight: 600; line-height: 1.2; }
+  .tile .note  { font-size: 12px; color: var(--text-muted); }
+  .tile .note.good { color: var(--good-text); }
+  .tile .note.bad  { color: var(--status-crit); }
+
+  /* Status badges: icon + label, text in ink tokens */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 10px 2px 8px;
+    white-space: nowrap;
+  }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+  th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  .table-scroll { overflow-x: auto; }
+  td .mono { color: var(--text-muted); font-size: 12px; }
+
+  /* Bar chart (Reichweite) */
+  .chart { position: relative; padding: 8px 0 4px; }
+  .bar-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 10px; min-height: 26px; }
+  .bar-row .bar-label { font-size: 13px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-track { position: relative; height: 26px; display: flex; align-items: center; }
+  .bar {
+    height: 16px;
+    background: var(--series-1);
+    border-radius: 0 4px 4px 0;
+    min-width: 2px;
+  }
+  .bar-value { font-size: 12px; color: var(--text-secondary); margin-left: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .threshold {
+    position: absolute; top: 0; bottom: 18px; width: 1px;
+    background: var(--baseline);
+  }
+  .threshold-label {
+    position: absolute; bottom: 0; transform: translateX(-50%);
+    font-size: 11px; color: var(--text-muted); white-space: nowrap;
+  }
+  .chart-footer { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+  #tooltip {
+    position: fixed; z-index: 50; display: none;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    padding: 8px 12px; font-size: 13px;
+    pointer-events: none; max-width: 280px;
+  }
+  #tooltip .tt-value { font-weight: 700; font-size: 15px; }
+  #tooltip .tt-label { color: var(--text-secondary); }
+
+  /* Alerts */
+  .alert-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--grid);
+  }
+  .alert-item:last-child { border-bottom: none; }
+  .alert-item .icon { font-size: 16px; line-height: 1.4; }
+  .alert-item .body { flex: 1; }
+  .alert-item .title { font-weight: 600; font-size: 14px; }
+  .alert-item .detail { font-size: 13px; color: var(--text-secondary); }
+  .empty { color: var(--text-muted); font-size: 14px; padding: 8px 0; }
+
+  /* Forms */
+  form.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  label.field { display: block; font-size: 12px; color: var(--text-secondary); }
+  label.field input, label.field select, label.field textarea {
+    display: block; width: 100%; margin-top: 3px;
+    font: inherit; font-size: 14px;
+    color: var(--text-primary);
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+  }
+  label.field textarea { resize: vertical; min-height: 60px; }
+  .field-row { display: flex; align-items: center; gap: 8px; }
+  .field-row input { flex: 1; }
+  .form-actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+
+  dialog {
+    background: var(--surface-1); color: var(--text-primary);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; max-width: 560px; width: calc(100vw - 48px);
+  }
+  dialog::backdrop { background: rgba(0,0,0,0.4); }
+  dialog h3 { margin: 0 0 12px; font-size: 16px; }
+
+  .copy-ok { color: var(--good-text); font-size: 12px; }
+  .doc-link { color: var(--series-1); text-decoration: none; word-break: break-all; }
+  .doc-link:hover { text-decoration: underline; }
+  .muted { color: var(--text-muted); }
+  .ppc-soon { border: 1px dashed var(--baseline); border-radius: 12px; padding: 24px; text-align: center; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>FBA Cockpit</h1>
+    <div class="sub" id="firma-sub">Dein Amazon-Business im Überblick</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-export" title="Alle Daten als JSON-Datei sichern">Export (JSON)</button>
+  <button class="btn" id="btn-import" title="JSON-Backup wieder einlesen">Import</button>
+  <input type="file" id="import-file" accept="application/json" hidden>
+  <button class="btn" id="btn-theme" title="Hell/Dunkel umschalten">🌓</button>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="uebersicht" class="active">Übersicht</button>
+  <button data-tab="bestand">Bestand &amp; SKUs</button>
+  <button data-tab="nachschub">Nachschub</button>
+  <button data-tab="firma">Firma &amp; Dokumente</button>
+  <button data-tab="ppc">PPC <span class="muted">(bald)</span></button>
+</nav>
+
+<main>
+  <section class="tab active" id="tab-uebersicht">
+    <div class="kpi-row" id="kpi-row"></div>
+    <div class="card">
+      <h2>Lagerreichweite FBA</h2>
+      <p class="hint">Tage, bis der Amazon-Bestand bei aktuellem Absatz leer ist. Unter 28 Tagen droht die Low-Inventory-Level-Fee.</p>
+      <div class="chart" id="reichweite-chart"></div>
+      <div class="chart-footer">Reichweite = FBA-Bestand ÷ Ø Verkäufe/Tag · Details je SKU im Tab „Bestand &amp; SKUs“</div>
+    </div>
+    <div class="card">
+      <h2>Handlungsbedarf</h2>
+      <p class="hint">Automatisch berechnet aus Beständen, Absatz und Lieferzeiten.</p>
+      <div id="uebersicht-alerts"></div>
+    </div>
+    <div class="card">
+      <h2>Letzte Bewegungen</h2>
+      <div class="table-scroll"><table id="journal-table"></table></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-bestand">
+    <div class="card">
+      <h2>Bestand je SKU</h2>
+      <p class="hint">FBA = bei Amazon · Unterwegs = an Amazon gesendet, noch nicht eingelagert · Zuhause = bei dir. Über „Bewegung“ buchst du Zu-/Abgänge und Inventuren, damit die Bestände immer abgeglichen sind.</p>
+      <div class="table-scroll"><table id="sku-table"></table></div>
+      <div style="margin-top:12px">
+        <button class="btn primary" id="btn-add-sku">+ SKU anlegen</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-nachschub">
+    <div class="card">
+      <h2>An Amazon senden</h2>
+      <p class="hint">Empfohlen, wenn FBA + unterwegs unter 35 Tage Reichweite fällt und zuhause Ware liegt. Ziel: nie unter die 28-Tage-Grenze (Low-Inventory-Fee). Beim Shipment „Amazon-Optimized Splits“ wählen, um die Inbound Placement Fee zu vermeiden.</p>
+      <div id="alerts-senden"></div>
+    </div>
+    <div class="card">
+      <h2>Beim Lieferanten bestellen</h2>
+      <p class="hint">Nachbestellpunkt = Ø Verkäufe/Tag × Lieferzeit + 14 Tage Sicherheitspuffer. Fällt der Gesamtbestand (FBA + unterwegs + zuhause) darunter, sofort bestellen. Bestellmenge = Ziel-Reichweite × Tagesabsatz, mindestens die MOQ.</p>
+      <div id="alerts-bestellen"></div>
+    </div>
+    <div class="card">
+      <h2>Überbestand / Aged Inventory</h2>
+      <p class="hint">Bestand mit mehr als 120 Tagen Reichweite bindet Kapital und riskiert ab 90 Tagen Lagerdauer die Aged-Inventory-Fee. Gegenmittel: Sales pushen, Preis oder Coupon anpassen.</p>
+      <div id="alerts-aged"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-firma">
+    <div class="card">
+      <h2>Firmendaten</h2>
+      <p class="hint">Griffbereit für Rechnungen, Amazon-Verifizierung, Lieferanten und Behörden. Der Kopieren-Button legt den Wert in die Zwischenablage.</p>
+      <form class="grid" id="firma-form"></form>
+    </div>
+    <div class="card">
+      <h2>Dokumente</h2>
+      <p class="hint">Wichtige Unterlagen mit Ablageort (Link oder Pfad), damit du im Zweifel nicht suchen musst – z.&nbsp;B. Gewerbeanmeldung, USt-Bescheinigung, Lieferantenverträge, Produktzertifikate (CE, LFGB …).</p>
+      <div class="table-scroll"><table id="doc-table"></table></div>
+      <div style="margin-top:12px">
+        <button class="btn primary" id="btn-add-doc">+ Dokument erfassen</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-ppc">
+    <div class="card">
+      <h2>PPC &amp; Performance</h2>
+      <p class="hint">Dieser Bereich wird mit der Amazon-MCP-Anbindung befüllt.</p>
+      <div class="ppc-soon">
+        <p><strong>Kommt mit der Amazon-Anbindung:</strong></p>
+        <p>Impressions · Klicks · CTR · Conversion Rate · ACoS · TACoS · Sponsored-Products-Kampagnen</p>
+        <p class="muted">Sobald die MCP-Verbindung zu deinem Seller-Account steht, laufen die Kampagnendaten automatisch hier ein. Die Datenstruktur ist bereits vorbereitet (siehe README).</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="sku-dialog">
+  <h3 id="sku-dialog-title">SKU anlegen</h3>
+  <form class="grid" id="sku-form" method="dialog">
+    <label class="field">SKU *<input name="sku" required placeholder="z. B. KUV-CUBE-WS-01"></label>
+    <label class="field">ASIN<input name="asin" placeholder="B0…"></label>
+    <label class="field" style="grid-column:1/-1">Produktname *<input name="name" required placeholder="z. B. Kuvio Steckdosenwürfel weiß"></label>
+    <label class="field">FBA-Bestand<input name="fba" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Unterwegs zu Amazon<input name="inbound" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Bestand zuhause<input name="home" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Ø Verkäufe/Tag (30 Tage)<input name="salesPerDay" type="number" min="0" step="0.1" value="0"></label>
+    <label class="field">Lieferzeit Lieferant → FBA (Tage)<input name="leadTime" type="number" min="0" step="1" value="45"></label>
+    <label class="field">MOQ Lieferant (Stück)<input name="moq" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Ziel-Reichweite (Tage)<input name="targetDays" type="number" min="1" step="1" value="60"></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="ok" id="sku-save">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="move-dialog">
+  <h3>Bewegung buchen – <span id="move-sku-label"></span></h3>
+  <form class="grid" id="move-form" method="dialog">
+    <label class="field" style="grid-column:1/-1">Art der Bewegung
+      <select name="typ">
+        <option value="wareneingang">Lieferung erhalten → Bestand zuhause +</option>
+        <option value="sendung">Sendung an Amazon geschickt (zuhause − / unterwegs +)</option>
+        <option value="eingelagert">Bei Amazon eingelagert (unterwegs − / FBA +)</option>
+        <option value="inventur_fba">Inventur: FBA-Bestand setzen (aus Seller Central)</option>
+        <option value="inventur_home">Inventur: Bestand zuhause setzen</option>
+      </select>
+    </label>
+    <label class="field">Menge / neuer Bestand *<input name="menge" type="number" min="0" step="1" required></label>
+    <label class="field">Notiz<input name="notiz" placeholder="optional, z. B. Shipment-ID"></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="ok">Buchen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="doc-dialog">
+  <h3 id="doc-dialog-title">Dokument erfassen</h3>
+  <form class="grid" id="doc-form" method="dialog">
+    <label class="field" style="grid-column:1/-1">Bezeichnung *<input name="name" required placeholder="z. B. Gewerbeanmeldung"></label>
+    <label class="field">Kategorie
+      <select name="kategorie">
+        <option>Gewerbe &amp; Recht</option>
+        <option>Steuer</option>
+        <option>Amazon</option>
+        <option>Lieferant</option>
+        <option>Produkt &amp; Zertifikate</option>
+        <option>Versicherung</option>
+        <option>Sonstiges</option>
+      </select>
+    </label>
+    <label class="field">Datum<input name="datum" type="date"></label>
+    <label class="field" style="grid-column:1/-1">Link / Ablageort<input name="link" placeholder="https://… oder z. B. Ordner „Steuern 2026“"></label>
+    <label class="field" style="grid-column:1/-1">Notiz<input name="notiz"></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="ok">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="tooltip"></div>
+
+<script>
+"use strict";
+
+/* ---------- Datenhaltung ----------
+ * Alles liegt unter einem Schlüssel im localStorage.
+ * Export/Import (JSON) dient als Backup – und als Schnittstelle:
+ * Die spätere Amazon-MCP-Anbindung schreibt in dieselbe Struktur
+ * (skus[].fba, skus[].salesPerDay, ppc{…}), statt dass du sie tippst.
+ */
+const STORAGE_KEY = "fba-cockpit-v1";
+const THEME_KEY = "fba-cockpit-theme";
+
+const DEFAULT_DATA = {
+  version: 1,
+  firma: {
+    firma: "", rechtsform: "", inhaber: "", strasse: "", plzOrt: "",
+    email: "", telefon: "", steuernummer: "", ustIdNr: "", eori: "",
+    iban: "", bank: "", amazonSellerId: "", notizen: ""
+  },
+  skus: [
+    {
+      id: "demo-1", demo: true,
+      sku: "KUV-CUBE-WS-01", asin: "", name: "Kuvio Steckdosenwürfel weiß (Beispiel)",
+      fba: 220, inbound: 0, home: 130,
+      salesPerDay: 3, leadTime: 45, moq: 500, targetDays: 60
+    }
+  ],
+  dokumente: [
+    { id: "demo-d1", demo: true, name: "Gewerbeanmeldung (Beispiel)", kategorie: "Gewerbe & Recht", datum: "", link: "", notiz: "Beispiel-Eintrag – bearbeiten oder löschen" }
+  ],
+  journal: [],
+  ppc: null
+};
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(DEFAULT_DATA);
+    const d = JSON.parse(raw);
+    return Object.assign(structuredClone(DEFAULT_DATA), d);
+  } catch (e) {
+    console.error("Konnte Daten nicht laden:", e);
+    return structuredClone(DEFAULT_DATA);
+  }
+}
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+}
+let DATA = loadData();
+
+/* ---------- Helfer ---------- */
+const $ = sel => document.querySelector(sel);
+const fmt = new Intl.NumberFormat("de-DE");
+const fmt1 = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 });
+function el(tag, attrs = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else if (k === "dataset") Object.assign(node.dataset, v);
+    else node.setAttribute(k, v);
+  }
+  for (const c of children) {
+    if (c == null) continue;
+    node.append(c.nodeType ? c : document.createTextNode(c));
+  }
+  return node;
+}
+function uid() { return "id-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 1e6).toString(36); }
+function nowIso() { return new Date().toISOString(); }
+function fmtDate(iso) {
+  if (!iso) return "–";
+  const d = new Date(iso);
+  return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" }) +
+    " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+}
+
+/* ---------- Kennzahlen je SKU ----------
+ * Formeln (eCommerce.de-Methodik):
+ *   Reichweite            = Bestand ÷ Ø Verkäufe/Tag
+ *   Nachbestellpunkt      = Ø Verkäufe/Tag × (Lieferzeit + 14 Tage Puffer)
+ *   Bestellmenge          = max(MOQ, Ziel-Reichweite × Ø Verkäufe/Tag)
+ *   Sendung an Amazon     = auffüllen auf Ziel-Reichweite, begrenzt auf Bestand zuhause
+ */
+const KRITISCH_TAGE = 28;   // Low-Inventory-Level-Fee-Grenze
+const WARN_TAGE = 35;       // Vorlauf, um rechtzeitig zu senden
+const AGED_TAGE = 120;      // Überbestands-Hinweis
+
+function calc(sku) {
+  const sales = Number(sku.salesPerDay) || 0;
+  const fba = Number(sku.fba) || 0;
+  const inbound = Number(sku.inbound) || 0;
+  const home = Number(sku.home) || 0;
+  const total = fba + inbound + home;
+  const days = n => sales > 0 ? n / sales : Infinity;
+
+  const reichweiteFba = days(fba);
+  const reichweiteAmazon = days(fba + inbound);
+  const nachbestellpunkt = Math.ceil(sales * ((Number(sku.leadTime) || 0) + 14));
+  const bestellmenge = Math.max(Number(sku.moq) || 0, Math.ceil(sales * (Number(sku.targetDays) || 60)));
+
+  let status = "good", statusText = "Okay";
+  if (sales > 0 && reichweiteFba < KRITISCH_TAGE) { status = "crit"; statusText = "Kritisch"; }
+  else if (sales > 0 && reichweiteAmazon < WARN_TAGE) { status = "warn"; statusText = "Nachschub nötig"; }
+
+  const sendMenge = (sales > 0 && reichweiteAmazon < WARN_TAGE && home > 0)
+    ? Math.min(home, Math.max(0, Math.ceil(sales * (Number(sku.targetDays) || 60)) - fba - inbound))
+    : 0;
+  const bestellen = sales > 0 && total < nachbestellpunkt;
+  const aged = sales > 0 && reichweiteFba > AGED_TAGE;
+
+  return { sales, fba, inbound, home, total, reichweiteFba, reichweiteAmazon,
+           nachbestellpunkt, bestellmenge, status, statusText, sendMenge, bestellen, aged };
+}
+function fmtTage(t) {
+  if (!isFinite(t)) return "–";
+  return fmt.format(Math.round(t)) + " Tage";
+}
+
+const STATUS_COLOR = { good: "var(--status-good)", warn: "var(--status-warn)", crit: "var(--status-crit)", serious: "var(--status-serious)" };
+const STATUS_ICON = { good: "✅", warn: "⚠️", crit: "🚨", serious: "⚠️" };
+function badge(status, text) {
+  return el("span", { class: "badge" },
+    el("span", { class: "dot", style: "background:" + STATUS_COLOR[status] }),
+    STATUS_ICON[status] + " " + text);
+}
+
+/* ---------- Übersicht ---------- */
+function renderKpis() {
+  const row = $("#kpi-row");
+  row.replaceChildren();
+  let fba = 0, home = 0, inbound = 0, alarme = 0;
+  for (const s of DATA.skus) {
+    const c = calc(s);
+    fba += c.fba; home += c.home; inbound += c.inbound;
+    if (c.status !== "good" || c.bestellen) alarme++;
+  }
+  const tiles = [
+    { label: "FBA-Bestand (Amazon)", value: fmt.format(fba), note: "Einheiten eingelagert" },
+    { label: "Unterwegs zu Amazon", value: fmt.format(inbound), note: "Einheiten im Inbound" },
+    { label: "Bestand zuhause", value: fmt.format(home), note: "Einheiten bei dir" },
+    { label: "Alarme", value: fmt.format(alarme), note: alarme === 0 ? "Alles im grünen Bereich" : "Siehe Handlungsbedarf", noteClass: alarme === 0 ? "good" : "bad" }
+  ];
+  for (const t of tiles) {
+    row.append(el("div", { class: "tile" },
+      el("div", { class: "label" }, t.label),
+      el("div", { class: "value" }, t.value),
+      el("div", { class: "note " + (t.noteClass || "") }, t.note)));
+  }
+}
+
+function renderChart() {
+  const wrap = $("#reichweite-chart");
+  wrap.replaceChildren();
+  const skus = DATA.skus.filter(s => calc(s).sales > 0);
+  if (skus.length === 0) {
+    wrap.append(el("div", { class: "empty" }, "Noch keine SKU mit Absatzdaten. Lege im Tab „Bestand & SKUs“ eine SKU an und trage Ø Verkäufe/Tag ein."));
+    return;
+  }
+  const MAX_ANZEIGE = 120;
+  const maxVal = Math.max(MAX_ANZEIGE, ...skus.map(s => Math.min(calc(s).reichweiteFba, MAX_ANZEIGE)));
+  for (const s of skus) {
+    const c = calc(s);
+    const val = Math.min(c.reichweiteFba, MAX_ANZEIGE);
+    const pct = Math.max(1, (val / maxVal) * 100);
+    const bar = el("div", { class: "bar", style: "width:" + pct + "%" });
+    const track = el("div", { class: "bar-track" }, bar,
+      el("span", { class: "bar-value" }, fmtTage(c.reichweiteFba) + (c.reichweiteFba > MAX_ANZEIGE ? " ▸" : "")));
+    const rowEl = el("div", {
+      class: "bar-row", tabindex: "0",
+      onpointermove: e => showTooltip(e, s, c),
+      onpointerleave: hideTooltip,
+      onfocus: e => showTooltip(e, s, c),
+      onblur: hideTooltip
+    }, el("div", { class: "bar-label", title: s.name }, s.sku), track);
+    wrap.append(rowEl);
+  }
+  // Schwellenlinie bei 28 Tagen: Balkenspur beginnt bei 190px (180px Label + 10px Lücke)
+  const frac = KRITISCH_TAGE / maxVal;
+  const leftCalc = "calc(190px + (100% - 190px) * " + frac + ")";
+  wrap.append(el("div", { class: "threshold", style: "left:" + leftCalc }));
+  wrap.append(el("div", { style: "position:relative;height:16px" },
+    el("div", { class: "threshold-label", style: "left:" + leftCalc },
+      KRITISCH_TAGE + " Tage (Fee-Grenze)")));
+}
+
+const tooltip = $("#tooltip");
+function showTooltip(e, s, c) {
+  tooltip.replaceChildren(
+    el("div", { class: "tt-value" }, fmtTage(c.reichweiteFba)),
+    el("div", { class: "tt-label" }, s.name),
+    el("div", { class: "tt-label" },
+      "FBA " + fmt.format(c.fba) + " · unterwegs " + fmt.format(c.inbound) +
+      " · zuhause " + fmt.format(c.home) + " · Ø " + fmt1.format(c.sales) + "/Tag")
+  );
+  tooltip.style.display = "block";
+  const x = Math.min(e.clientX + 14, window.innerWidth - tooltip.offsetWidth - 8);
+  const y = Math.min(e.clientY + 14, window.innerHeight - tooltip.offsetHeight - 8);
+  tooltip.style.left = x + "px";
+  tooltip.style.top = y + "px";
+}
+function hideTooltip() { tooltip.style.display = "none"; }
+
+function buildAlerts() {
+  const senden = [], bestellen = [], aged = [];
+  for (const s of DATA.skus) {
+    const c = calc(s);
+    if (c.sendMenge > 0) senden.push({ s, c });
+    if (c.bestellen) bestellen.push({ s, c });
+    if (c.aged) aged.push({ s, c });
+  }
+  return { senden, bestellen, aged };
+}
+
+function renderUebersichtAlerts() {
+  const wrap = $("#uebersicht-alerts");
+  wrap.replaceChildren();
+  const { senden, bestellen, aged } = buildAlerts();
+  const items = [];
+  for (const { s, c } of bestellen) {
+    items.push({ icon: "🚨", title: "Beim Lieferanten bestellen: " + s.sku,
+      detail: "Gesamtbestand " + fmt.format(c.total) + " liegt unter dem Nachbestellpunkt von " + fmt.format(c.nachbestellpunkt) + " Einheiten. Empfohlene Bestellmenge: " + fmt.format(c.bestellmenge) + " Stück." });
+  }
+  for (const { s, c } of senden) {
+    items.push({ icon: "⚠️", title: "An Amazon senden: " + s.sku,
+      detail: "Reichweite bei Amazon nur noch " + fmtTage(c.reichweiteAmazon) + ". Empfohlen: " + fmt.format(c.sendMenge) + " Einheiten aus deinem Bestand zuhause einsenden." });
+  }
+  for (const { s, c } of aged) {
+    items.push({ icon: "🧊", title: "Überbestand: " + s.sku,
+      detail: "Reichweite " + fmtTage(c.reichweiteFba) + " – Aged-Inventory-Fee droht ab 90 Tagen Lagerdauer. Sales pushen oder Preis/Coupon prüfen." });
+  }
+  if (items.length === 0) {
+    wrap.append(el("div", { class: "empty" }, "✅ Kein Handlungsbedarf – alle Bestände im Zielbereich."));
+    return;
+  }
+  for (const it of items) {
+    wrap.append(el("div", { class: "alert-item" },
+      el("div", { class: "icon" }, it.icon),
+      el("div", { class: "body" },
+        el("div", { class: "title" }, it.title),
+        el("div", { class: "detail" }, it.detail))));
+  }
+}
+
+function renderJournal() {
+  const table = $("#journal-table");
+  table.replaceChildren();
+  const rows = DATA.journal.slice(0, 8);
+  if (rows.length === 0) {
+    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine Bewegungen gebucht.")));
+    return;
+  }
+  table.append(el("tr", {},
+    el("th", {}, "Wann"), el("th", {}, "SKU"), el("th", {}, "Bewegung"), el("th", { class: "num" }, "Menge"), el("th", {}, "Notiz")));
+  for (const j of rows) {
+    table.append(el("tr", {},
+      el("td", {}, fmtDate(j.ts)),
+      el("td", {}, j.sku),
+      el("td", {}, j.text),
+      el("td", { class: "num" }, fmt.format(j.menge)),
+      el("td", { class: "muted" }, j.notiz || "–")));
+  }
+}
+
+/* ---------- Bestand & SKUs ---------- */
+function renderSkuTable() {
+  const table = $("#sku-table");
+  table.replaceChildren();
+  if (DATA.skus.length === 0) {
+    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine SKUs angelegt.")));
+    return;
+  }
+  table.append(el("tr", {},
+    el("th", {}, "SKU / Produkt"),
+    el("th", { class: "num" }, "FBA"),
+    el("th", { class: "num" }, "Unterwegs"),
+    el("th", { class: "num" }, "Zuhause"),
+    el("th", { class: "num" }, "Ø/Tag"),
+    el("th", { class: "num" }, "Reichweite FBA"),
+    el("th", { class: "num" }, "Nachbestellpunkt"),
+    el("th", {}, "Status"),
+    el("th", {}, "")));
+  for (const s of DATA.skus) {
+    const c = calc(s);
+    table.append(el("tr", {},
+      el("td", {},
+        el("div", {}, s.sku),
+        el("div", { class: "mono" }, s.name + (s.asin ? " · " + s.asin : ""))),
+      el("td", { class: "num" }, fmt.format(c.fba)),
+      el("td", { class: "num" }, fmt.format(c.inbound)),
+      el("td", { class: "num" }, fmt.format(c.home)),
+      el("td", { class: "num" }, fmt1.format(c.sales)),
+      el("td", { class: "num" }, fmtTage(c.reichweiteFba)),
+      el("td", { class: "num" }, fmt.format(c.nachbestellpunkt)),
+      el("td", {}, badge(c.status, c.statusText)),
+      el("td", {},
+        el("div", { style: "display:flex;gap:6px;flex-wrap:wrap" },
+          el("button", { class: "btn small", onclick: () => openMoveDialog(s.id) }, "Bewegung"),
+          el("button", { class: "btn small", onclick: () => openSkuDialog(s.id) }, "Bearbeiten"),
+          el("button", { class: "btn small danger", onclick: () => deleteSku(s.id) }, "Löschen")))));
+  }
+}
+
+const skuDialog = $("#sku-dialog");
+const skuForm = $("#sku-form");
+let editSkuId = null;
+function openSkuDialog(id) {
+  editSkuId = id || null;
+  $("#sku-dialog-title").textContent = id ? "SKU bearbeiten" : "SKU anlegen";
+  skuForm.reset();
+  if (id) {
+    const s = DATA.skus.find(x => x.id === id);
+    for (const key of ["sku", "asin", "name", "fba", "inbound", "home", "salesPerDay", "leadTime", "moq", "targetDays"]) {
+      if (skuForm.elements[key]) skuForm.elements[key].value = s[key] ?? "";
+    }
+  }
+  skuDialog.showModal();
+}
+skuForm.addEventListener("submit", e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  const f = skuForm.elements;
+  const obj = {
+    sku: f.sku.value.trim(), asin: f.asin.value.trim(), name: f.name.value.trim(),
+    fba: Math.max(0, Math.round(Number(f.fba.value) || 0)),
+    inbound: Math.max(0, Math.round(Number(f.inbound.value) || 0)),
+    home: Math.max(0, Math.round(Number(f.home.value) || 0)),
+    salesPerDay: Math.max(0, Number(f.salesPerDay.value) || 0),
+    leadTime: Math.max(0, Math.round(Number(f.leadTime.value) || 0)),
+    moq: Math.max(0, Math.round(Number(f.moq.value) || 0)),
+    targetDays: Math.max(1, Math.round(Number(f.targetDays.value) || 60))
+  };
+  if (editSkuId) {
+    const s = DATA.skus.find(x => x.id === editSkuId);
+    Object.assign(s, obj); delete s.demo;
+  } else {
+    DATA.skus.push(Object.assign({ id: uid() }, obj));
+  }
+  saveData(); renderAll();
+});
+function deleteSku(id) {
+  const s = DATA.skus.find(x => x.id === id);
+  if (!confirm("SKU „" + s.sku + "“ wirklich löschen?")) return;
+  DATA.skus = DATA.skus.filter(x => x.id !== id);
+  saveData(); renderAll();
+}
+
+/* Bewegungen buchen */
+const moveDialog = $("#move-dialog");
+const moveForm = $("#move-form");
+let moveSkuId = null;
+function openMoveDialog(id) {
+  moveSkuId = id;
+  const s = DATA.skus.find(x => x.id === id);
+  $("#move-sku-label").textContent = s.sku;
+  moveForm.reset();
+  moveDialog.showModal();
+}
+const MOVE_TEXT = {
+  wareneingang: "Lieferung erhalten (zuhause +)",
+  sendung: "Sendung an Amazon (zuhause − / unterwegs +)",
+  eingelagert: "Bei Amazon eingelagert (unterwegs − / FBA +)",
+  inventur_fba: "Inventur FBA (Bestand gesetzt)",
+  inventur_home: "Inventur zuhause (Bestand gesetzt)"
+};
+moveForm.addEventListener("submit", e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  const s = DATA.skus.find(x => x.id === moveSkuId);
+  if (!s) return;
+  const typ = moveForm.elements.typ.value;
+  const menge = Math.max(0, Math.round(Number(moveForm.elements.menge.value) || 0));
+  const notiz = moveForm.elements.notiz.value.trim();
+  if (typ === "wareneingang") s.home = (s.home || 0) + menge;
+  else if (typ === "sendung") {
+    const m = Math.min(menge, s.home || 0);
+    s.home -= m; s.inbound = (s.inbound || 0) + m;
+  }
+  else if (typ === "eingelagert") {
+    const m = Math.min(menge, s.inbound || 0);
+    s.inbound -= m; s.fba = (s.fba || 0) + m;
+  }
+  else if (typ === "inventur_fba") s.fba = menge;
+  else if (typ === "inventur_home") s.home = menge;
+  delete s.demo;
+  DATA.journal.unshift({ ts: nowIso(), sku: s.sku, typ, text: MOVE_TEXT[typ], menge, notiz });
+  DATA.journal = DATA.journal.slice(0, 200);
+  saveData(); renderAll();
+});
+
+/* ---------- Nachschub ---------- */
+function renderNachschub() {
+  const { senden, bestellen, aged } = buildAlerts();
+  const fill = (elId, list, build, emptyText) => {
+    const wrap = $(elId);
+    wrap.replaceChildren();
+    if (list.length === 0) { wrap.append(el("div", { class: "empty" }, emptyText)); return; }
+    for (const x of list) wrap.append(build(x));
+  };
+  fill("#alerts-senden", senden, ({ s, c }) => el("div", { class: "alert-item" },
+    el("div", { class: "icon" }, "📦"),
+    el("div", { class: "body" },
+      el("div", { class: "title" }, s.sku + " – " + fmt.format(c.sendMenge) + " Einheiten einsenden"),
+      el("div", { class: "detail" },
+        "Reichweite bei Amazon (FBA + unterwegs): " + fmtTage(c.reichweiteAmazon) +
+        ". Zuhause verfügbar: " + fmt.format(c.home) + ". Ziel: " + fmt.format(s.targetDays || 60) + " Tage Reichweite."))),
+    "✅ Kein Shipment nötig – Amazon-Bestand reicht überall über " + WARN_TAGE + " Tage.");
+  fill("#alerts-bestellen", bestellen, ({ s, c }) => el("div", { class: "alert-item" },
+    el("div", { class: "icon" }, "🛒"),
+    el("div", { class: "body" },
+      el("div", { class: "title" }, s.sku + " – " + fmt.format(c.bestellmenge) + " Stück bestellen"),
+      el("div", { class: "detail" },
+        "Gesamtbestand " + fmt.format(c.total) + " < Nachbestellpunkt " + fmt.format(c.nachbestellpunkt) +
+        " (Ø " + fmt1.format(c.sales) + "/Tag × (" + fmt.format(s.leadTime || 0) + " Tage Lieferzeit + 14 Tage Puffer))." +
+        (s.moq ? " MOQ: " + fmt.format(s.moq) + "." : "")))),
+    "✅ Keine Lieferantenbestellung nötig – alle Gesamtbestände über dem Nachbestellpunkt.");
+  fill("#alerts-aged", aged, ({ s, c }) => el("div", { class: "alert-item" },
+    el("div", { class: "icon" }, "🧊"),
+    el("div", { class: "body" },
+      el("div", { class: "title" }, s.sku + " – " + fmtTage(c.reichweiteFba) + " Reichweite"),
+      el("div", { class: "detail" }, "Deutlich über Ziel (" + fmt.format(s.targetDays || 60) + " Tage). Kapitalbindung prüfen, ggf. Preis senken oder Coupon aktivieren."))),
+    "✅ Kein Überbestand.");
+}
+
+/* ---------- Firma & Dokumente ---------- */
+const FIRMA_FIELDS = [
+  ["firma", "Firmenname"], ["rechtsform", "Rechtsform (z. B. Einzelunternehmen)"],
+  ["inhaber", "Inhaber/in"], ["strasse", "Straße & Nr."], ["plzOrt", "PLZ & Ort"],
+  ["email", "E-Mail"], ["telefon", "Telefon"],
+  ["steuernummer", "Steuernummer"], ["ustIdNr", "USt-IdNr."], ["eori", "EORI-Nummer"],
+  ["iban", "IBAN"], ["bank", "Bank"], ["amazonSellerId", "Amazon Seller-ID (Merchant Token)"]
+];
+function renderFirma() {
+  const form = $("#firma-form");
+  form.replaceChildren();
+  for (const [key, label] of FIRMA_FIELDS) {
+    const input = el("input", { value: DATA.firma[key] || "", placeholder: label,
+      onchange: e => { DATA.firma[key] = e.target.value.trim(); saveData(); renderFirmaSub(); } });
+    const copyBtn = el("button", { class: "btn small", type: "button", title: "Kopieren",
+      onclick: async ev => {
+        try {
+          await navigator.clipboard.writeText(DATA.firma[key] || input.value || "");
+          const b = ev.currentTarget; b.textContent = "✓"; setTimeout(() => { b.textContent = "⧉"; }, 1200);
+        } catch { alert("Kopieren nicht möglich – bitte manuell markieren."); }
+      } }, "⧉");
+    form.append(el("label", { class: "field" }, label,
+      el("div", { class: "field-row" }, input, copyBtn)));
+  }
+  const notizen = el("textarea", { placeholder: "z. B. Kleinunternehmerregelung ja/nein, Handelsregister, GLN/EAN-Stamm …",
+    onchange: e => { DATA.firma.notizen = e.target.value; saveData(); } });
+  notizen.value = DATA.firma.notizen || "";
+  form.append(el("label", { class: "field", style: "grid-column:1/-1" }, "Notizen", notizen));
+}
+function renderFirmaSub() {
+  const f = DATA.firma;
+  $("#firma-sub").textContent = f.firma ? f.firma + (f.ustIdNr ? " · " + f.ustIdNr : "") : "Dein Amazon-Business im Überblick";
+}
+
+function renderDocs() {
+  const table = $("#doc-table");
+  table.replaceChildren();
+  if (DATA.dokumente.length === 0) {
+    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine Dokumente erfasst.")));
+    return;
+  }
+  table.append(el("tr", {},
+    el("th", {}, "Dokument"), el("th", {}, "Kategorie"), el("th", {}, "Datum"),
+    el("th", {}, "Ablageort"), el("th", {}, "")));
+  for (const d of DATA.dokumente) {
+    let linkCell;
+    if (d.link && /^https?:\/\//i.test(d.link)) {
+      linkCell = el("a", { class: "doc-link", href: d.link, target: "_blank", rel: "noopener noreferrer" }, d.link);
+    } else {
+      linkCell = el("span", { class: "muted" }, d.link || "–");
+    }
+    table.append(el("tr", {},
+      el("td", {}, el("div", {}, d.name), d.notiz ? el("div", { class: "mono" }, d.notiz) : null),
+      el("td", {}, d.kategorie || "–"),
+      el("td", {}, d.datum ? new Date(d.datum + "T00:00").toLocaleDateString("de-DE") : "–"),
+      el("td", {}, linkCell),
+      el("td", {},
+        el("div", { style: "display:flex;gap:6px" },
+          el("button", { class: "btn small", onclick: () => openDocDialog(d.id) }, "Bearbeiten"),
+          el("button", { class: "btn small danger", onclick: () => deleteDoc(d.id) }, "Löschen")))));
+  }
+}
+const docDialog = $("#doc-dialog");
+const docForm = $("#doc-form");
+let editDocId = null;
+function openDocDialog(id) {
+  editDocId = id || null;
+  $("#doc-dialog-title").textContent = id ? "Dokument bearbeiten" : "Dokument erfassen";
+  docForm.reset();
+  if (id) {
+    const d = DATA.dokumente.find(x => x.id === id);
+    for (const key of ["name", "kategorie", "datum", "link", "notiz"]) {
+      if (docForm.elements[key]) docForm.elements[key].value = d[key] ?? "";
+    }
+  }
+  docDialog.showModal();
+}
+docForm.addEventListener("submit", e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  const f = docForm.elements;
+  const obj = { name: f.name.value.trim(), kategorie: f.kategorie.value,
+    datum: f.datum.value, link: f.link.value.trim(), notiz: f.notiz.value.trim() };
+  if (editDocId) {
+    const d = DATA.dokumente.find(x => x.id === editDocId);
+    Object.assign(d, obj); delete d.demo;
+  } else {
+    DATA.dokumente.push(Object.assign({ id: uid() }, obj));
+  }
+  saveData(); renderDocs();
+});
+function deleteDoc(id) {
+  const d = DATA.dokumente.find(x => x.id === id);
+  if (!confirm("Dokument „" + d.name + "“ wirklich löschen?")) return;
+  DATA.dokumente = DATA.dokumente.filter(x => x.id !== id);
+  saveData(); renderDocs();
+}
+
+/* ---------- Export / Import / Theme / Tabs ---------- */
+$("#btn-export").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: "application/json" });
+  const a = el("a", { href: URL.createObjectURL(blob),
+    download: "fba-cockpit-backup-" + new Date().toISOString().slice(0, 10) + ".json" });
+  a.click(); URL.revokeObjectURL(a.href);
+});
+$("#btn-import").addEventListener("click", () => $("#import-file").click());
+$("#import-file").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    if (!parsed || !Array.isArray(parsed.skus)) throw new Error("Format unbekannt");
+    if (!confirm("Aktuelle Daten mit dem Backup überschreiben?")) return;
+    DATA = Object.assign(structuredClone(DEFAULT_DATA), parsed);
+    saveData(); renderAll();
+  } catch (err) {
+    alert("Import fehlgeschlagen: " + err.message);
+  } finally {
+    e.target.value = "";
+  }
+});
+
+const savedTheme = localStorage.getItem(THEME_KEY);
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+$("#btn-theme").addEventListener("click", () => {
+  const cur = document.documentElement.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem(THEME_KEY, next);
+});
+
+$("#tabs").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-tab]");
+  if (!btn) return;
+  for (const b of document.querySelectorAll("#tabs button")) b.classList.toggle("active", b === btn);
+  for (const s of document.querySelectorAll("section.tab")) s.classList.toggle("active", s.id === "tab-" + btn.dataset.tab);
+});
+
+$("#btn-add-sku").addEventListener("click", () => openSkuDialog(null));
+$("#btn-add-doc").addEventListener("click", () => openDocDialog(null));
+
+function renderAll() {
+  renderKpis();
+  renderChart();
+  renderUebersichtAlerts();
+  renderJournal();
+  renderSkuTable();
+  renderNachschub();
+  renderFirma();
+  renderFirmaSub();
+  renderDocs();
+}
+renderAll();
+</script>
+</body>
+</html>
