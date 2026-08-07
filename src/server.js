@@ -29,21 +29,31 @@ function resolveDate(param) {
   return null;
 }
 
+/** Verschiebt ein YYYY-MM-DD um delta Tage (Mittag als Anker gegen Sommerzeit-Effekte). */
+function addDays(dateStr, delta) {
+  const d = new Date(`${dateStr}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
+}
+
 // Body Battery "Morgen-Wert": höchster Wert zwischen 04:00 und 10:00 lokal,
-// sonst der erste Messwert des Tages.
+// sonst der erste Messwert des Tages. Die Stundenfilterung macht SQLite mit
+// 'localtime' (nutzt die TZ des Containers) — in JS wäre das bei langen
+// Zeiträumen spürbar langsamer.
+const morningStmt = db.prepare(`
+  SELECT MAX(value) AS value FROM body_battery
+  WHERE calendar_date = ?
+    AND CAST(strftime('%H', ts_s, 'unixepoch', 'localtime') AS INTEGER) BETWEEN 4 AND 9
+`);
+const firstOfDayStmt = db.prepare(
+  'SELECT value FROM body_battery WHERE calendar_date = ? ORDER BY ts_s LIMIT 1'
+);
+
 function morningBodyBattery(calendarDate) {
-  const rows = db
-    .prepare('SELECT ts_s, value FROM body_battery WHERE calendar_date = ? ORDER BY ts_s')
-    .all(calendarDate);
-  if (rows.length === 0) return null;
-  const morning = rows.filter((r) => {
-    const h = Number(
-      new Date(r.ts_s * 1000).toLocaleTimeString('de-DE', { hour: '2-digit', hour12: false })
-    );
-    return h >= 4 && h < 10;
-  });
-  if (morning.length > 0) return Math.max(...morning.map((r) => r.value));
-  return rows[0].value;
+  const morning = morningStmt.get(calendarDate);
+  if (morning && morning.value !== null) return morning.value;
+  const first = firstOfDayStmt.get(calendarDate);
+  return first ? first.value : null;
 }
 
 function dayData(calendarDate) {
@@ -182,10 +192,33 @@ app.get('/api/day/:date', (req, res) => {
 });
 
 app.get('/api/range', (req, res) => {
-  const days = Math.min(Math.max(Number(req.query.days) || 7, 1), 90);
+  const days = Math.min(Math.max(Number(req.query.days) || 7, 1), 365);
+  // Optionales Enddatum, um in die Vergangenheit zu blättern (Standard: heute)
+  const end = req.query.end ? resolveDate(req.query.end) : localDate(0);
+  if (!end) return res.status(400).json({ error: 'end muss YYYY-MM-DD sein.' });
+
   const result = [];
-  for (let i = days - 1; i >= 0; i--) result.push(dayData(localDate(-i)));
+  for (let i = days - 1; i >= 0; i--) result.push(dayData(addDays(end, -i)));
   res.json(result);
+});
+
+/** Welcher Zeitraum ist überhaupt gespeichert? Füttert die Datumsauswahl im Dashboard. */
+app.get('/api/available', (req, res) => {
+  const row = db
+    .prepare(
+      `SELECT MIN(d) AS first, MAX(d) AS last, COUNT(*) AS days FROM (
+         SELECT calendar_date AS d FROM dailies
+         UNION SELECT calendar_date FROM sleep
+         UNION SELECT calendar_date FROM hrv
+       )`
+    )
+    .get();
+  res.json({
+    firstDate: row.first || null,
+    lastDate: row.last || null,
+    days: row.days || 0,
+    today: localDate(0),
+  });
 });
 
 app.get('/api/series/:date', (req, res) => {

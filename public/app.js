@@ -16,6 +16,17 @@ Chart.defaults.color = COLORS.muted;
 Chart.defaults.borderColor = COLORS.grid;
 Chart.defaults.font.family = 'system-ui, sans-serif';
 
+// Zustand der Ansicht: welcher Tag, welcher Verlaufszeitraum
+const view = { date: null, days: 7, available: null };
+
+// Charts werden beim Umschalten ersetzt — alte Instanzen vorher zerstören
+const charts = {};
+
+function drawChart(id, config) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), config);
+}
+
 async function getJSON(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`${url} → ${res.status}`);
@@ -29,8 +40,28 @@ function fmtHours(h) {
   return `${hh}h ${String(mm).padStart(2, '0')}m`;
 }
 
-function weekday(dateStr) {
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short' });
+function todayISO() {
+  return new Date().toLocaleDateString('sv-SE');
+}
+
+function addDays(dateStr, delta) {
+  const d = new Date(`${dateStr}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
+}
+
+function longDate(dateStr) {
+  return new Date(`${dateStr}T12:00:00`).toLocaleDateString('de-DE', {
+    weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+  });
+}
+
+/** Achsenbeschriftung: bei kurzen Zeiträumen Wochentag, bei langen das Datum. */
+function rangeLabel(dateStr, days) {
+  const d = new Date(`${dateStr}T12:00:00`);
+  if (days <= 14) return d.toLocaleDateString('de-DE', { weekday: 'short' });
+  if (days <= 90) return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  return d.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
 }
 
 function timeLabel(tsS) {
@@ -38,7 +69,7 @@ function timeLabel(tsS) {
 }
 
 function lineChart(canvasId, labels, data, color, opts = {}) {
-  new Chart(document.getElementById(canvasId), {
+  drawChart(canvasId, {
     type: 'line',
     data: {
       labels,
@@ -61,6 +92,8 @@ function lineChart(canvasId, labels, data, color, opts = {}) {
     },
   });
 }
+
+// ---------- Statusleiste & Sync ----------
 
 async function refreshStatus() {
   const statusEl = document.getElementById('status');
@@ -92,7 +125,6 @@ async function refreshStatus() {
 
 function setupSyncButton() {
   const button = document.getElementById('sync-btn');
-  if (!button) return;
   button.addEventListener('click', async () => {
     button.disabled = true;
     button.textContent = '⟳ …';
@@ -105,7 +137,7 @@ function setupSyncButton() {
         statusEl.className = 'status warn';
         return;
       }
-      location.reload(); // frische Daten anzeigen
+      await Promise.all([loadDay(), loadRange(), refreshStatus()]);
     } finally {
       button.disabled = false;
       button.textContent = '⟳ Sync';
@@ -113,49 +145,44 @@ function setupSyncButton() {
   });
 }
 
-async function main() {
-  document.getElementById('updated').textContent = new Date().toLocaleTimeString('de-DE');
+// ---------- Tagesansicht ----------
 
-  await refreshStatus();
-  setupSyncButton();
-
-  const [range, seriesToday] = await Promise.all([
-    getJSON('/api/range?days=7'),
-    getJSON('/api/series/today'),
+async function loadDay() {
+  const [day, series] = await Promise.all([
+    getJSON(`/api/day/${view.date}`),
+    getJSON(`/api/series/${view.date}`),
   ]);
-  const today = range[range.length - 1];
-  const lastSleep = [...range].reverse().find((d) => d.sleep) || today;
 
-  // --- KPIs ---
-  document.getElementById('kpi-sleep').textContent = fmtHours(lastSleep.sleep?.durationHours);
+  document.getElementById('day-label').textContent = longDate(view.date);
+  document.getElementById('day-picker').value = view.date;
+  document.getElementById('day-next').disabled = view.date >= todayISO();
+
+  const sleep = day.sleep;
+  document.getElementById('kpi-sleep').textContent = fmtHours(sleep && sleep.durationHours);
   document.getElementById('kpi-sleep-score').textContent =
-    lastSleep.sleep?.score != null ? `Score ${lastSleep.sleep.score}` : '';
-  document.getElementById('kpi-bb').textContent = today.bodyBatteryMorning ?? '–';
-  const bbSeries = seriesToday.bodyBattery;
-  if (bbSeries.length) {
-    document.getElementById('kpi-bb-now').textContent =
-      `aktuell ${bbSeries[bbSeries.length - 1].value}`;
-  }
+    sleep && sleep.score != null ? `Score ${sleep.score}` : '';
+  document.getElementById('kpi-bb').textContent = day.bodyBatteryMorning ?? '–';
+  document.getElementById('kpi-bb-now').textContent = series.bodyBattery.length
+    ? `zuletzt ${series.bodyBattery[series.bodyBattery.length - 1].value}`
+    : '';
   document.getElementById('kpi-hrv').textContent =
-    today.hrv?.lastNightAvg != null ? `${today.hrv.lastNightAvg} ms` : '–';
+    day.hrv && day.hrv.lastNightAvg != null ? `${day.hrv.lastNightAvg} ms` : '–';
   document.getElementById('kpi-steps').textContent =
-    today.steps != null ? today.steps.toLocaleString('de-DE') : '–';
+    day.steps != null ? day.steps.toLocaleString('de-DE') : '–';
   document.getElementById('kpi-rhr').textContent =
-    today.restingHr != null ? `Ruhepuls ${today.restingHr} bpm` : '';
-  document.getElementById('kpi-stress').textContent = today.avgStress ?? '–';
+    day.restingHr != null ? `Ruhepuls ${day.restingHr} bpm` : '';
+  document.getElementById('kpi-stress').textContent = day.avgStress ?? '–';
   document.getElementById('kpi-stress-max').textContent =
-    today.maxStress != null ? `max ${today.maxStress}` : '';
-  document.getElementById('kpi-vo2').textContent = today.vo2max ?? '–';
+    day.maxStress != null ? `max ${day.maxStress}` : '';
+  document.getElementById('kpi-vo2').textContent = day.vo2max ?? '–';
 
-  // --- Schlafphasen (Donut) ---
-  if (lastSleep.sleep) {
-    const s = lastSleep.sleep;
-    new Chart(document.getElementById('chart-sleep'), {
+  if (sleep) {
+    drawChart('chart-sleep', {
       type: 'doughnut',
       data: {
         labels: ['Tief', 'Leicht', 'REM', 'Wach'],
         datasets: [{
-          data: [s.deepMin ?? 0, s.lightMin ?? 0, s.remMin ?? 0, s.awakeMin ?? 0],
+          data: [sleep.deepMin ?? 0, sleep.lightMin ?? 0, sleep.remMin ?? 0, sleep.awakeMin ?? 0],
           backgroundColor: [COLORS.deep, COLORS.light, COLORS.rem, COLORS.awake],
           borderColor: '#171c26',
         }],
@@ -167,18 +194,32 @@ async function main() {
         },
       },
     });
+  } else if (charts['chart-sleep']) {
+    charts['chart-sleep'].destroy();
+    delete charts['chart-sleep'];
   }
 
-  // --- Tagesverläufe ---
-  lineChart('chart-bb', bbSeries.map((r) => timeLabel(r.ts_s)), bbSeries.map((r) => r.value), COLORS.accent, { max: 100 });
-  lineChart('chart-stress', seriesToday.stress.map((r) => timeLabel(r.ts_s)), seriesToday.stress.map((r) => r.value), COLORS.stress, { max: 100 });
+  lineChart('chart-bb', series.bodyBattery.map((r) => timeLabel(r.ts_s)),
+    series.bodyBattery.map((r) => r.value), COLORS.accent, { max: 100 });
+  lineChart('chart-stress', series.stress.map((r) => timeLabel(r.ts_s)),
+    series.stress.map((r) => r.value), COLORS.stress, { max: 100 });
+}
 
-  // --- 7-Tage-Charts ---
-  const labels7 = range.map((d) => weekday(d.date));
-  new Chart(document.getElementById('chart-sleep7'), {
+// ---------- Verlauf ----------
+
+async function loadRange() {
+  const range = await getJSON(`/api/range?days=${view.days}&end=${view.date}`);
+  const labels = range.map((d) => rangeLabel(d.date, view.days));
+  const suffix = view.days === 365 ? '1 Jahr' : `${view.days} Tage`;
+
+  document.getElementById('title-sleep7').textContent = `Schlafdauer — ${suffix}`;
+  document.getElementById('title-hrv7').textContent = `HRV — ${suffix}`;
+  document.getElementById('title-steps7').textContent = `Schritte — ${suffix}`;
+
+  drawChart('chart-sleep7', {
     type: 'bar',
     data: {
-      labels: labels7,
+      labels,
       datasets: [
         { label: 'Tief', data: range.map((d) => (d.sleep?.deepMin ?? 0) / 60), backgroundColor: COLORS.deep, stack: 's' },
         { label: 'Leicht', data: range.map((d) => (d.sleep?.lightMin ?? 0) / 60), backgroundColor: COLORS.light, stack: 's' },
@@ -187,18 +228,80 @@ async function main() {
     },
     options: {
       plugins: { legend: { position: 'bottom' } },
-      scales: { y: { title: { display: true, text: 'Stunden' } } },
+      scales: {
+        x: { ticks: { maxTicksLimit: 12 } },
+        y: { title: { display: true, text: 'Stunden' } },
+      },
     },
   });
-  lineChart('chart-hrv7', labels7, range.map((d) => d.hrv?.lastNightAvg ?? null), COLORS.rem, { beginAtZero: false });
-  new Chart(document.getElementById('chart-steps7'), {
+
+  lineChart('chart-hrv7', labels, range.map((d) => d.hrv?.lastNightAvg ?? null), COLORS.rem, { beginAtZero: false });
+
+  drawChart('chart-steps7', {
     type: 'bar',
-    data: { labels: labels7, datasets: [{ data: range.map((d) => d.steps ?? 0), backgroundColor: COLORS.steps }] },
-    options: { plugins: { legend: { display: false } } },
+    data: { labels, datasets: [{ data: range.map((d) => d.steps ?? 0), backgroundColor: COLORS.steps }] },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { maxTicksLimit: 12 } } },
+    },
   });
 }
 
+// ---------- Bedienelemente ----------
+
+function setupControls() {
+  const picker = document.getElementById('day-picker');
+
+  const goTo = async (date) => {
+    view.date = date;
+    await Promise.all([loadDay(), loadRange()]);
+  };
+
+  picker.addEventListener('change', () => picker.value && goTo(picker.value));
+  document.getElementById('day-prev').addEventListener('click', () => goTo(addDays(view.date, -1)));
+  document.getElementById('day-next').addEventListener('click', () => {
+    if (view.date < todayISO()) goTo(addDays(view.date, 1));
+  });
+  document.getElementById('day-today').addEventListener('click', () => goTo(todayISO()));
+
+  document.querySelectorAll('#range-buttons button').forEach((button) => {
+    button.addEventListener('click', async () => {
+      document.querySelectorAll('#range-buttons button').forEach((b) => b.classList.remove('active'));
+      button.classList.add('active');
+      view.days = Number(button.dataset.days);
+      await loadRange();
+    });
+  });
+}
+
+async function main() {
+  document.getElementById('updated').textContent = new Date().toLocaleTimeString('de-DE');
+
+  view.date = todayISO();
+  try {
+    view.available = await getJSON('/api/available');
+    const picker = document.getElementById('day-picker');
+    picker.max = view.available.today;
+    if (view.available.firstDate) picker.min = view.available.firstDate;
+
+    const note = document.getElementById('history-note');
+    if (view.available.days > 0) {
+      note.textContent =
+        `Gespeicherte Historie: ${view.available.days} Tage (${longDate(view.available.firstDate)} bis ${longDate(view.available.lastDate)}). ` +
+        'Weiter zurück nachladen: sync.py --days N';
+    } else {
+      note.textContent = 'Noch keine Daten gespeichert — einmal synchronisieren: sync.py --days 7';
+    }
+  } catch { /* Historie-Info ist optional */ }
+
+  await refreshStatus();
+  setupSyncButton();
+  setupControls();
+  await Promise.all([loadDay(), loadRange()]);
+}
+
 main().catch((err) => {
-  document.getElementById('status').textContent = '⚠ ' + err.message;
-  document.getElementById('status').className = 'status warn';
+  const statusEl = document.getElementById('status');
+  statusEl.textContent = '⚠ ' + err.message;
+  statusEl.className = 'status warn';
 });

@@ -125,9 +125,27 @@ Container holt sich die Daten von innen.)*
 Läuft automatisch mit: **https://health.erenstower.de**
 
 - KPI-Karten: Schlaf, Body Battery (Morgenwert), HRV, Schritte, Stress, VO2 Max
-- Graphen: Schlafphasen (letzte Nacht), Body-Battery- und Stress-Verlauf (heute),
-  Schlafdauer / HRV / Schritte über 7 Tage
+- Graphen: Schlafphasen, Body-Battery- und Stress-Tagesverlauf,
+  Schlafdauer / HRV / Schritte über den gewählten Zeitraum
 - Oben rechts: Verbindungsstatus und ein **⟳ Sync**-Knopf, um sofort neu abzurufen
+
+### In die Vergangenheit schauen
+
+Nichts wird je überschrieben oder gelöscht — jeder Tag bleibt dauerhaft in der Datenbank.
+Im Dashboard kommst du so an die Historie:
+
+- **Tagesauswahl** oben links: mit `‹` / `›` tageweise blättern, über das Datumsfeld direkt
+  zu einem Tag springen, mit **Heute** zurück. KPIs und Tagesverläufe beziehen sich immer
+  auf den gewählten Tag.
+- **Verlauf** oben rechts: **7 Tage / 30 Tage / 90 Tage / 1 Jahr** für die Trend-Graphen.
+- Unter den Graphen steht, welcher Zeitraum überhaupt gespeichert ist.
+
+Die Historie beginnt mit dem ersten Abruf. Ältere Tage holst du jederzeit nach — Garmin
+liefert alles, was in deinem Connect-Konto liegt:
+
+```bash
+docker exec garmin-health /opt/venv/bin/python3 /app/poller/sync.py --days 90
+```
 
 ## Schritt 6 — n8n → Notion
 
@@ -172,8 +190,9 @@ docker exec garmin-health /opt/venv/bin/python3 /app/poller/sync.py --days 1 --d
 | Endpoint | Zweck |
 |---|---|
 | `GET /api/day/yesterday` | Tageswerte (auch `today` oder `YYYY-MM-DD`) — für n8n |
-| `GET /api/range?days=7` | Tageswerte-Reihe (1–90 Tage) — fürs Dashboard |
+| `GET /api/range?days=30&end=2026-08-01` | Tageswerte-Reihe (1–365 Tage), `end` optional zum Zurückblättern |
 | `GET /api/series/today` | Body-Battery- & Stress-Zeitreihe eines Tages |
+| `GET /api/available` | Welcher Zeitraum ist gespeichert (erster/letzter Tag, Anzahl) |
 | `POST /api/sync?days=2` | Abruf sofort anstoßen (macht der ⟳-Knopf) |
 | `GET /auth/status` | Anmelde- und Abrufstatus |
 | `GET /api/health` | Healthcheck |
