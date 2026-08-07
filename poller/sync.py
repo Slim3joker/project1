@@ -26,7 +26,9 @@ from mapping import (
     map_user_metrics,
 )
 
-TOKEN_DIR = os.environ.get("GARTH_TOKEN_DIR", "/data/garth")
+TOKEN_DIR = os.environ.get("GARTH_TOKEN_DIR") or os.path.join(
+    os.environ.get("DATA_DIR", "/data"), "garth"
+)
 WEBHOOK_URL = os.environ.get("INTERNAL_WEBHOOK_URL", "http://127.0.0.1:3000/webhook/garmin")
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
 

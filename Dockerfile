@@ -14,8 +14,9 @@ ENV NODE_ENV=production \
     TZ=Europe/Berlin \
     DATA_DIR=/data \
     PORT=3000 \
-    GARTH_TOKEN_DIR=/data/garth \
     PYTHON_BIN=/opt/venv/bin/python3
+# GARTH_TOKEN_DIR wird bewusst nicht gesetzt — Node und Poller leiten den Pfad
+# aus DATA_DIR ab (/data/garth). Vermeidet zugleich Dockers SecretsUsedInArgOrEnv-Warnung.
 WORKDIR /app
 
 # Python-Umgebung für den Garmin-Connect-Abruf (poller/)

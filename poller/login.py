@@ -15,7 +15,9 @@ import sys
 
 import garth
 
-TOKEN_DIR = os.environ.get("GARTH_TOKEN_DIR", "/data/garth")
+TOKEN_DIR = os.environ.get("GARTH_TOKEN_DIR") or os.path.join(
+    os.environ.get("DATA_DIR", "/data"), "garth"
+)
 
 
 def main():
