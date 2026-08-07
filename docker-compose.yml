@@ -4,12 +4,15 @@ services:
   fba-cockpit:
     build: .
     container_name: fba-cockpit
+    user: "99:100"   # Unraid: nobody:users
     restart: unless-stopped
     ports:
       - "8477:8477"
     volumes:
       - /mnt/user/appdata/fba-cockpit:/data
     environment:
-      # Pflicht: ohne Passwort bleibt das Dashboard gesperrt.
+      # Entweder Passwort setzen …
       FBA_PASSWORD: "HIER-DEIN-PASSWORT"
+      # … oder Login abschalten (nur mit Cloudflare Access davor):
+      # FBA_AUTH: "off"
       TZ: "Europe/Berlin"

@@ -22,6 +22,10 @@ const PORT = Number(process.env.PORT) || 8477;
 const DATA_DIR = process.env.DATA_DIR || "/data";
 const DATA_FILE = path.join(DATA_DIR, "fba-cockpit.json");
 const PASSWORD = process.env.FBA_PASSWORD || "";
+/* Login lässt sich bewusst abschalten (FBA_AUTH=off) – z. B. wenn stattdessen
+ * Cloudflare Access davor hängt. Nur als ausdrücklicher Schalter, damit ein
+ * vergessenes Passwort nicht versehentlich alles offenlegt. */
+const AUTH_OFF = String(process.env.FBA_AUTH || "").toLowerCase() === "off";
 const PUBLIC_DIR = path.join(__dirname, "public");
 const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 Tage
 
@@ -248,8 +252,8 @@ async function handleApi(req, res, url) {
   // Login/Status brauchen keine Session
   if (p === "/api/status" && req.method === "GET") {
     return sendJson(res, 200, {
-      configured: Boolean(PASSWORD),
-      authenticated: validSession(parseCookies(req).fba_session)
+      authRequired: !AUTH_OFF,
+      authenticated: AUTH_OFF || validSession(parseCookies(req).fba_session)
     });
   }
 
@@ -265,9 +269,9 @@ async function handleApi(req, res, url) {
     return sendJson(res, 200, { ok: true });
   }
 
-  // Ab hier: Session nötig
+  // Ab hier: Session nötig (außer der Login ist ausdrücklich abgeschaltet)
   const token = parseCookies(req).fba_session;
-  if (!validSession(token)) return sendJson(res, 401, { error: "Nicht angemeldet" });
+  if (!AUTH_OFF && !validSession(token)) return sendJson(res, 401, { error: "Nicht angemeldet" });
 
   if (p === "/api/logout" && req.method === "POST") {
     sessions.delete(token);
@@ -383,7 +387,8 @@ const server = http.createServer((req, res) => {
 
   // Ohne Passwort läuft die App bewusst NICHT – sonst stünden Steuernummer
   // und IBAN offen im Netz, sobald der Cloudflare Tunnel darauf zeigt.
-  if (!PASSWORD && !url.pathname.startsWith("/api/")) {
+  // Ausnahme: FBA_AUTH=off, wenn der Schutz woanders sitzt (z. B. Cloudflare Access).
+  if (!PASSWORD && !AUTH_OFF && !url.pathname.startsWith("/api/")) {
     const msg = `<!doctype html><meta charset="utf-8"><title>FBA Cockpit – Einrichtung</title>
 <body style="font:16px/1.6 system-ui,sans-serif;max-width:40em;margin:3em auto;padding:0 1.5em">
 <h1>Noch ein Schritt: Passwort setzen</h1>
@@ -415,9 +420,14 @@ loadData().then(() => {
   server.listen(PORT, "0.0.0.0", () => {
     console.log(`[start] FBA Cockpit läuft auf Port ${PORT}`);
     console.log(`[start] Daten: ${DATA_FILE}`);
-    console.log(PASSWORD
-      ? "[start] Passwortschutz aktiv"
-      : "[start] ACHTUNG: FBA_PASSWORD ist nicht gesetzt – Dashboard bleibt gesperrt");
+    if (AUTH_OFF) {
+      console.log("[start] ACHTUNG: Login ist abgeschaltet (FBA_AUTH=off).");
+      console.log("[start] Wer die Adresse erreicht, sieht alle Daten – Schutz muss davor liegen (Cloudflare Access).");
+    } else {
+      console.log(PASSWORD
+        ? "[start] Passwortschutz aktiv"
+        : "[start] ACHTUNG: FBA_PASSWORD ist nicht gesetzt – Dashboard bleibt gesperrt");
+    }
   });
 });
 

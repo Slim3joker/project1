@@ -975,8 +975,10 @@ function renderAll() {
 }
 
 (async function start() {
-  let status = { authenticated: false };
+  let status = { authenticated: false, authRequired: true };
   try { status = await api("GET", "/api/status"); } catch {}
+  // Ist der Login abgeschaltet, gibt es nichts zum Abmelden.
+  if (status.authRequired === false) $("#btn-logout").hidden = true;
   if (status.authenticated) {
     showApp();
     await refresh();
