@@ -5,7 +5,7 @@ Notion-Datenbank **🎯 Abend-Tasks**. Aus der reinen To-Do-Liste soll Schritt f
 deine kleine Kommandozentrale werden.
 
 **Roadmap**
-- **Phase 1 (fertig):** Aufgaben aus Notion anzeigen, nach Bereich filtern, abhaken (schreibt zurück nach Notion). Ruhiges, dunkles Design, handytauglich.
+- **Phase 1 (fertig):** Aufgaben aus Notion anzeigen, nach Bereich filtern, abhaken **und direkt in der App anlegen, bearbeiten & löschen** (schreibt zurück nach Notion). Ruhiges, dunkles Design, handytauglich.
 - **Phase 2 (fertig):** Google-Kalender-Agenda „Heute / Demnächst" (per geheimer iCal-URL, ohne Google-OAuth).
 - **Phase 3 (geplant):** Kochkiste-Anbindung – Kühlschrank/gekochtes ansehen → Essensvorschläge.
 
@@ -21,7 +21,9 @@ Ein einziger kleiner Node-Container:
 | Endpoint | Zweck |
 |---|---|
 | `GET /api/tasks` | Aufgaben aus Notion laden |
-| `PATCH /api/tasks/:id` | Status ändern (z. B. auf `Done`) |
+| `POST /api/tasks` | Neue Aufgabe anlegen |
+| `PATCH /api/tasks/:id` | Aufgabe ändern (Titel, Bereich, Priorität, Fällig, Status) |
+| `DELETE /api/tasks/:id` | Aufgabe löschen (in Notion archivieren) |
 | `GET /api/calendar` | Termine aus dem Google-Kalender (iCal) |
 | `GET /api/health` | Statuscheck |
 

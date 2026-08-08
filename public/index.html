@@ -264,6 +264,63 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+  /* ---- Neue Aufgabe: FAB + Sheet ---- */
+  .fab {
+    position: fixed; right: max(16px, env(safe-area-inset-right));
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink); font-size: 30px; line-height: 1;
+    box-shadow: 0 12px 26px -8px rgba(0, 0, 0, 0.55); display: grid; place-items: center; z-index: 40;
+    transition: transform .15s ease;
+  }
+  .fab:hover { transform: translateY(-2px) scale(1.04); }
+  .fab:active { transform: scale(0.95); }
+
+  .sheet-backdrop {
+    position: fixed; inset: 0; z-index: 60; background: rgba(6, 5, 12, 0.55);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; transition: opacity .2s ease;
+  }
+  .sheet-backdrop.show { opacity: 1; }
+  .sheet {
+    width: min(560px, 100%); background: var(--bg-hi); border: 1px solid var(--border);
+    border-radius: 22px 22px 0 0; padding: 8px 18px calc(20px + env(safe-area-inset-bottom));
+    box-shadow: 0 -24px 60px -24px rgba(0, 0, 0, 0.65);
+    transform: translateY(24px); transition: transform .25s ease;
+    display: flex; flex-direction: column; gap: 14px; max-height: 92dvh; overflow-y: auto;
+  }
+  .sheet-backdrop.show .sheet { transform: translateY(0); }
+  @media (min-width: 560px) { .sheet-backdrop { align-items: center; } .sheet { border-radius: 22px; } }
+  .sheet-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); align-self: center; margin: 6px 0 2px; }
+  .sheet-title { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); font-weight: 700; }
+  .field textarea, .field input[type="date"] {
+    width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    color: var(--text); font: inherit; padding: 11px 13px;
+  }
+  .field textarea { min-height: 54px; resize: vertical; }
+  .field input[type="date"] { color-scheme: dark; }
+  :root[data-theme="light"] .field input[type="date"] { color-scheme: light; }
+  .field textarea:focus, .field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  .chip-select { display: flex; flex-wrap: wrap; gap: 7px; }
+  .opt {
+    border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+    border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all .12s ease;
+  }
+  .opt .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--faint)); }
+  .opt.active { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
+  .opt:hover { border-color: var(--accent); }
+  .sheet-actions { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .sheet-actions .spacer { flex: 1; }
+  .btn-primary, .btn-ghost, .btn-danger { font: inherit; font-weight: 700; border-radius: 11px; padding: 11px 18px; cursor: pointer; transition: transform .12s ease, opacity .12s ease; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); border: none; }
+  .btn-primary:disabled { opacity: 0.5; cursor: default; }
+  .btn-ghost { background: none; border: 1px solid var(--border); color: var(--muted); font-weight: 600; }
+  .btn-danger { background: none; border: 1px solid color-mix(in srgb, var(--prio-hoch) 45%, transparent); color: var(--prio-hoch); }
+  .btn-primary:hover, .btn-ghost:hover, .btn-danger:hover { transform: translateY(-1px); }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
@@ -316,6 +373,37 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <button class="fab" id="fab" type="button" aria-label="Neue Aufgabe">+</button>
+
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="sheetTitle">Neue Aufgabe</h2>
+      <label class="field">
+        <span class="field-label">Aufgabe</span>
+        <textarea id="f-title" rows="2" placeholder="Was ist zu tun?"></textarea>
+      </label>
+      <div class="field">
+        <span class="field-label">Bereich</span>
+        <div class="chip-select" id="f-bereich"></div>
+      </div>
+      <div class="field">
+        <span class="field-label">Priorität</span>
+        <div class="chip-select" id="f-prio"></div>
+      </div>
+      <label class="field">
+        <span class="field-label">Fällig</span>
+        <input type="date" id="f-date" />
+      </label>
+      <div class="sheet-actions">
+        <button class="btn-danger" id="f-delete" type="button" hidden>Löschen</button>
+        <div class="spacer"></div>
+        <button class="btn-ghost" id="f-cancel" type="button">Abbrechen</button>
+        <button class="btn-primary" id="f-save" type="button">Speichern</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 (() => {
   "use strict";
@@ -348,7 +436,10 @@
   ];
 
   const $ = (id) => document.getElementById(id);
-  const state = { tasks: [], filter: "alle", offline: false, doneOpen: false };
+  const state = { tasks: [], filter: "alle", offline: false, doneOpen: false, editing: null };
+  const BEREICH_OPTS = Object.keys(BEREICH);
+  const PRIO_OPTS = ["🔴 Hoch", "🟡 Mittel", "🟢 Low"];
+  const sheetSel = { bereich: null, prio: null };
 
   // ---- Helpers -------------------------------------------------------------
   const isDone = (t) => t.status === "Done";
@@ -418,6 +509,8 @@
       </div>`;
 
     el.querySelector(".check").addEventListener("click", () => toggleTask(t, el, done));
+    const main = el.querySelector(".task-main");
+    main.addEventListener("click", (e) => { if (e.target.closest("a")) return; openSheet(t); });
     return el;
   }
 
@@ -500,6 +593,95 @@
     toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
   }
 
+  // ---- Anlegen / Bearbeiten / Löschen -------------------------------------
+  function renderSheetChips() {
+    const mkOpt = (label, active, dotColor, onClick) => {
+      const el = document.createElement("button");
+      el.type = "button";
+      el.className = "opt" + (active ? " active" : "");
+      el.innerHTML = (dotColor ? `<span class="dot" style="--c:${dotColor}"></span>` : "") + escapeHtml(label);
+      el.addEventListener("click", onClick);
+      return el;
+    };
+    const b = $("f-bereich"); b.innerHTML = "";
+    b.appendChild(mkOpt("— kein —", !sheetSel.bereich, null, () => { sheetSel.bereich = null; renderSheetChips(); }));
+    BEREICH_OPTS.forEach((name) => b.appendChild(mkOpt(name, sheetSel.bereich === name, BEREICH[name], () => { sheetSel.bereich = name; renderSheetChips(); })));
+
+    const p = $("f-prio"); p.innerHTML = "";
+    p.appendChild(mkOpt("— kein —", !sheetSel.prio, null, () => { sheetSel.prio = null; renderSheetChips(); }));
+    PRIO_OPTS.forEach((name) => p.appendChild(mkOpt(name, sheetSel.prio === name, null, () => { sheetSel.prio = name; renderSheetChips(); })));
+  }
+
+  function openSheet(task) {
+    state.editing = task || null;
+    sheetSel.bereich = task?.bereich || null;
+    sheetSel.prio = task?.prioritaet || null;
+    $("sheetTitle").textContent = task ? "Aufgabe bearbeiten" : "Neue Aufgabe";
+    $("f-title").value = task?.title || "";
+    $("f-date").value = task?.faellig ? String(task.faellig).slice(0, 10) : "";
+    $("f-delete").hidden = !task;
+    renderSheetChips();
+    const bd = $("sheetBackdrop");
+    bd.hidden = false;
+    requestAnimationFrame(() => bd.classList.add("show"));
+    setTimeout(() => $("f-title").focus(), 80);
+  }
+
+  function closeSheet() {
+    const bd = $("sheetBackdrop");
+    bd.classList.remove("show");
+    setTimeout(() => { bd.hidden = true; }, 220);
+  }
+
+  async function saveTask() {
+    const title = $("f-title").value.trim();
+    if (!title) { toast("Bitte einen Titel eingeben."); $("f-title").focus(); return; }
+    const fields = { title, bereich: sheetSel.bereich, prioritaet: sheetSel.prio, faellig: $("f-date").value || null };
+    const editing = state.editing;
+    $("f-save").disabled = true;
+    try {
+      if (state.offline) {
+        if (editing) Object.assign(editing, fields);
+        else state.tasks.unshift({ id: "local-" + Date.now(), status: "Not started", ...fields });
+        toast(editing ? "Gespeichert (Vorschau)" : "Hinzugefügt (Vorschau)");
+        closeSheet(); setSub(); render();
+      } else {
+        const res = await fetch(editing ? `/api/tasks/${encodeURIComponent(editing.id)}` : "/api/tasks", {
+          method: editing ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editing ? fields : { ...fields, status: "Not started" }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || "Speichern fehlgeschlagen");
+        toast(editing ? "Gespeichert ✓" : "Aufgabe hinzugefügt ✓");
+        closeSheet(); await load();
+      }
+    } catch (err) {
+      toast("Fehler: " + err.message);
+    } finally {
+      $("f-save").disabled = false;
+    }
+  }
+
+  async function deleteTask() {
+    const editing = state.editing;
+    if (!editing) return;
+    if (!confirm("Diese Aufgabe wirklich löschen?")) return;
+    try {
+      if (state.offline) {
+        state.tasks = state.tasks.filter((t) => t.id !== editing.id);
+        toast("Gelöscht (Vorschau)"); closeSheet(); setSub(); render();
+      } else {
+        const res = await fetch(`/api/tasks/${encodeURIComponent(editing.id)}`, { method: "DELETE" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || "Löschen fehlgeschlagen");
+        toast("Gelöscht ✓"); closeSheet(); await load();
+      }
+    } catch (err) {
+      toast("Fehler: " + err.message);
+    }
+  }
+
   // ---- Header / theme ------------------------------------------------------
   function setupHeader() {
     const now = new Date();
@@ -522,6 +704,13 @@
     });
 
     $("doneToggle").addEventListener("click", () => { state.doneOpen = !state.doneOpen; render(); });
+
+    $("fab").addEventListener("click", () => openSheet(null));
+    $("f-cancel").addEventListener("click", closeSheet);
+    $("f-save").addEventListener("click", saveTask);
+    $("f-delete").addEventListener("click", deleteTask);
+    $("sheetBackdrop").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeSheet(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("sheetBackdrop").hidden) closeSheet(); });
   }
 
   function setSub() {

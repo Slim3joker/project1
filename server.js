@@ -16,6 +16,7 @@ const PORT = Number(process.env.PORT) || 3000;
 const NOTION_TOKEN = process.env.NOTION_TOKEN || '';
 const NOTION_DB_ID = process.env.NOTION_DB_ID || '';
 const NOTION_VERSION = '2022-06-28';
+const NOTION_API = process.env.NOTION_API_BASE || 'https://api.notion.com/v1';
 
 // Phase 2: geheime iCal-URL des Google-Kalenders (nur lesen, serverseitig).
 const GOOGLE_ICAL_URL = process.env.GOOGLE_ICAL_URL || '';
@@ -56,7 +57,7 @@ async function notion(path, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12000);
   try {
-    const res = await fetch(`https://api.notion.com/v1${path}`, {
+    const res = await fetch(`${NOTION_API}${path}`, {
       ...options,
       signal: controller.signal,
       headers: {
@@ -114,12 +115,51 @@ async function fetchTasks() {
   return results.map(mapPage);
 }
 
-async function setTaskStatus(id, statusName) {
+// Baut das Notion-"properties"-Objekt aus einfachen Feldern.
+// Nur uebergebene Schluessel werden gesetzt (Teil-Updates moeglich).
+function buildProps(fields) {
+  const props = {};
+  if (typeof fields.title === 'string') {
+    props[PROP.title] = { title: [{ text: { content: fields.title } }] };
+  }
+  if ('bereich' in fields) {
+    props[PROP.bereich] = { select: fields.bereich ? { name: fields.bereich } : null };
+  }
+  if ('prioritaet' in fields) {
+    props[PROP.prioritaet] = { select: fields.prioritaet ? { name: fields.prioritaet } : null };
+  }
+  if ('faellig' in fields) {
+    props[PROP.faellig] = { date: fields.faellig ? { start: fields.faellig } : null };
+  }
+  if ('status' in fields && fields.status) {
+    props[PROP.status] = { status: { name: fields.status } };
+  }
+  return props;
+}
+
+async function createTask(fields) {
+  const data = await notion('/pages', {
+    method: 'POST',
+    body: JSON.stringify({
+      parent: { database_id: NOTION_DB_ID },
+      properties: buildProps(fields),
+    }),
+  });
+  return mapPage(data);
+}
+
+async function updateTask(id, fields) {
+  const data = await notion(`/pages/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ properties: buildProps(fields) }),
+  });
+  return mapPage(data);
+}
+
+async function archiveTask(id) {
   await notion(`/pages/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify({
-      properties: { [PROP.status]: { status: { name: statusName } } },
-    }),
+    body: JSON.stringify({ archived: true }),
   });
 }
 
@@ -236,17 +276,49 @@ const server = createServer(async (req, res) => {
     }
   }
 
-  // PATCH /api/tasks/:id  { status: "Done" | "Not started" | "In progress" }
-  const taskMatch = url.pathname.match(/^\/api\/tasks\/([^/]+)$/);
-  if (taskMatch && req.method === 'PATCH') {
+  // POST /api/tasks  { title, bereich?, prioritaet?, faellig?, status? }
+  if (url.pathname === '/api/tasks' && req.method === 'POST') {
     if (!NOTION_TOKEN || !NOTION_DB_ID) {
       return sendJson(res, 503, { ok: false, error: 'Notion ist noch nicht konfiguriert.' });
     }
     try {
       const body = await readBody(req);
-      const status = String(body.status || DONE_STATUS);
-      await setTaskStatus(decodeURIComponent(taskMatch[1]), status);
-      return sendJson(res, 200, { ok: true });
+      const title = String(body.title || '').trim();
+      if (!title) return sendJson(res, 400, { ok: false, error: 'Titel fehlt.' });
+      const task = await createTask({
+        title,
+        bereich: body.bereich || null,
+        prioritaet: body.prioritaet || null,
+        faellig: body.faellig || null,
+        status: body.status || 'Not started',
+      });
+      return sendJson(res, 201, { ok: true, task });
+    } catch (err) {
+      return sendJson(res, err.status || 502, { ok: false, error: err.message });
+    }
+  }
+
+  // /api/tasks/:id  ->  PATCH (aendern)  |  DELETE (archivieren)
+  const taskMatch = url.pathname.match(/^\/api\/tasks\/([^/]+)$/);
+  if (taskMatch && (req.method === 'PATCH' || req.method === 'DELETE')) {
+    if (!NOTION_TOKEN || !NOTION_DB_ID) {
+      return sendJson(res, 503, { ok: false, error: 'Notion ist noch nicht konfiguriert.' });
+    }
+    const id = decodeURIComponent(taskMatch[1]);
+    try {
+      if (req.method === 'DELETE') {
+        await archiveTask(id);
+        return sendJson(res, 200, { ok: true });
+      }
+      const body = await readBody(req);
+      const fields = {};
+      if ('title' in body) fields.title = String(body.title);
+      if ('bereich' in body) fields.bereich = body.bereich || null;
+      if ('prioritaet' in body) fields.prioritaet = body.prioritaet || null;
+      if ('faellig' in body) fields.faellig = body.faellig || null;
+      if ('status' in body) fields.status = body.status;
+      const task = await updateTask(id, fields);
+      return sendJson(res, 200, { ok: true, task });
     } catch (err) {
       return sendJson(res, err.status || 502, { ok: false, error: err.message });
     }
