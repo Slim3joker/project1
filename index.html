@@ -3,973 +3,1454 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FBA Cockpit – Amazon Business Dashboard</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#D4697A">
+<title>MeinZyklus – Zyklustracker</title>
 <style>
-  :root {
-    color-scheme: light;
-    --page:           #f9f9f7;
-    --surface-1:      #fcfcfb;
-    --text-primary:   #0b0b0b;
-    --text-secondary: #52514e;
-    --text-muted:     #898781;
-    --grid:           #e1e0d9;
-    --baseline:       #c3c2b7;
-    --border:         rgba(11,11,11,0.10);
-    --series-1:       #2a78d6;
-    --series-1-track: #cde2fb;
-    --status-good:    #0ca30c;
-    --status-warn:    #fab219;
-    --status-serious: #ec835a;
-    --status-crit:    #d03b3b;
-    --good-text:      #006300;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:where(:not([data-theme="light"])) {
-      color-scheme: dark;
-      --page:           #0d0d0d;
-      --surface-1:      #1a1a19;
-      --text-primary:   #ffffff;
-      --text-secondary: #c3c2b7;
-      --text-muted:     #898781;
-      --grid:           #2c2c2a;
-      --baseline:       #383835;
-      --border:         rgba(255,255,255,0.10);
-      --series-1:       #3987e5;
-      --series-1-track: #184f95;
-      --good-text:      #0ca30c;
-    }
-  }
-  :root[data-theme="dark"] {
+/* ── Reset & Tokens ── */
+:root {
+  color-scheme: light;
+  --bg:             #FBF5F7;
+  --surface:        #FFFFFF;
+  --surface-2:      #F5EDF0;
+  --text:           #2D2B3A;
+  --text-2:         #6B6880;
+  --text-muted:     #A09DAE;
+  --border:         rgba(45,43,58,0.10);
+  --border-2:       rgba(45,43,58,0.06);
+
+  --primary:        #D4697A;
+  --primary-light:  #F2D0D6;
+  --primary-bg:     #FFF0F2;
+
+  --period:         #E85D75;
+  --period-light:   #FADCE2;
+  --period-bg:      rgba(232,93,117,0.10);
+
+  --fertile:        #4CAF7D;
+  --fertile-light:  #C8E9D8;
+  --fertile-bg:     rgba(76,175,125,0.10);
+
+  --ovulation:      #2E8B57;
+  --ovulation-light:#B8DFC9;
+
+  --luteal:         #E6A84D;
+  --luteal-light:   #F5DDB3;
+  --luteal-bg:      rgba(230,168,77,0.10);
+
+  --follicular:     #6BA3D6;
+  --follicular-light:#C5DDF2;
+  --follicular-bg:  rgba(107,163,214,0.10);
+
+  --predicted:      rgba(212,105,122,0.35);
+
+  --radius:         12px;
+  --radius-sm:      8px;
+  --radius-xs:      6px;
+  --shadow:         0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg:      0 4px 12px rgba(0,0,0,0.08);
+  --transition:     0.2s ease;
+
+  --nav-height:     60px;
+  --header-height:  56px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --page:           #0d0d0d;
-    --surface-1:      #1a1a19;
-    --text-primary:   #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted:     #898781;
-    --grid:           #2c2c2a;
-    --baseline:       #383835;
-    --border:         rgba(255,255,255,0.10);
-    --series-1:       #3987e5;
-    --series-1-track: #184f95;
-    --good-text:      #0ca30c;
-  }
+    --bg:             #151219;
+    --surface:        #221F28;
+    --surface-2:      #2D2935;
+    --text:           #EAE8EF;
+    --text-2:         #A9A6B8;
+    --text-muted:     #706D80;
+    --border:         rgba(234,232,239,0.10);
+    --border-2:       rgba(234,232,239,0.06);
 
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--page);
-    color: var(--text-primary);
-    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  header {
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    padding: 16px 24px 0;
-    max-width: 1100px; margin: 0 auto;
-  }
-  header h1 { font-size: 20px; margin: 0; }
-  header .sub { color: var(--text-muted); font-size: 13px; }
-  header .spacer { flex: 1; }
-  .btn {
-    font: inherit; font-size: 13px;
-    color: var(--text-primary);
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 12px;
-    cursor: pointer;
-  }
-  .btn:hover { border-color: var(--baseline); }
-  .btn.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
-  .btn.small { padding: 3px 8px; font-size: 12px; }
-  .btn.danger { color: var(--status-crit); }
+    --primary:        #E88DA0;
+    --primary-light:  #3D2832;
+    --primary-bg:     rgba(232,141,160,0.12);
 
-  nav.tabs {
-    display: flex; gap: 4px; flex-wrap: wrap;
-    max-width: 1100px; margin: 16px auto 0;
-    padding: 0 24px;
-    border-bottom: 1px solid var(--grid);
-  }
-  nav.tabs button {
-    font: inherit; font-size: 14px;
-    background: none; border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--text-secondary);
-    padding: 8px 12px; cursor: pointer;
-  }
-  nav.tabs button.active {
-    color: var(--text-primary);
-    border-bottom-color: var(--series-1);
-    font-weight: 600;
-  }
-  main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 60px; }
-  section.tab { display: none; }
-  section.tab.active { display: block; }
+    --period:         #F07A90;
+    --period-light:   #3D252C;
+    --period-bg:      rgba(240,122,144,0.15);
 
-  .card {
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 16px;
-  }
-  .card h2 { font-size: 15px; margin: 0 0 4px; }
-  .card .hint { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; }
+    --fertile:        #5EC48D;
+    --fertile-light:  #1E3328;
+    --fertile-bg:     rgba(94,196,141,0.15);
 
-  /* KPI row */
-  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
-  .tile {
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-  }
-  .tile .label { font-size: 13px; color: var(--text-secondary); }
-  .tile .value { font-size: 30px; font-weight: 600; line-height: 1.2; }
-  .tile .note  { font-size: 12px; color: var(--text-muted); }
-  .tile .note.good { color: var(--good-text); }
-  .tile .note.bad  { color: var(--status-crit); }
+    --ovulation:      #4EBB7B;
+    --ovulation-light:#253D30;
 
-  /* Status badges: icon + label, text in ink tokens */
-  .badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12px; font-weight: 600;
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 2px 10px 2px 8px;
-    white-space: nowrap;
-  }
-  .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+    --luteal:         #F0B860;
+    --luteal-light:   #3D3220;
+    --luteal-bg:      rgba(240,184,96,0.15);
 
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
-  th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
-  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  tr:last-child td { border-bottom: none; }
-  .table-scroll { overflow-x: auto; }
-  td .mono { color: var(--text-muted); font-size: 12px; }
+    --follicular:     #7DB8E8;
+    --follicular-light:#20303D;
+    --follicular-bg:  rgba(125,184,232,0.15);
 
-  /* Bar chart (Reichweite) */
-  .chart { position: relative; padding: 8px 0 4px; }
-  .bar-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 10px; min-height: 26px; }
-  .bar-row .bar-label { font-size: 13px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bar-track { position: relative; height: 26px; display: flex; align-items: center; }
-  .bar {
-    height: 16px;
-    background: var(--series-1);
-    border-radius: 0 4px 4px 0;
-    min-width: 2px;
-  }
-  .bar-value { font-size: 12px; color: var(--text-secondary); margin-left: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .threshold {
-    position: absolute; top: 0; bottom: 18px; width: 1px;
-    background: var(--baseline);
-  }
-  .threshold-label {
-    position: absolute; bottom: 0; transform: translateX(-50%);
-    font-size: 11px; color: var(--text-muted); white-space: nowrap;
-  }
-  .chart-footer { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+    --predicted:      rgba(232,141,160,0.25);
 
-  #tooltip {
-    position: fixed; z-index: 50; display: none;
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    padding: 8px 12px; font-size: 13px;
-    pointer-events: none; max-width: 280px;
+    --shadow:         0 1px 3px rgba(0,0,0,0.20);
+    --shadow-lg:      0 4px 12px rgba(0,0,0,0.30);
   }
-  #tooltip .tt-value { font-weight: 700; font-size: 15px; }
-  #tooltip .tt-label { color: var(--text-secondary); }
+}
 
-  /* Alerts */
-  .alert-item {
-    display: flex; gap: 10px; align-items: flex-start;
-    padding: 10px 0; border-bottom: 1px solid var(--grid);
-  }
-  .alert-item:last-child { border-bottom: none; }
-  .alert-item .icon { font-size: 16px; line-height: 1.4; }
-  .alert-item .body { flex: 1; }
-  .alert-item .title { font-weight: 600; font-size: 14px; }
-  .alert-item .detail { font-size: 13px; color: var(--text-secondary); }
-  .empty { color: var(--text-muted); font-size: 14px; padding: 8px 0; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:             #151219;
+  --surface:        #221F28;
+  --surface-2:      #2D2935;
+  --text:           #EAE8EF;
+  --text-2:         #A9A6B8;
+  --text-muted:     #706D80;
+  --border:         rgba(234,232,239,0.10);
+  --border-2:       rgba(234,232,239,0.06);
 
-  /* Forms */
-  form.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-  label.field { display: block; font-size: 12px; color: var(--text-secondary); }
-  label.field input, label.field select, label.field textarea {
-    display: block; width: 100%; margin-top: 3px;
-    font: inherit; font-size: 14px;
-    color: var(--text-primary);
-    background: var(--page);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 10px;
-  }
-  label.field textarea { resize: vertical; min-height: 60px; }
-  .field-row { display: flex; align-items: center; gap: 8px; }
-  .field-row input { flex: 1; }
-  .form-actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+  --primary:        #E88DA0;
+  --primary-light:  #3D2832;
+  --primary-bg:     rgba(232,141,160,0.12);
 
-  dialog {
-    background: var(--surface-1); color: var(--text-primary);
-    border: 1px solid var(--border); border-radius: 12px;
-    padding: 20px; max-width: 560px; width: calc(100vw - 48px);
-  }
-  dialog::backdrop { background: rgba(0,0,0,0.4); }
-  dialog h3 { margin: 0 0 12px; font-size: 16px; }
+  --period:         #F07A90;
+  --period-light:   #3D252C;
+  --period-bg:      rgba(240,122,144,0.15);
 
-  .copy-ok { color: var(--good-text); font-size: 12px; }
-  .doc-link { color: var(--series-1); text-decoration: none; word-break: break-all; }
-  .doc-link:hover { text-decoration: underline; }
-  .muted { color: var(--text-muted); }
-  .ppc-soon { border: 1px dashed var(--baseline); border-radius: 12px; padding: 24px; text-align: center; color: var(--text-secondary); }
+  --fertile:        #5EC48D;
+  --fertile-light:  #1E3328;
+  --fertile-bg:     rgba(94,196,141,0.15);
+
+  --ovulation:      #4EBB7B;
+  --ovulation-light:#253D30;
+
+  --luteal:         #F0B860;
+  --luteal-light:   #3D3220;
+  --luteal-bg:      rgba(240,184,96,0.15);
+
+  --follicular:     #7DB8E8;
+  --follicular-light:#20303D;
+  --follicular-bg:  rgba(125,184,232,0.15);
+
+  --predicted:      rgba(232,141,160,0.25);
+
+  --shadow:         0 1px 3px rgba(0,0,0,0.20);
+  --shadow-lg:      0 4px 12px rgba(0,0,0,0.30);
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; }
+body { background: var(--bg); color: var(--text); min-height: 100dvh; padding-bottom: calc(var(--nav-height) + 16px); -webkit-font-smoothing: antialiased; }
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select, textarea { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset: -1px; border-color: transparent; }
+
+/* ── Header ── */
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  height: var(--header-height); display: flex; align-items: center;
+  padding: 0 16px; gap: 12px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.app-header .logo {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #B84F62);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; flex-shrink: 0;
+}
+.app-header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.app-header .spacer { flex: 1; }
+.theme-toggle {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: background var(--transition);
+}
+.theme-toggle:hover { background: var(--surface-2); }
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--surface); border-top: 1px solid var(--border);
+  height: var(--nav-height); display: flex;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 2px; font-size: 11px; font-weight: 500;
+  color: var(--text-muted); transition: color var(--transition);
+  padding: 4px 0;
+}
+.nav-btn .icon { font-size: 22px; line-height: 1; }
+.nav-btn.active { color: var(--primary); }
+
+/* ── Pages ── */
+.page { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
+.page.active { display: block; }
+.page-title { font-size: 22px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.3px; }
+
+/* ── Cards ── */
+.card {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 16px; margin-bottom: 12px;
+  border: 1px solid var(--border-2);
+}
+.card-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 10px; }
+
+/* ── TODAY DASHBOARD ── */
+.cycle-ring-container {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 0 10px;
+}
+.cycle-ring {
+  position: relative; width: 200px; height: 200px;
+}
+.cycle-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.cycle-ring .ring-bg { fill: none; stroke: var(--surface-2); stroke-width: 8; }
+.cycle-ring .ring-progress { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease, stroke 0.3s; }
+.cycle-ring .ring-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.cycle-ring .day-number { font-size: 48px; font-weight: 800; line-height: 1; letter-spacing: -2px; }
+.cycle-ring .day-label { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+
+.phase-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600;
+  margin-top: 14px;
+}
+.phase-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.today-info {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px;
+}
+.info-tile {
+  background: var(--surface-2); border-radius: var(--radius-sm);
+  padding: 12px; text-align: center;
+}
+.info-tile .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.info-tile .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+.info-tile .sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+.quick-action-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px; border-radius: var(--radius);
+  font-size: 16px; font-weight: 600; color: #fff;
+  background: linear-gradient(135deg, var(--period), #C04060);
+  box-shadow: 0 2px 8px rgba(232,93,117,0.30);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.quick-action-btn:active { transform: scale(0.98); }
+.quick-action-btn.end-period {
+  background: linear-gradient(135deg, var(--fertile), #3A9060);
+  box-shadow: 0 2px 8px rgba(76,175,125,0.30);
+}
+
+.no-data-msg {
+  text-align: center; padding: 30px 20px; color: var(--text-2);
+}
+.no-data-msg .icon { font-size: 48px; margin-bottom: 12px; }
+.no-data-msg p { font-size: 14px; line-height: 1.5; }
+
+/* ── CALENDAR ── */
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.cal-header h2 { font-size: 18px; font-weight: 700; }
+.cal-nav {
+  width: 36px; height: 36px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 18px;
+  transition: background var(--transition);
+}
+.cal-nav:hover { background: var(--surface-2); }
+
+.cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+  margin-bottom: 4px;
+}
+.cal-weekdays span {
+  text-align: center; font-size: 11px; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase; padding: 6px 0;
+}
+
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+}
+.cal-day {
+  aspect-ratio: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-radius: var(--radius-xs); font-size: 14px; font-weight: 500;
+  position: relative; cursor: pointer; transition: background var(--transition);
+  border: 2px solid transparent;
+}
+.cal-day:hover { background: var(--surface-2); }
+.cal-day.empty { pointer-events: none; }
+.cal-day.today { border-color: var(--primary); font-weight: 700; }
+.cal-day.period { background: var(--period-bg); color: var(--period); font-weight: 600; }
+.cal-day.period-predicted {
+  background: repeating-linear-gradient(45deg, var(--period-bg), var(--period-bg) 2px, transparent 2px, transparent 4px);
+  color: var(--period);
+}
+.cal-day.fertile { background: var(--fertile-bg); color: var(--fertile); }
+.cal-day.ovulation { background: var(--fertile-bg); color: var(--ovulation); font-weight: 700; }
+.cal-day.ovulation::after {
+  content: ''; position: absolute; bottom: 4px;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--ovulation);
+}
+.cal-day.luteal { background: var(--luteal-bg); }
+.cal-day.follicular { background: var(--follicular-bg); }
+
+.cal-legend {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
+  padding-top: 12px; border-top: 1px solid var(--border);
+}
+.cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-2); }
+.cal-legend-item .swatch {
+  width: 12px; height: 12px; border-radius: 3px;
+}
+
+/* ── PERIOD LIST ── */
+.period-entry {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border-2);
+}
+.period-entry:last-child { border-bottom: none; }
+.period-entry .pe-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--period); flex-shrink: 0;
+}
+.period-entry .pe-info { flex: 1; }
+.period-entry .pe-dates { font-size: 15px; font-weight: 600; }
+.period-entry .pe-meta { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+.period-entry .pe-actions { display: flex; gap: 4px; }
+.pe-action-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: background var(--transition);
+}
+.pe-action-btn:hover { background: var(--surface-2); }
+.pe-action-btn.delete:hover { background: var(--period-bg); color: var(--period); }
+
+.add-period-form { display: flex; flex-direction: column; gap: 10px; }
+.form-row { display: flex; gap: 10px; align-items: end; }
+.form-row > * { flex: 1; }
+.form-group label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.4px; margin-bottom: 4px;
+}
+.form-group input, .form-group select { width: 100%; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 10px 18px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; transition: all var(--transition);
+}
+.btn-primary {
+  background: var(--primary); color: #fff;
+  box-shadow: 0 1px 4px rgba(212,105,122,0.25);
+}
+.btn-primary:hover { filter: brightness(1.05); }
+.btn-outline {
+  border: 1px solid var(--border); color: var(--text-2);
+}
+.btn-outline:hover { background: var(--surface-2); }
+.btn-danger { background: var(--period-bg); color: var(--period); }
+.btn-danger:hover { background: var(--period); color: #fff; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+
+/* ── STATISTICS ── */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-card {
+  background: var(--surface-2); border-radius: var(--radius-sm);
+  padding: 14px; text-align: center;
+}
+.stat-card .stat-value { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+.stat-card .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.stat-card .stat-unit { font-size: 14px; font-weight: 400; color: var(--text-2); }
+
+.cycle-history-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border-2);
+}
+.cycle-history-item:last-child { border-bottom: none; }
+.ch-bar-wrap { flex: 1; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.ch-bar { height: 100%; border-radius: 3px; background: var(--primary); transition: width 0.4s ease; }
+.ch-label { font-size: 13px; color: var(--text-2); min-width: 80px; }
+.ch-value { font-size: 14px; font-weight: 600; min-width: 50px; text-align: right; }
+
+/* ── SETTINGS ── */
+.settings-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border-2);
+  gap: 12px;
+}
+.settings-item:last-child { border-bottom: none; }
+.settings-item .si-text { flex: 1; }
+.settings-item .si-label { font-size: 15px; font-weight: 500; }
+.settings-item .si-desc { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.4); display: none;
+  align-items: flex-end; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius) var(--radius) 0 0;
+  width: 100%; max-width: 500px; max-height: 80dvh; overflow-y: auto;
+  padding: 20px; animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); } to { transform: translateY(0); }
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.modal-header h3 { font-size: 18px; font-weight: 700; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: var(--surface-2); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: calc(var(--nav-height) + 20px);
+  left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--text); color: var(--bg); padding: 10px 20px;
+  border-radius: 20px; font-size: 14px; font-weight: 500;
+  opacity: 0; transition: all 0.3s ease; z-index: 300; pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Confirmation dialog ── */
+.confirm-btns { display: flex; gap: 10px; margin-top: 16px; }
+.confirm-btns .btn { flex: 1; }
+
+/* ── Responsive ── */
+@media (min-width: 500px) {
+  .cal-day { font-size: 15px; }
+}
+
+/* ── Day Detail Modal ── */
+.day-detail-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.day-detail-date { font-size: 16px; font-weight: 600; }
+.day-detail-phase {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;
+}
+.day-notes { margin-top: 12px; }
+.day-notes textarea {
+  width: 100%; min-height: 80px; resize: vertical;
+  border-radius: var(--radius-sm);
+}
 </style>
 </head>
 <body>
-<header>
-  <div>
-    <h1>FBA Cockpit</h1>
-    <div class="sub" id="firma-sub">Dein Amazon-Business im Überblick</div>
+
+<!-- ── Header ── -->
+<header class="app-header">
+  <div class="logo">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 6v6l4 2"/>
+    </svg>
   </div>
+  <h1>MeinZyklus</h1>
   <div class="spacer"></div>
-  <button class="btn" id="btn-export" title="Alle Daten als JSON-Datei sichern">Export (JSON)</button>
-  <button class="btn" id="btn-import" title="JSON-Backup wieder einlesen">Import</button>
-  <input type="file" id="import-file" accept="application/json" hidden>
-  <button class="btn" id="btn-theme" title="Hell/Dunkel umschalten">🌓</button>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Theme wechseln" aria-label="Theme wechseln">
+    <span id="themeIcon">&#9790;</span>
+  </button>
 </header>
 
-<nav class="tabs" id="tabs">
-  <button data-tab="uebersicht" class="active">Übersicht</button>
-  <button data-tab="bestand">Bestand &amp; SKUs</button>
-  <button data-tab="nachschub">Nachschub</button>
-  <button data-tab="firma">Firma &amp; Dokumente</button>
-  <button data-tab="ppc">PPC <span class="muted">(bald)</span></button>
-</nav>
+<!-- ── Pages ── -->
 
-<main>
-  <section class="tab active" id="tab-uebersicht">
-    <div class="kpi-row" id="kpi-row"></div>
-    <div class="card">
-      <h2>Lagerreichweite FBA</h2>
-      <p class="hint">Tage, bis der Amazon-Bestand bei aktuellem Absatz leer ist. Unter 28 Tagen droht die Low-Inventory-Level-Fee.</p>
-      <div class="chart" id="reichweite-chart"></div>
-      <div class="chart-footer">Reichweite = FBA-Bestand ÷ Ø Verkäufe/Tag · Details je SKU im Tab „Bestand &amp; SKUs“</div>
-    </div>
-    <div class="card">
-      <h2>Handlungsbedarf</h2>
-      <p class="hint">Automatisch berechnet aus Beständen, Absatz und Lieferzeiten.</p>
-      <div id="uebersicht-alerts"></div>
-    </div>
-    <div class="card">
-      <h2>Letzte Bewegungen</h2>
-      <div class="table-scroll"><table id="journal-table"></table></div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-bestand">
-    <div class="card">
-      <h2>Bestand je SKU</h2>
-      <p class="hint">FBA = bei Amazon · Unterwegs = an Amazon gesendet, noch nicht eingelagert · Zuhause = bei dir. Über „Bewegung“ buchst du Zu-/Abgänge und Inventuren, damit die Bestände immer abgeglichen sind.</p>
-      <div class="table-scroll"><table id="sku-table"></table></div>
-      <div style="margin-top:12px">
-        <button class="btn primary" id="btn-add-sku">+ SKU anlegen</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-nachschub">
-    <div class="card">
-      <h2>An Amazon senden</h2>
-      <p class="hint">Empfohlen, wenn FBA + unterwegs unter 35 Tage Reichweite fällt und zuhause Ware liegt. Ziel: nie unter die 28-Tage-Grenze (Low-Inventory-Fee). Beim Shipment „Amazon-Optimized Splits“ wählen, um die Inbound Placement Fee zu vermeiden.</p>
-      <div id="alerts-senden"></div>
-    </div>
-    <div class="card">
-      <h2>Beim Lieferanten bestellen</h2>
-      <p class="hint">Nachbestellpunkt = Ø Verkäufe/Tag × Lieferzeit + 14 Tage Sicherheitspuffer. Fällt der Gesamtbestand (FBA + unterwegs + zuhause) darunter, sofort bestellen. Bestellmenge = Ziel-Reichweite × Tagesabsatz, mindestens die MOQ.</p>
-      <div id="alerts-bestellen"></div>
-    </div>
-    <div class="card">
-      <h2>Überbestand / Aged Inventory</h2>
-      <p class="hint">Bestand mit mehr als 120 Tagen Reichweite bindet Kapital und riskiert ab 90 Tagen Lagerdauer die Aged-Inventory-Fee. Gegenmittel: Sales pushen, Preis oder Coupon anpassen.</p>
-      <div id="alerts-aged"></div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-firma">
-    <div class="card">
-      <h2>Firmendaten</h2>
-      <p class="hint">Griffbereit für Rechnungen, Amazon-Verifizierung, Lieferanten und Behörden. Der Kopieren-Button legt den Wert in die Zwischenablage.</p>
-      <form class="grid" id="firma-form"></form>
-    </div>
-    <div class="card">
-      <h2>Dokumente</h2>
-      <p class="hint">Wichtige Unterlagen mit Ablageort (Link oder Pfad), damit du im Zweifel nicht suchen musst – z.&nbsp;B. Gewerbeanmeldung, USt-Bescheinigung, Lieferantenverträge, Produktzertifikate (CE, LFGB …).</p>
-      <div class="table-scroll"><table id="doc-table"></table></div>
-      <div style="margin-top:12px">
-        <button class="btn primary" id="btn-add-doc">+ Dokument erfassen</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-ppc">
-    <div class="card">
-      <h2>PPC &amp; Performance</h2>
-      <p class="hint">Dieser Bereich wird mit der Amazon-MCP-Anbindung befüllt.</p>
-      <div class="ppc-soon">
-        <p><strong>Kommt mit der Amazon-Anbindung:</strong></p>
-        <p>Impressions · Klicks · CTR · Conversion Rate · ACoS · TACoS · Sponsored-Products-Kampagnen</p>
-        <p class="muted">Sobald die MCP-Verbindung zu deinem Seller-Account steht, laufen die Kampagnendaten automatisch hier ein. Die Datenstruktur ist bereits vorbereitet (siehe README).</p>
-      </div>
-    </div>
-  </section>
+<!-- TODAY -->
+<main id="pageDashboard" class="page active">
+  <div id="dashboardContent"></div>
 </main>
 
-<dialog id="sku-dialog">
-  <h3 id="sku-dialog-title">SKU anlegen</h3>
-  <form class="grid" id="sku-form" method="dialog">
-    <label class="field">SKU *<input name="sku" required placeholder="z. B. KUV-CUBE-WS-01"></label>
-    <label class="field">ASIN<input name="asin" placeholder="B0…"></label>
-    <label class="field" style="grid-column:1/-1">Produktname *<input name="name" required placeholder="z. B. Kuvio Steckdosenwürfel weiß"></label>
-    <label class="field">FBA-Bestand<input name="fba" type="number" min="0" step="1" value="0"></label>
-    <label class="field">Unterwegs zu Amazon<input name="inbound" type="number" min="0" step="1" value="0"></label>
-    <label class="field">Bestand zuhause<input name="home" type="number" min="0" step="1" value="0"></label>
-    <label class="field">Ø Verkäufe/Tag (30 Tage)<input name="salesPerDay" type="number" min="0" step="0.1" value="0"></label>
-    <label class="field">Lieferzeit Lieferant → FBA (Tage)<input name="leadTime" type="number" min="0" step="1" value="45"></label>
-    <label class="field">MOQ Lieferant (Stück)<input name="moq" type="number" min="0" step="1" value="0"></label>
-    <label class="field">Ziel-Reichweite (Tage)<input name="targetDays" type="number" min="1" step="1" value="60"></label>
-    <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
-      <button class="btn primary" value="ok" id="sku-save">Speichern</button>
+<!-- CALENDAR -->
+<main id="pageCalendar" class="page">
+  <div class="card">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="calNav(-1)" aria-label="Vorheriger Monat">&#8249;</button>
+      <h2 id="calMonthLabel"></h2>
+      <button class="cal-nav" onclick="calNav(1)" aria-label="Nächster Monat">&#8250;</button>
     </div>
-  </form>
-</dialog>
-
-<dialog id="move-dialog">
-  <h3>Bewegung buchen – <span id="move-sku-label"></span></h3>
-  <form class="grid" id="move-form" method="dialog">
-    <label class="field" style="grid-column:1/-1">Art der Bewegung
-      <select name="typ">
-        <option value="wareneingang">Lieferung erhalten → Bestand zuhause +</option>
-        <option value="sendung">Sendung an Amazon geschickt (zuhause − / unterwegs +)</option>
-        <option value="eingelagert">Bei Amazon eingelagert (unterwegs − / FBA +)</option>
-        <option value="inventur_fba">Inventur: FBA-Bestand setzen (aus Seller Central)</option>
-        <option value="inventur_home">Inventur: Bestand zuhause setzen</option>
-      </select>
-    </label>
-    <label class="field">Menge / neuer Bestand *<input name="menge" type="number" min="0" step="1" required></label>
-    <label class="field">Notiz<input name="notiz" placeholder="optional, z. B. Shipment-ID"></label>
-    <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
-      <button class="btn primary" value="ok">Buchen</button>
+    <div class="cal-weekdays">
+      <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
     </div>
-  </form>
-</dialog>
-
-<dialog id="doc-dialog">
-  <h3 id="doc-dialog-title">Dokument erfassen</h3>
-  <form class="grid" id="doc-form" method="dialog">
-    <label class="field" style="grid-column:1/-1">Bezeichnung *<input name="name" required placeholder="z. B. Gewerbeanmeldung"></label>
-    <label class="field">Kategorie
-      <select name="kategorie">
-        <option>Gewerbe &amp; Recht</option>
-        <option>Steuer</option>
-        <option>Amazon</option>
-        <option>Lieferant</option>
-        <option>Produkt &amp; Zertifikate</option>
-        <option>Versicherung</option>
-        <option>Sonstiges</option>
-      </select>
-    </label>
-    <label class="field">Datum<input name="datum" type="date"></label>
-    <label class="field" style="grid-column:1/-1">Link / Ablageort<input name="link" placeholder="https://… oder z. B. Ordner „Steuern 2026“"></label>
-    <label class="field" style="grid-column:1/-1">Notiz<input name="notiz"></label>
-    <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
-      <button class="btn primary" value="ok">Speichern</button>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <div class="cal-legend-item"><span class="swatch" style="background:var(--period)"></span> Periode</div>
+      <div class="cal-legend-item"><span class="swatch" style="background:var(--fertile)"></span> Fruchtbar</div>
+      <div class="cal-legend-item"><span class="swatch" style="background:var(--ovulation)"></span> Eisprung</div>
+      <div class="cal-legend-item"><span class="swatch" style="background:var(--follicular)"></span> Follikelphase</div>
+      <div class="cal-legend-item"><span class="swatch" style="background:var(--luteal)"></span> Lutealphase</div>
+      <div class="cal-legend-item"><span class="swatch" style="background:repeating-linear-gradient(45deg,var(--period-bg),var(--period-bg) 2px,transparent 2px,transparent 4px);border:1px solid var(--period)"></span> Vorhersage</div>
     </div>
-  </form>
-</dialog>
+  </div>
+</main>
 
-<div id="tooltip"></div>
+<!-- PERIODEN -->
+<main id="pagePeriods" class="page">
+  <div class="page-title">Perioden</div>
+
+  <div class="card">
+    <div class="card-title">Neue Periode eintragen</div>
+    <div class="add-period-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="periodStart">Beginn</label>
+          <input type="date" id="periodStart">
+        </div>
+        <div class="form-group">
+          <label for="periodEnd">Ende</label>
+          <input type="date" id="periodEnd">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addPeriod()">Periode speichern</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Verlauf</div>
+    <div id="periodList"></div>
+  </div>
+</main>
+
+<!-- STATISTIKEN -->
+<main id="pageStats" class="page">
+  <div class="page-title">Statistiken</div>
+  <div id="statsContent"></div>
+</main>
+
+<!-- EINSTELLUNGEN -->
+<main id="pageSettings" class="page">
+  <div class="page-title">Einstellungen</div>
+
+  <div class="card">
+    <div class="settings-item">
+      <div class="si-text">
+        <div class="si-label">Standard-Zykluslänge</div>
+        <div class="si-desc">Wird für die erste Vorhersage verwendet</div>
+      </div>
+      <input type="number" id="defaultCycleLen" min="20" max="45" value="28" style="width:70px;text-align:center" onchange="saveSettings()">
+    </div>
+    <div class="settings-item">
+      <div class="si-text">
+        <div class="si-label">Standard-Periodendauer</div>
+        <div class="si-desc">Wird für Vorhersagen verwendet</div>
+      </div>
+      <input type="number" id="defaultPeriodLen" min="2" max="10" value="5" style="width:70px;text-align:center" onchange="saveSettings()">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Daten</div>
+    <div class="settings-item">
+      <div class="si-text">
+        <div class="si-label">Daten exportieren</div>
+        <div class="si-desc">Als JSON-Datei herunterladen</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="exportData()">Export</button>
+    </div>
+    <div class="settings-item">
+      <div class="si-text">
+        <div class="si-label">Daten importieren</div>
+        <div class="si-desc">JSON-Datei laden</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFile').click()">Import</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+    <div class="settings-item">
+      <div class="si-text">
+        <div class="si-label">Alle Daten löschen</div>
+        <div class="si-desc">Unwiderruflich alle Einträge entfernen</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="confirmReset()">Zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center; color:var(--text-muted); font-size:13px;">
+    MeinZyklus v1.0<br>
+    Alle Daten werden lokal im Browser gespeichert.
+  </div>
+</main>
+
+<!-- ── Bottom Nav ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-page="pageDashboard" onclick="switchPage('pageDashboard')">
+    <span class="icon">&#9673;</span> Heute
+  </button>
+  <button class="nav-btn" data-page="pageCalendar" onclick="switchPage('pageCalendar')">
+    <span class="icon">&#9633;</span> Kalender
+  </button>
+  <button class="nav-btn" data-page="pagePeriods" onclick="switchPage('pagePeriods')">
+    <span class="icon">&#43;</span> Perioden
+  </button>
+  <button class="nav-btn" data-page="pageStats" onclick="switchPage('pageStats')">
+    <span class="icon">&#9636;</span> Statistik
+  </button>
+  <button class="nav-btn" data-page="pageSettings" onclick="switchPage('pageSettings')">
+    <span class="icon">&#9881;</span> Mehr
+  </button>
+</nav>
+
+<!-- ── Day Detail Modal ── -->
+<div class="modal-overlay" id="dayModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="dayModalTitle">Tag Details</h3>
+      <button class="modal-close" onclick="closeModal('dayModal')">&times;</button>
+    </div>
+    <div id="dayModalBody"></div>
+  </div>
+</div>
+
+<!-- ── Confirm Modal ── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="confirmTitle">Bestätigung</h3>
+      <button class="modal-close" onclick="closeModal('confirmModal')">&times;</button>
+    </div>
+    <p id="confirmMsg"></p>
+    <div class="confirm-btns">
+      <button class="btn btn-outline" onclick="closeModal('confirmModal')">Abbrechen</button>
+      <button class="btn btn-danger" id="confirmAction">Bestätigen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div class="toast" id="toast"></div>
 
 <script>
-"use strict";
+/* ─────────────────────────────────────────
+   DATA LAYER
+   ───────────────────────────────────────── */
+const STORAGE_KEY = 'meinzyklus_data';
 
-/* ---------- Datenhaltung ----------
- * Alles liegt unter einem Schlüssel im localStorage.
- * Export/Import (JSON) dient als Backup – und als Schnittstelle:
- * Die spätere Amazon-MCP-Anbindung schreibt in dieselbe Struktur
- * (skus[].fba, skus[].salesPerDay, ppc{…}), statt dass du sie tippst.
- */
-const STORAGE_KEY = "fba-cockpit-v1";
-const THEME_KEY = "fba-cockpit-theme";
-
-const DEFAULT_DATA = {
-  version: 1,
-  firma: {
-    firma: "", rechtsform: "", inhaber: "", strasse: "", plzOrt: "",
-    email: "", telefon: "", steuernummer: "", ustIdNr: "", eori: "",
-    iban: "", bank: "", amazonSellerId: "", notizen: ""
-  },
-  skus: [
-    {
-      id: "demo-1", demo: true,
-      sku: "KUV-CUBE-WS-01", asin: "", name: "Kuvio Steckdosenwürfel weiß (Beispiel)",
-      fba: 220, inbound: 0, home: 130,
-      salesPerDay: 3, leadTime: 45, moq: 500, targetDays: 60
-    }
-  ],
-  dokumente: [
-    { id: "demo-d1", demo: true, name: "Gewerbeanmeldung (Beispiel)", kategorie: "Gewerbe & Recht", datum: "", link: "", notiz: "Beispiel-Eintrag – bearbeiten oder löschen" }
-  ],
-  journal: [],
-  ppc: null
-};
+const defaultData = () => ({
+  periods: [],
+  notes: {},
+  settings: { defaultCycleLength: 28, defaultPeriodLength: 5 }
+});
 
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return structuredClone(DEFAULT_DATA);
+    if (!raw) return defaultData();
     const d = JSON.parse(raw);
-    return Object.assign(structuredClone(DEFAULT_DATA), d);
-  } catch (e) {
-    console.error("Konnte Daten nicht laden:", e);
-    return structuredClone(DEFAULT_DATA);
-  }
-}
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
-}
-let DATA = loadData();
-
-/* ---------- Helfer ---------- */
-const $ = sel => document.querySelector(sel);
-const fmt = new Intl.NumberFormat("de-DE");
-const fmt1 = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 });
-function el(tag, attrs = {}, ...children) {
-  const node = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (k === "class") node.className = v;
-    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
-    else if (k === "dataset") Object.assign(node.dataset, v);
-    else node.setAttribute(k, v);
-  }
-  for (const c of children) {
-    if (c == null) continue;
-    node.append(c.nodeType ? c : document.createTextNode(c));
-  }
-  return node;
-}
-function uid() { return "id-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 1e6).toString(36); }
-function nowIso() { return new Date().toISOString(); }
-function fmtDate(iso) {
-  if (!iso) return "–";
-  const d = new Date(iso);
-  return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" }) +
-    " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    d.periods = (d.periods || []).map(p => ({
+      id: p.id || crypto.randomUUID(),
+      startDate: p.startDate,
+      endDate: p.endDate || null
+    }));
+    d.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
+    d.notes = d.notes || {};
+    d.settings = { ...defaultData().settings, ...(d.settings || {}) };
+    return d;
+  } catch { return defaultData(); }
 }
 
-/* ---------- Kennzahlen je SKU ----------
- * Formeln (eCommerce.de-Methodik):
- *   Reichweite            = Bestand ÷ Ø Verkäufe/Tag
- *   Nachbestellpunkt      = Ø Verkäufe/Tag × (Lieferzeit + 14 Tage Puffer)
- *   Bestellmenge          = max(MOQ, Ziel-Reichweite × Ø Verkäufe/Tag)
- *   Sendung an Amazon     = auffüllen auf Ziel-Reichweite, begrenzt auf Bestand zuhause
- */
-const KRITISCH_TAGE = 28;   // Low-Inventory-Level-Fee-Grenze
-const WARN_TAGE = 35;       // Vorlauf, um rechtzeitig zu senden
-const AGED_TAGE = 120;      // Überbestands-Hinweis
-
-function calc(sku) {
-  const sales = Number(sku.salesPerDay) || 0;
-  const fba = Number(sku.fba) || 0;
-  const inbound = Number(sku.inbound) || 0;
-  const home = Number(sku.home) || 0;
-  const total = fba + inbound + home;
-  const days = n => sales > 0 ? n / sales : Infinity;
-
-  const reichweiteFba = days(fba);
-  const reichweiteAmazon = days(fba + inbound);
-  const nachbestellpunkt = Math.ceil(sales * ((Number(sku.leadTime) || 0) + 14));
-  const bestellmenge = Math.max(Number(sku.moq) || 0, Math.ceil(sales * (Number(sku.targetDays) || 60)));
-
-  let status = "good", statusText = "Okay";
-  if (sales > 0 && reichweiteFba < KRITISCH_TAGE) { status = "crit"; statusText = "Kritisch"; }
-  else if (sales > 0 && reichweiteAmazon < WARN_TAGE) { status = "warn"; statusText = "Nachschub nötig"; }
-
-  const sendMenge = (sales > 0 && reichweiteAmazon < WARN_TAGE && home > 0)
-    ? Math.min(home, Math.max(0, Math.ceil(sales * (Number(sku.targetDays) || 60)) - fba - inbound))
-    : 0;
-  const bestellen = sales > 0 && total < nachbestellpunkt;
-  const aged = sales > 0 && reichweiteFba > AGED_TAGE;
-
-  return { sales, fba, inbound, home, total, reichweiteFba, reichweiteAmazon,
-           nachbestellpunkt, bestellmenge, status, statusText, sendMenge, bestellen, aged };
-}
-function fmtTage(t) {
-  if (!isFinite(t)) return "–";
-  return fmt.format(Math.round(t)) + " Tage";
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-const STATUS_COLOR = { good: "var(--status-good)", warn: "var(--status-warn)", crit: "var(--status-crit)", serious: "var(--status-serious)" };
-const STATUS_ICON = { good: "✅", warn: "⚠️", crit: "🚨", serious: "⚠️" };
-function badge(status, text) {
-  return el("span", { class: "badge" },
-    el("span", { class: "dot", style: "background:" + STATUS_COLOR[status] }),
-    STATUS_ICON[status] + " " + text);
+let appData = loadData();
+
+/* ─────────────────────────────────────────
+   DATE HELPERS
+   ───────────────────────────────────────── */
+const toDate = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const toStr = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const addDays = (s, n) => { const d = toDate(s); d.setDate(d.getDate() + n); return toStr(d); };
+const diffDays = (a, b) => Math.round((toDate(b) - toDate(a)) / 86400000);
+const todayStr = () => toStr(new Date());
+
+const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DAY_NAMES = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+function formatDate(s) {
+  const d = toDate(s);
+  return `${d.getDate()}. ${MONTH_NAMES[d.getMonth()].slice(0,3)}`;
+}
+function formatDateLong(s) {
+  const d = toDate(s);
+  return `${DAY_NAMES[d.getDay()]}, ${d.getDate()}. ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-/* ---------- Übersicht ---------- */
-function renderKpis() {
-  const row = $("#kpi-row");
-  row.replaceChildren();
-  let fba = 0, home = 0, inbound = 0, alarme = 0;
-  for (const s of DATA.skus) {
-    const c = calc(s);
-    fba += c.fba; home += c.home; inbound += c.inbound;
-    if (c.status !== "good" || c.bestellen) alarme++;
+/* ─────────────────────────────────────────
+   CYCLE CALCULATIONS
+   ───────────────────────────────────────── */
+function getCycleLengths() {
+  const periods = appData.periods;
+  if (periods.length < 2) return [];
+  const lengths = [];
+  for (let i = 1; i < periods.length; i++) {
+    const len = diffDays(periods[i - 1].startDate, periods[i].startDate);
+    if (len > 0 && len < 60) lengths.push(len);
   }
-  const tiles = [
-    { label: "FBA-Bestand (Amazon)", value: fmt.format(fba), note: "Einheiten eingelagert" },
-    { label: "Unterwegs zu Amazon", value: fmt.format(inbound), note: "Einheiten im Inbound" },
-    { label: "Bestand zuhause", value: fmt.format(home), note: "Einheiten bei dir" },
-    { label: "Alarme", value: fmt.format(alarme), note: alarme === 0 ? "Alles im grünen Bereich" : "Siehe Handlungsbedarf", noteClass: alarme === 0 ? "good" : "bad" }
-  ];
-  for (const t of tiles) {
-    row.append(el("div", { class: "tile" },
-      el("div", { class: "label" }, t.label),
-      el("div", { class: "value" }, t.value),
-      el("div", { class: "note " + (t.noteClass || "") }, t.note)));
-  }
+  return lengths;
 }
 
-function renderChart() {
-  const wrap = $("#reichweite-chart");
-  wrap.replaceChildren();
-  const skus = DATA.skus.filter(s => calc(s).sales > 0);
-  if (skus.length === 0) {
-    wrap.append(el("div", { class: "empty" }, "Noch keine SKU mit Absatzdaten. Lege im Tab „Bestand & SKUs“ eine SKU an und trage Ø Verkäufe/Tag ein."));
-    return;
-  }
-  const MAX_ANZEIGE = 120;
-  const maxVal = Math.max(MAX_ANZEIGE, ...skus.map(s => Math.min(calc(s).reichweiteFba, MAX_ANZEIGE)));
-  for (const s of skus) {
-    const c = calc(s);
-    const val = Math.min(c.reichweiteFba, MAX_ANZEIGE);
-    const pct = Math.max(1, (val / maxVal) * 100);
-    const bar = el("div", { class: "bar", style: "width:" + pct + "%" });
-    const track = el("div", { class: "bar-track" }, bar,
-      el("span", { class: "bar-value" }, fmtTage(c.reichweiteFba) + (c.reichweiteFba > MAX_ANZEIGE ? " ▸" : "")));
-    const rowEl = el("div", {
-      class: "bar-row", tabindex: "0",
-      onpointermove: e => showTooltip(e, s, c),
-      onpointerleave: hideTooltip,
-      onfocus: e => showTooltip(e, s, c),
-      onblur: hideTooltip
-    }, el("div", { class: "bar-label", title: s.name }, s.sku), track);
-    wrap.append(rowEl);
-  }
-  // Schwellenlinie bei 28 Tagen: Balkenspur beginnt bei 190px (180px Label + 10px Lücke)
-  const frac = KRITISCH_TAGE / maxVal;
-  const leftCalc = "calc(190px + (100% - 190px) * " + frac + ")";
-  wrap.append(el("div", { class: "threshold", style: "left:" + leftCalc }));
-  wrap.append(el("div", { style: "position:relative;height:16px" },
-    el("div", { class: "threshold-label", style: "left:" + leftCalc },
-      KRITISCH_TAGE + " Tage (Fee-Grenze)")));
+function getAvgCycleLength() {
+  const lens = getCycleLengths();
+  return lens.length ? Math.round(lens.reduce((a, b) => a + b, 0) / lens.length) : appData.settings.defaultCycleLength;
 }
 
-const tooltip = $("#tooltip");
-function showTooltip(e, s, c) {
-  tooltip.replaceChildren(
-    el("div", { class: "tt-value" }, fmtTage(c.reichweiteFba)),
-    el("div", { class: "tt-label" }, s.name),
-    el("div", { class: "tt-label" },
-      "FBA " + fmt.format(c.fba) + " · unterwegs " + fmt.format(c.inbound) +
-      " · zuhause " + fmt.format(c.home) + " · Ø " + fmt1.format(c.sales) + "/Tag")
-  );
-  tooltip.style.display = "block";
-  const x = Math.min(e.clientX + 14, window.innerWidth - tooltip.offsetWidth - 8);
-  const y = Math.min(e.clientY + 14, window.innerHeight - tooltip.offsetHeight - 8);
-  tooltip.style.left = x + "px";
-  tooltip.style.top = y + "px";
-}
-function hideTooltip() { tooltip.style.display = "none"; }
-
-function buildAlerts() {
-  const senden = [], bestellen = [], aged = [];
-  for (const s of DATA.skus) {
-    const c = calc(s);
-    if (c.sendMenge > 0) senden.push({ s, c });
-    if (c.bestellen) bestellen.push({ s, c });
-    if (c.aged) aged.push({ s, c });
-  }
-  return { senden, bestellen, aged };
+function getPeriodLengths() {
+  return appData.periods
+    .filter(p => p.endDate)
+    .map(p => diffDays(p.startDate, p.endDate) + 1)
+    .filter(l => l > 0 && l < 15);
 }
 
-function renderUebersichtAlerts() {
-  const wrap = $("#uebersicht-alerts");
-  wrap.replaceChildren();
-  const { senden, bestellen, aged } = buildAlerts();
-  const items = [];
-  for (const { s, c } of bestellen) {
-    items.push({ icon: "🚨", title: "Beim Lieferanten bestellen: " + s.sku,
-      detail: "Gesamtbestand " + fmt.format(c.total) + " liegt unter dem Nachbestellpunkt von " + fmt.format(c.nachbestellpunkt) + " Einheiten. Empfohlene Bestellmenge: " + fmt.format(c.bestellmenge) + " Stück." });
-  }
-  for (const { s, c } of senden) {
-    items.push({ icon: "⚠️", title: "An Amazon senden: " + s.sku,
-      detail: "Reichweite bei Amazon nur noch " + fmtTage(c.reichweiteAmazon) + ". Empfohlen: " + fmt.format(c.sendMenge) + " Einheiten aus deinem Bestand zuhause einsenden." });
-  }
-  for (const { s, c } of aged) {
-    items.push({ icon: "🧊", title: "Überbestand: " + s.sku,
-      detail: "Reichweite " + fmtTage(c.reichweiteFba) + " – Aged-Inventory-Fee droht ab 90 Tagen Lagerdauer. Sales pushen oder Preis/Coupon prüfen." });
-  }
-  if (items.length === 0) {
-    wrap.append(el("div", { class: "empty" }, "✅ Kein Handlungsbedarf – alle Bestände im Zielbereich."));
-    return;
-  }
-  for (const it of items) {
-    wrap.append(el("div", { class: "alert-item" },
-      el("div", { class: "icon" }, it.icon),
-      el("div", { class: "body" },
-        el("div", { class: "title" }, it.title),
-        el("div", { class: "detail" }, it.detail))));
-  }
+function getAvgPeriodLength() {
+  const lens = getPeriodLengths();
+  return lens.length ? Math.round(lens.reduce((a, b) => a + b, 0) / lens.length) : appData.settings.defaultPeriodLength;
 }
 
-function renderJournal() {
-  const table = $("#journal-table");
-  table.replaceChildren();
-  const rows = DATA.journal.slice(0, 8);
-  if (rows.length === 0) {
-    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine Bewegungen gebucht.")));
-    return;
-  }
-  table.append(el("tr", {},
-    el("th", {}, "Wann"), el("th", {}, "SKU"), el("th", {}, "Bewegung"), el("th", { class: "num" }, "Menge"), el("th", {}, "Notiz")));
-  for (const j of rows) {
-    table.append(el("tr", {},
-      el("td", {}, fmtDate(j.ts)),
-      el("td", {}, j.sku),
-      el("td", {}, j.text),
-      el("td", { class: "num" }, fmt.format(j.menge)),
-      el("td", { class: "muted" }, j.notiz || "–")));
-  }
+function getLastPeriod() {
+  return appData.periods.length ? appData.periods[appData.periods.length - 1] : null;
 }
 
-/* ---------- Bestand & SKUs ---------- */
-function renderSkuTable() {
-  const table = $("#sku-table");
-  table.replaceChildren();
-  if (DATA.skus.length === 0) {
-    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine SKUs angelegt.")));
-    return;
-  }
-  table.append(el("tr", {},
-    el("th", {}, "SKU / Produkt"),
-    el("th", { class: "num" }, "FBA"),
-    el("th", { class: "num" }, "Unterwegs"),
-    el("th", { class: "num" }, "Zuhause"),
-    el("th", { class: "num" }, "Ø/Tag"),
-    el("th", { class: "num" }, "Reichweite FBA"),
-    el("th", { class: "num" }, "Nachbestellpunkt"),
-    el("th", {}, "Status"),
-    el("th", {}, "")));
-  for (const s of DATA.skus) {
-    const c = calc(s);
-    table.append(el("tr", {},
-      el("td", {},
-        el("div", {}, s.sku),
-        el("div", { class: "mono" }, s.name + (s.asin ? " · " + s.asin : ""))),
-      el("td", { class: "num" }, fmt.format(c.fba)),
-      el("td", { class: "num" }, fmt.format(c.inbound)),
-      el("td", { class: "num" }, fmt.format(c.home)),
-      el("td", { class: "num" }, fmt1.format(c.sales)),
-      el("td", { class: "num" }, fmtTage(c.reichweiteFba)),
-      el("td", { class: "num" }, fmt.format(c.nachbestellpunkt)),
-      el("td", {}, badge(c.status, c.statusText)),
-      el("td", {},
-        el("div", { style: "display:flex;gap:6px;flex-wrap:wrap" },
-          el("button", { class: "btn small", onclick: () => openMoveDialog(s.id) }, "Bewegung"),
-          el("button", { class: "btn small", onclick: () => openSkuDialog(s.id) }, "Bearbeiten"),
-          el("button", { class: "btn small danger", onclick: () => deleteSku(s.id) }, "Löschen")))));
-  }
+function getCurrentCycleDay() {
+  const last = getLastPeriod();
+  if (!last) return null;
+  const day = diffDays(last.startDate, todayStr()) + 1;
+  return day > 0 ? day : null;
 }
 
-const skuDialog = $("#sku-dialog");
-const skuForm = $("#sku-form");
-let editSkuId = null;
-function openSkuDialog(id) {
-  editSkuId = id || null;
-  $("#sku-dialog-title").textContent = id ? "SKU bearbeiten" : "SKU anlegen";
-  skuForm.reset();
-  if (id) {
-    const s = DATA.skus.find(x => x.id === id);
-    for (const key of ["sku", "asin", "name", "fba", "inbound", "home", "salesPerDay", "leadTime", "moq", "targetDays"]) {
-      if (skuForm.elements[key]) skuForm.elements[key].value = s[key] ?? "";
+function isInActivePeriod() {
+  const last = getLastPeriod();
+  if (!last) return false;
+  if (!last.endDate) return true;
+  return todayStr() <= last.endDate;
+}
+
+function getDayPhase(dateStr) {
+  const periods = appData.periods;
+  for (const p of periods) {
+    const end = p.endDate || addDays(p.startDate, getAvgPeriodLength() - 1);
+    if (dateStr >= p.startDate && dateStr <= end) {
+      return { phase: 'period', predicted: false };
     }
   }
-  skuDialog.showModal();
+
+  const last = getLastPeriod();
+  if (!last) return { phase: 'none', predicted: false };
+
+  const avgCycle = getAvgCycleLength();
+  const avgPeriod = getAvgPeriodLength();
+
+  const dayInCycle = getDayInCycleForDate(dateStr);
+  if (dayInCycle === null) return { phase: 'none', predicted: false };
+
+  const ovulationDay = avgCycle - 14;
+  const fertileStart = ovulationDay - 5;
+  const fertileEnd = ovulationDay + 1;
+
+  if (dayInCycle >= 1 && dayInCycle <= avgPeriod) {
+    const isActual = periods.some(p => {
+      const end = p.endDate || addDays(p.startDate, avgPeriod - 1);
+      return dateStr >= p.startDate && dateStr <= end;
+    });
+    if (!isActual) return { phase: 'period', predicted: true };
+  }
+
+  if (dayInCycle >= fertileStart && dayInCycle <= fertileEnd) {
+    if (dayInCycle === ovulationDay) return { phase: 'ovulation', predicted: dateStr > todayStr() };
+    return { phase: 'fertile', predicted: dateStr > todayStr() };
+  }
+
+  if (dayInCycle > 0 && dayInCycle < fertileStart) {
+    return { phase: 'follicular', predicted: false };
+  }
+
+  if (dayInCycle > fertileEnd && dayInCycle <= avgCycle) {
+    return { phase: 'luteal', predicted: false };
+  }
+
+  return { phase: 'none', predicted: false };
 }
-skuForm.addEventListener("submit", e => {
-  if (e.submitter && e.submitter.value === "cancel") return;
-  const f = skuForm.elements;
-  const obj = {
-    sku: f.sku.value.trim(), asin: f.asin.value.trim(), name: f.name.value.trim(),
-    fba: Math.max(0, Math.round(Number(f.fba.value) || 0)),
-    inbound: Math.max(0, Math.round(Number(f.inbound.value) || 0)),
-    home: Math.max(0, Math.round(Number(f.home.value) || 0)),
-    salesPerDay: Math.max(0, Number(f.salesPerDay.value) || 0),
-    leadTime: Math.max(0, Math.round(Number(f.leadTime.value) || 0)),
-    moq: Math.max(0, Math.round(Number(f.moq.value) || 0)),
-    targetDays: Math.max(1, Math.round(Number(f.targetDays.value) || 60))
+
+function getDayInCycleForDate(dateStr) {
+  const periods = appData.periods;
+  if (!periods.length) return null;
+
+  for (let i = periods.length - 1; i >= 0; i--) {
+    const d = diffDays(periods[i].startDate, dateStr);
+    if (d >= 0) {
+      const avgCycle = getAvgCycleLength();
+      return (d % avgCycle) + 1;
+    }
+  }
+
+  const first = periods[0];
+  const d = diffDays(dateStr, first.startDate);
+  if (d > 0) {
+    const avgCycle = getAvgCycleLength();
+    const mod = d % avgCycle;
+    return mod === 0 ? avgCycle : avgCycle - mod + 1;
+  }
+
+  return null;
+}
+
+function getPredictedNextPeriod() {
+  const last = getLastPeriod();
+  if (!last) return null;
+  const avgCycle = getAvgCycleLength();
+  const nextStart = addDays(last.startDate, avgCycle);
+  if (nextStart <= todayStr() && !isInActivePeriod()) {
+    const cyclesSince = Math.ceil(diffDays(last.startDate, todayStr()) / avgCycle);
+    return addDays(last.startDate, avgCycle * cyclesSince);
+  }
+  return nextStart;
+}
+
+function getCurrentPhaseInfo() {
+  const cycleDay = getCurrentCycleDay();
+  if (cycleDay === null) return { phase: 'unknown', name: 'Keine Daten', color: '--text-muted' };
+
+  const avgCycle = getAvgCycleLength();
+  const avgPeriod = getAvgPeriodLength();
+  const ovulationDay = avgCycle - 14;
+  const fertileStart = ovulationDay - 5;
+  const fertileEnd = ovulationDay + 1;
+  const adjustedDay = ((cycleDay - 1) % avgCycle) + 1;
+
+  if (isInActivePeriod() || adjustedDay <= avgPeriod) {
+    return { phase: 'period', name: 'Menstruation', color: '--period', desc: 'Periode aktiv' };
+  }
+  if (adjustedDay >= fertileStart && adjustedDay <= fertileEnd) {
+    if (adjustedDay === ovulationDay) {
+      return { phase: 'ovulation', name: 'Eisprung', color: '--ovulation', desc: 'Hohe Fruchtbarkeit' };
+    }
+    return { phase: 'fertile', name: 'Fruchtbare Tage', color: '--fertile', desc: 'Erhöhte Fruchtbarkeit' };
+  }
+  if (adjustedDay < fertileStart) {
+    return { phase: 'follicular', name: 'Follikelphase', color: '--follicular', desc: 'Aufbauphase' };
+  }
+  return { phase: 'luteal', name: 'Lutealphase', color: '--luteal', desc: 'Gelbkörperphase' };
+}
+
+/* ─────────────────────────────────────────
+   DASHBOARD
+   ───────────────────────────────────────── */
+function renderDashboard() {
+  const el = document.getElementById('dashboardContent');
+  const last = getLastPeriod();
+
+  if (!last) {
+    el.innerHTML = `
+      <div class="card no-data-msg">
+        <div class="icon">&#127804;</div>
+        <p><strong>Willkommen bei MeinZyklus!</strong><br><br>
+        Trage deine erste Periode ein, um loszulegen. Du kannst auch vergangene Perioden nachtragen.</p>
+        <br>
+        <button class="btn btn-primary" onclick="switchPage('pagePeriods')">Erste Periode eintragen</button>
+      </div>`;
+    return;
+  }
+
+  const cycleDay = getCurrentCycleDay();
+  const phase = getCurrentPhaseInfo();
+  const avgCycle = getAvgCycleLength();
+  const adjustedDay = cycleDay ? ((cycleDay - 1) % avgCycle) + 1 : 1;
+  const progress = adjustedDay / avgCycle;
+  const nextPeriod = getPredictedNextPeriod();
+  const daysUntil = nextPeriod ? Math.max(0, diffDays(todayStr(), nextPeriod)) : '–';
+  const inPeriod = isInActivePeriod();
+
+  const circumference = 2 * Math.PI * 88;
+  const dashOffset = circumference * (1 - progress);
+
+  const phaseColorMap = {
+    'period': 'var(--period)',
+    'fertile': 'var(--fertile)',
+    'ovulation': 'var(--ovulation)',
+    'follicular': 'var(--follicular)',
+    'luteal': 'var(--luteal)',
+    'unknown': 'var(--text-muted)'
   };
-  if (editSkuId) {
-    const s = DATA.skus.find(x => x.id === editSkuId);
-    Object.assign(s, obj); delete s.demo;
-  } else {
-    DATA.skus.push(Object.assign({ id: uid() }, obj));
-  }
-  saveData(); renderAll();
-});
-function deleteSku(id) {
-  const s = DATA.skus.find(x => x.id === id);
-  if (!confirm("SKU „" + s.sku + "“ wirklich löschen?")) return;
-  DATA.skus = DATA.skus.filter(x => x.id !== id);
-  saveData(); renderAll();
-}
-
-/* Bewegungen buchen */
-const moveDialog = $("#move-dialog");
-const moveForm = $("#move-form");
-let moveSkuId = null;
-function openMoveDialog(id) {
-  moveSkuId = id;
-  const s = DATA.skus.find(x => x.id === id);
-  $("#move-sku-label").textContent = s.sku;
-  moveForm.reset();
-  moveDialog.showModal();
-}
-const MOVE_TEXT = {
-  wareneingang: "Lieferung erhalten (zuhause +)",
-  sendung: "Sendung an Amazon (zuhause − / unterwegs +)",
-  eingelagert: "Bei Amazon eingelagert (unterwegs − / FBA +)",
-  inventur_fba: "Inventur FBA (Bestand gesetzt)",
-  inventur_home: "Inventur zuhause (Bestand gesetzt)"
-};
-moveForm.addEventListener("submit", e => {
-  if (e.submitter && e.submitter.value === "cancel") return;
-  const s = DATA.skus.find(x => x.id === moveSkuId);
-  if (!s) return;
-  const typ = moveForm.elements.typ.value;
-  const menge = Math.max(0, Math.round(Number(moveForm.elements.menge.value) || 0));
-  const notiz = moveForm.elements.notiz.value.trim();
-  if (typ === "wareneingang") s.home = (s.home || 0) + menge;
-  else if (typ === "sendung") {
-    const m = Math.min(menge, s.home || 0);
-    s.home -= m; s.inbound = (s.inbound || 0) + m;
-  }
-  else if (typ === "eingelagert") {
-    const m = Math.min(menge, s.inbound || 0);
-    s.inbound -= m; s.fba = (s.fba || 0) + m;
-  }
-  else if (typ === "inventur_fba") s.fba = menge;
-  else if (typ === "inventur_home") s.home = menge;
-  delete s.demo;
-  DATA.journal.unshift({ ts: nowIso(), sku: s.sku, typ, text: MOVE_TEXT[typ], menge, notiz });
-  DATA.journal = DATA.journal.slice(0, 200);
-  saveData(); renderAll();
-});
-
-/* ---------- Nachschub ---------- */
-function renderNachschub() {
-  const { senden, bestellen, aged } = buildAlerts();
-  const fill = (elId, list, build, emptyText) => {
-    const wrap = $(elId);
-    wrap.replaceChildren();
-    if (list.length === 0) { wrap.append(el("div", { class: "empty" }, emptyText)); return; }
-    for (const x of list) wrap.append(build(x));
+  const phaseBgMap = {
+    'period': 'var(--period-bg)',
+    'fertile': 'var(--fertile-bg)',
+    'ovulation': 'var(--fertile-bg)',
+    'follicular': 'var(--follicular-bg)',
+    'luteal': 'var(--luteal-bg)',
+    'unknown': 'var(--surface-2)'
   };
-  fill("#alerts-senden", senden, ({ s, c }) => el("div", { class: "alert-item" },
-    el("div", { class: "icon" }, "📦"),
-    el("div", { class: "body" },
-      el("div", { class: "title" }, s.sku + " – " + fmt.format(c.sendMenge) + " Einheiten einsenden"),
-      el("div", { class: "detail" },
-        "Reichweite bei Amazon (FBA + unterwegs): " + fmtTage(c.reichweiteAmazon) +
-        ". Zuhause verfügbar: " + fmt.format(c.home) + ". Ziel: " + fmt.format(s.targetDays || 60) + " Tage Reichweite."))),
-    "✅ Kein Shipment nötig – Amazon-Bestand reicht überall über " + WARN_TAGE + " Tage.");
-  fill("#alerts-bestellen", bestellen, ({ s, c }) => el("div", { class: "alert-item" },
-    el("div", { class: "icon" }, "🛒"),
-    el("div", { class: "body" },
-      el("div", { class: "title" }, s.sku + " – " + fmt.format(c.bestellmenge) + " Stück bestellen"),
-      el("div", { class: "detail" },
-        "Gesamtbestand " + fmt.format(c.total) + " < Nachbestellpunkt " + fmt.format(c.nachbestellpunkt) +
-        " (Ø " + fmt1.format(c.sales) + "/Tag × (" + fmt.format(s.leadTime || 0) + " Tage Lieferzeit + 14 Tage Puffer))." +
-        (s.moq ? " MOQ: " + fmt.format(s.moq) + "." : "")))),
-    "✅ Keine Lieferantenbestellung nötig – alle Gesamtbestände über dem Nachbestellpunkt.");
-  fill("#alerts-aged", aged, ({ s, c }) => el("div", { class: "alert-item" },
-    el("div", { class: "icon" }, "🧊"),
-    el("div", { class: "body" },
-      el("div", { class: "title" }, s.sku + " – " + fmtTage(c.reichweiteFba) + " Reichweite"),
-      el("div", { class: "detail" }, "Deutlich über Ziel (" + fmt.format(s.targetDays || 60) + " Tage). Kapitalbindung prüfen, ggf. Preis senken oder Coupon aktivieren."))),
-    "✅ Kein Überbestand.");
+
+  const ringColor = phaseColorMap[phase.phase] || 'var(--primary)';
+  const badgeBg = phaseBgMap[phase.phase] || 'var(--surface-2)';
+  const badgeColor = phaseColorMap[phase.phase] || 'var(--text-muted)';
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="cycle-ring-container">
+        <div class="cycle-ring">
+          <svg viewBox="0 0 200 200">
+            <circle class="ring-bg" cx="100" cy="100" r="88"/>
+            <circle class="ring-progress" cx="100" cy="100" r="88"
+              stroke="${ringColor}"
+              stroke-dasharray="${circumference}"
+              stroke-dashoffset="${dashOffset}"/>
+          </svg>
+          <div class="ring-center">
+            <div class="day-number" style="color:${ringColor}">${adjustedDay}</div>
+            <div class="day-label">Tag von ${avgCycle}</div>
+          </div>
+        </div>
+        <div class="phase-badge" style="background:${badgeBg};color:${badgeColor}">
+          <span class="dot" style="background:${badgeColor}"></span>
+          ${phase.name}
+        </div>
+      </div>
+
+      <div class="today-info">
+        <div class="info-tile">
+          <div class="label">Nächste Periode</div>
+          <div class="value">${typeof daysUntil === 'number' ? daysUntil : '–'}</div>
+          <div class="sub">${typeof daysUntil === 'number' ? (daysUntil === 1 ? 'Tag' : 'Tage') : ''}</div>
+        </div>
+        <div class="info-tile">
+          <div class="label">Zykluslänge</div>
+          <div class="value">${avgCycle}</div>
+          <div class="sub">Tage (Durchschn.)</div>
+        </div>
+        <div class="info-tile">
+          <div class="label">Letzte Periode</div>
+          <div class="value">${formatDate(last.startDate)}</div>
+          <div class="sub">${last.endDate ? formatDate(last.endDate) : 'Läuft noch'}</div>
+        </div>
+        <div class="info-tile">
+          <div class="label">Periodendauer</div>
+          <div class="value">${getAvgPeriodLength()}</div>
+          <div class="sub">Tage (Durchschn.)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:12px">
+      ${inPeriod
+        ? `<button class="quick-action-btn end-period" onclick="endCurrentPeriod()">&#10003;&ensp;Periode beenden</button>`
+        : `<button class="quick-action-btn" onclick="startPeriodToday()">&#9679;&ensp;Periode hat begonnen</button>`
+      }
+    </div>
+
+    ${nextPeriod && !inPeriod ? `
+    <div class="card">
+      <div class="card-title">Vorhersage</div>
+      <div style="font-size:15px;line-height:1.6">
+        <div>Nächste Periode: <strong>${formatDateLong(nextPeriod)}</strong></div>
+        <div>Geschätzte Dauer: <strong>${getAvgPeriodLength()} Tage</strong></div>
+        ${(() => {
+          const ovDay = avgCycle - 14;
+          const ovDate = addDays(last.startDate, Math.floor(diffDays(last.startDate, todayStr()) / avgCycle + 1) * avgCycle - 14 + (diffDays(last.startDate, todayStr()) >= avgCycle ? 0 : 0));
+          const lastForCalc = last.startDate;
+          const cyclesSince = Math.max(1, Math.ceil(diffDays(lastForCalc, todayStr()) / avgCycle));
+          const nextCycleStart = addDays(lastForCalc, avgCycle * (cyclesSince - (diffDays(lastForCalc, todayStr()) < avgCycle ? 0 : 0)));
+          const actualCycleStart = diffDays(lastForCalc, todayStr()) < avgCycle ? lastForCalc : addDays(lastForCalc, avgCycle * (cyclesSince - 1));
+          const ovulationDate = addDays(actualCycleStart, ovDay - 1);
+          const fertileFrom = addDays(ovulationDate, -5);
+          const fertileTo = addDays(ovulationDate, 1);
+          return `<div>Eisprung ca.: <strong>${formatDate(ovulationDate)}</strong></div>
+                  <div>Fruchtbar: <strong>${formatDate(fertileFrom)} – ${formatDate(fertileTo)}</strong></div>`;
+        })()}
+      </div>
+    </div>` : ''}
+  `;
 }
 
-/* ---------- Firma & Dokumente ---------- */
-const FIRMA_FIELDS = [
-  ["firma", "Firmenname"], ["rechtsform", "Rechtsform (z. B. Einzelunternehmen)"],
-  ["inhaber", "Inhaber/in"], ["strasse", "Straße & Nr."], ["plzOrt", "PLZ & Ort"],
-  ["email", "E-Mail"], ["telefon", "Telefon"],
-  ["steuernummer", "Steuernummer"], ["ustIdNr", "USt-IdNr."], ["eori", "EORI-Nummer"],
-  ["iban", "IBAN"], ["bank", "Bank"], ["amazonSellerId", "Amazon Seller-ID (Merchant Token)"]
-];
-function renderFirma() {
-  const form = $("#firma-form");
-  form.replaceChildren();
-  for (const [key, label] of FIRMA_FIELDS) {
-    const input = el("input", { value: DATA.firma[key] || "", placeholder: label,
-      onchange: e => { DATA.firma[key] = e.target.value.trim(); saveData(); renderFirmaSub(); } });
-    const copyBtn = el("button", { class: "btn small", type: "button", title: "Kopieren",
-      onclick: async ev => {
-        try {
-          await navigator.clipboard.writeText(DATA.firma[key] || input.value || "");
-          const b = ev.currentTarget; b.textContent = "✓"; setTimeout(() => { b.textContent = "⧉"; }, 1200);
-        } catch { alert("Kopieren nicht möglich – bitte manuell markieren."); }
-      } }, "⧉");
-    form.append(el("label", { class: "field" }, label,
-      el("div", { class: "field-row" }, input, copyBtn)));
+/* ─────────────────────────────────────────
+   CALENDAR
+   ───────────────────────────────────────── */
+let calMonth = new Date().getMonth();
+let calYear = new Date().getFullYear();
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('calMonthLabel').textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  let startDow = firstDay.getDay();
+  if (startDow === 0) startDow = 7;
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = todayStr();
+
+  for (let i = 1; i < startDow; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-day empty';
+    grid.appendChild(empty);
   }
-  const notizen = el("textarea", { placeholder: "z. B. Kleinunternehmerregelung ja/nein, Handelsregister, GLN/EAN-Stamm …",
-    onchange: e => { DATA.firma.notizen = e.target.value; saveData(); } });
-  notizen.value = DATA.firma.notizen || "";
-  form.append(el("label", { class: "field", style: "grid-column:1/-1" }, "Notizen", notizen));
-}
-function renderFirmaSub() {
-  const f = DATA.firma;
-  $("#firma-sub").textContent = f.firma ? f.firma + (f.ustIdNr ? " · " + f.ustIdNr : "") : "Dein Amazon-Business im Überblick";
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'cal-day';
+    cell.textContent = d;
+
+    if (dateStr === today) cell.classList.add('today');
+
+    const phaseInfo = getDayPhase(dateStr);
+    if (phaseInfo.phase === 'period') {
+      cell.classList.add(phaseInfo.predicted ? 'period-predicted' : 'period');
+    } else if (phaseInfo.phase === 'ovulation') {
+      cell.classList.add('ovulation');
+    } else if (phaseInfo.phase === 'fertile') {
+      cell.classList.add('fertile');
+    } else if (phaseInfo.phase === 'follicular') {
+      cell.classList.add('follicular');
+    } else if (phaseInfo.phase === 'luteal') {
+      cell.classList.add('luteal');
+    }
+
+    cell.addEventListener('click', () => showDayDetail(dateStr));
+    grid.appendChild(cell);
+  }
 }
 
-function renderDocs() {
-  const table = $("#doc-table");
-  table.replaceChildren();
-  if (DATA.dokumente.length === 0) {
-    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine Dokumente erfasst.")));
+/* ─────────────────────────────────────────
+   DAY DETAIL MODAL
+   ───────────────────────────────────────── */
+function showDayDetail(dateStr) {
+  const phase = getDayPhase(dateStr);
+  const dayInCycle = getDayInCycleForDate(dateStr);
+  const phaseInfo = getPhaseNameForDay(dateStr);
+
+  document.getElementById('dayModalTitle').textContent = formatDateLong(dateStr);
+
+  const phaseColors = {
+    period: { bg: 'var(--period-bg)', fg: 'var(--period)' },
+    fertile: { bg: 'var(--fertile-bg)', fg: 'var(--fertile)' },
+    ovulation: { bg: 'var(--fertile-bg)', fg: 'var(--ovulation)' },
+    follicular: { bg: 'var(--follicular-bg)', fg: 'var(--follicular)' },
+    luteal: { bg: 'var(--luteal-bg)', fg: 'var(--luteal)' },
+    none: { bg: 'var(--surface-2)', fg: 'var(--text-muted)' }
+  };
+  const pc = phaseColors[phase.phase] || phaseColors.none;
+
+  const note = appData.notes[dateStr] || '';
+
+  document.getElementById('dayModalBody').innerHTML = `
+    <div class="day-detail-header">
+      ${dayInCycle ? `<span style="font-size:20px;font-weight:700">Tag ${dayInCycle}</span>` : ''}
+      <span class="day-detail-phase" style="background:${pc.bg};color:${pc.fg}">
+        ${phaseInfo}${phase.predicted ? ' (Vorhersage)' : ''}
+      </span>
+    </div>
+    <div class="day-notes">
+      <div class="form-group">
+        <label>Notizen</label>
+        <textarea id="dayNoteInput" placeholder="Symptome, Stimmung, Notizen...">${note}</textarea>
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="saveDayNote('${dateStr}')">Speichern</button>
+    </div>
+  `;
+  openModal('dayModal');
+}
+
+function getPhaseNameForDay(dateStr) {
+  const phase = getDayPhase(dateStr);
+  const names = {
+    period: 'Menstruation',
+    fertile: 'Fruchtbare Tage',
+    ovulation: 'Eisprung',
+    follicular: 'Follikelphase',
+    luteal: 'Lutealphase',
+    none: 'Keine Phase'
+  };
+  return names[phase.phase] || 'Unbekannt';
+}
+
+function saveDayNote(dateStr) {
+  const note = document.getElementById('dayNoteInput').value.trim();
+  if (note) {
+    appData.notes[dateStr] = note;
+  } else {
+    delete appData.notes[dateStr];
+  }
+  saveData(appData);
+  toast('Notiz gespeichert');
+  closeModal('dayModal');
+}
+
+/* ─────────────────────────────────────────
+   PERIOD MANAGEMENT
+   ───────────────────────────────────────── */
+function addPeriod() {
+  const startEl = document.getElementById('periodStart');
+  const endEl = document.getElementById('periodEnd');
+  const start = startEl.value;
+  const end = endEl.value;
+
+  if (!start) { toast('Bitte Startdatum angeben'); return; }
+  if (end && end < start) { toast('Enddatum muss nach Startdatum liegen'); return; }
+
+  const overlaps = appData.periods.some(p => {
+    const pEnd = p.endDate || addDays(p.startDate, getAvgPeriodLength() - 1);
+    return start <= pEnd && (end || addDays(start, getAvgPeriodLength() - 1)) >= p.startDate;
+  });
+  if (overlaps) { toast('Zeitraum überlappt mit bestehender Periode'); return; }
+
+  appData.periods.push({
+    id: crypto.randomUUID(),
+    startDate: start,
+    endDate: end || null
+  });
+  appData.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
+  saveData(appData);
+
+  startEl.value = '';
+  endEl.value = '';
+
+  toast('Periode gespeichert');
+  renderAll();
+}
+
+function deletePeriod(id) {
+  appData.periods = appData.periods.filter(p => p.id !== id);
+  saveData(appData);
+  toast('Periode gelöscht');
+  renderAll();
+}
+
+function startPeriodToday() {
+  const today = todayStr();
+  if (isInActivePeriod()) { toast('Es läuft bereits eine Periode'); return; }
+
+  appData.periods.push({
+    id: crypto.randomUUID(),
+    startDate: today,
+    endDate: null
+  });
+  appData.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
+  saveData(appData);
+
+  toast('Periode gestartet');
+  renderAll();
+}
+
+function endCurrentPeriod() {
+  const last = getLastPeriod();
+  if (!last || last.endDate) { toast('Keine aktive Periode'); return; }
+
+  last.endDate = todayStr();
+  saveData(appData);
+
+  toast('Periode beendet');
+  renderAll();
+}
+
+function renderPeriodList() {
+  const el = document.getElementById('periodList');
+  const periods = [...appData.periods].reverse();
+
+  if (!periods.length) {
+    el.innerHTML = '<div class="no-data-msg" style="padding:16px"><p>Noch keine Perioden eingetragen.</p></div>';
     return;
   }
-  table.append(el("tr", {},
-    el("th", {}, "Dokument"), el("th", {}, "Kategorie"), el("th", {}, "Datum"),
-    el("th", {}, "Ablageort"), el("th", {}, "")));
-  for (const d of DATA.dokumente) {
-    let linkCell;
-    if (d.link && /^https?:\/\//i.test(d.link)) {
-      linkCell = el("a", { class: "doc-link", href: d.link, target: "_blank", rel: "noopener noreferrer" }, d.link);
-    } else {
-      linkCell = el("span", { class: "muted" }, d.link || "–");
-    }
-    table.append(el("tr", {},
-      el("td", {}, el("div", {}, d.name), d.notiz ? el("div", { class: "mono" }, d.notiz) : null),
-      el("td", {}, d.kategorie || "–"),
-      el("td", {}, d.datum ? new Date(d.datum + "T00:00").toLocaleDateString("de-DE") : "–"),
-      el("td", {}, linkCell),
-      el("td", {},
-        el("div", { style: "display:flex;gap:6px" },
-          el("button", { class: "btn small", onclick: () => openDocDialog(d.id) }, "Bearbeiten"),
-          el("button", { class: "btn small danger", onclick: () => deleteDoc(d.id) }, "Löschen")))));
-  }
-}
-const docDialog = $("#doc-dialog");
-const docForm = $("#doc-form");
-let editDocId = null;
-function openDocDialog(id) {
-  editDocId = id || null;
-  $("#doc-dialog-title").textContent = id ? "Dokument bearbeiten" : "Dokument erfassen";
-  docForm.reset();
-  if (id) {
-    const d = DATA.dokumente.find(x => x.id === id);
-    for (const key of ["name", "kategorie", "datum", "link", "notiz"]) {
-      if (docForm.elements[key]) docForm.elements[key].value = d[key] ?? "";
-    }
-  }
-  docDialog.showModal();
-}
-docForm.addEventListener("submit", e => {
-  if (e.submitter && e.submitter.value === "cancel") return;
-  const f = docForm.elements;
-  const obj = { name: f.name.value.trim(), kategorie: f.kategorie.value,
-    datum: f.datum.value, link: f.link.value.trim(), notiz: f.notiz.value.trim() };
-  if (editDocId) {
-    const d = DATA.dokumente.find(x => x.id === editDocId);
-    Object.assign(d, obj); delete d.demo;
-  } else {
-    DATA.dokumente.push(Object.assign({ id: uid() }, obj));
-  }
-  saveData(); renderDocs();
-});
-function deleteDoc(id) {
-  const d = DATA.dokumente.find(x => x.id === id);
-  if (!confirm("Dokument „" + d.name + "“ wirklich löschen?")) return;
-  DATA.dokumente = DATA.dokumente.filter(x => x.id !== id);
-  saveData(); renderDocs();
+
+  el.innerHTML = periods.map(p => {
+    const duration = p.endDate ? `${diffDays(p.startDate, p.endDate) + 1} Tage` : 'Läuft noch';
+    const endLabel = p.endDate ? formatDate(p.endDate) : 'offen';
+    return `
+      <div class="period-entry">
+        <div class="pe-dot"></div>
+        <div class="pe-info">
+          <div class="pe-dates">${formatDate(p.startDate)} – ${endLabel}</div>
+          <div class="pe-meta">${duration}</div>
+        </div>
+        <div class="pe-actions">
+          <button class="pe-action-btn delete" onclick="deletePeriod('${p.id}')" title="Löschen">&times;</button>
+        </div>
+      </div>`;
+  }).join('');
 }
 
-/* ---------- Export / Import / Theme / Tabs ---------- */
-$("#btn-export").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: "application/json" });
-  const a = el("a", { href: URL.createObjectURL(blob),
-    download: "fba-cockpit-backup-" + new Date().toISOString().slice(0, 10) + ".json" });
-  a.click(); URL.revokeObjectURL(a.href);
-});
-$("#btn-import").addEventListener("click", () => $("#import-file").click());
-$("#import-file").addEventListener("change", async e => {
-  const file = e.target.files[0];
+/* ─────────────────────────────────────────
+   STATISTICS
+   ───────────────────────────────────────── */
+function renderStats() {
+  const el = document.getElementById('statsContent');
+  const cycleLens = getCycleLengths();
+  const periodLens = getPeriodLengths();
+
+  if (!appData.periods.length) {
+    el.innerHTML = '<div class="card no-data-msg"><div class="icon">&#128202;</div><p>Trage mindestens eine Periode ein, um Statistiken zu sehen.</p></div>';
+    return;
+  }
+
+  const avgCycle = getAvgCycleLength();
+  const avgPeriod = getAvgPeriodLength();
+  const shortestCycle = cycleLens.length ? Math.min(...cycleLens) : '–';
+  const longestCycle = cycleLens.length ? Math.max(...cycleLens) : '–';
+  const totalPeriods = appData.periods.length;
+
+  const regularity = cycleLens.length >= 3 ? (() => {
+    const std = Math.sqrt(cycleLens.reduce((sum, l) => sum + (l - avgCycle) ** 2, 0) / cycleLens.length);
+    if (std <= 2) return { label: 'Sehr regelmäßig', color: 'var(--fertile)' };
+    if (std <= 4) return { label: 'Regelmäßig', color: 'var(--follicular)' };
+    if (std <= 7) return { label: 'Leicht variabel', color: 'var(--luteal)' };
+    return { label: 'Unregelmäßig', color: 'var(--period)' };
+  })() : null;
+
+  let historyHtml = '';
+  if (cycleLens.length) {
+    const maxLen = Math.max(...cycleLens, 35);
+    const entries = [];
+    for (let i = 1; i < appData.periods.length && entries.length < 12; i++) {
+      const len = diffDays(appData.periods[i-1].startDate, appData.periods[i].startDate);
+      if (len > 0 && len < 60) {
+        entries.push({
+          label: `${formatDate(appData.periods[i-1].startDate)}`,
+          value: len,
+          pct: (len / maxLen) * 100
+        });
+      }
+    }
+    historyHtml = `
+      <div class="card">
+        <div class="card-title">Zyklusverlauf</div>
+        ${entries.map(e => `
+          <div class="cycle-history-item">
+            <span class="ch-label">${e.label}</span>
+            <div class="ch-bar-wrap">
+              <div class="ch-bar" style="width:${e.pct}%;background:${e.value < avgCycle - 3 || e.value > avgCycle + 3 ? 'var(--luteal)' : 'var(--primary)'}"></div>
+            </div>
+            <span class="ch-value">${e.value} T</span>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value">${avgCycle}<span class="stat-unit"> T</span></div>
+          <div class="stat-label">Ø Zykluslänge</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${avgPeriod}<span class="stat-unit"> T</span></div>
+          <div class="stat-label">Ø Periodendauer</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${shortestCycle}<span class="stat-unit">${typeof shortestCycle === 'number' ? ' T' : ''}</span></div>
+          <div class="stat-label">Kürzester Zyklus</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${longestCycle}<span class="stat-unit">${typeof longestCycle === 'number' ? ' T' : ''}</span></div>
+          <div class="stat-label">Längster Zyklus</div>
+        </div>
+      </div>
+    </div>
+
+    ${regularity ? `
+    <div class="card">
+      <div class="card-title">Regelmäßigkeit</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:24px;font-weight:700;color:${regularity.color}">${regularity.label}</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-2);margin-top:6px">
+        Basierend auf ${cycleLens.length} aufgezeichneten Zyklen
+      </div>
+    </div>` : ''}
+
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value">${totalPeriods}</div>
+          <div class="stat-label">Perioden erfasst</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${cycleLens.length}</div>
+          <div class="stat-label">Zyklen berechnet</div>
+        </div>
+      </div>
+    </div>
+
+    ${historyHtml}
+  `;
+}
+
+/* ─────────────────────────────────────────
+   SETTINGS & DATA
+   ───────────────────────────────────────── */
+function saveSettings() {
+  appData.settings.defaultCycleLength = parseInt(document.getElementById('defaultCycleLen').value) || 28;
+  appData.settings.defaultPeriodLength = parseInt(document.getElementById('defaultPeriodLen').value) || 5;
+  saveData(appData);
+  renderAll();
+}
+
+function loadSettings() {
+  document.getElementById('defaultCycleLen').value = appData.settings.defaultCycleLength;
+  document.getElementById('defaultPeriodLen').value = appData.settings.defaultPeriodLength;
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `meinzyklus-backup-${todayStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Daten exportiert');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
   if (!file) return;
-  try {
-    const parsed = JSON.parse(await file.text());
-    if (!parsed || !Array.isArray(parsed.skus)) throw new Error("Format unbekannt");
-    if (!confirm("Aktuelle Daten mit dem Backup überschreiben?")) return;
-    DATA = Object.assign(structuredClone(DEFAULT_DATA), parsed);
-    saveData(); renderAll();
-  } catch (err) {
-    alert("Import fehlgeschlagen: " + err.message);
-  } finally {
-    e.target.value = "";
-  }
-});
-
-const savedTheme = localStorage.getItem(THEME_KEY);
-if (savedTheme) document.documentElement.dataset.theme = savedTheme;
-$("#btn-theme").addEventListener("click", () => {
-  const cur = document.documentElement.dataset.theme ||
-    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.dataset.theme = next;
-  localStorage.setItem(THEME_KEY, next);
-});
-
-$("#tabs").addEventListener("click", e => {
-  const btn = e.target.closest("button[data-tab]");
-  if (!btn) return;
-  for (const b of document.querySelectorAll("#tabs button")) b.classList.toggle("active", b === btn);
-  for (const s of document.querySelectorAll("section.tab")) s.classList.toggle("active", s.id === "tab-" + btn.dataset.tab);
-});
-
-$("#btn-add-sku").addEventListener("click", () => openSkuDialog(null));
-$("#btn-add-doc").addEventListener("click", () => openDocDialog(null));
-
-function renderAll() {
-  renderKpis();
-  renderChart();
-  renderUebersichtAlerts();
-  renderJournal();
-  renderSkuTable();
-  renderNachschub();
-  renderFirma();
-  renderFirmaSub();
-  renderDocs();
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.periods || !Array.isArray(imported.periods)) {
+        toast('Ungültiges Dateiformat');
+        return;
+      }
+      appData = {
+        periods: imported.periods.map(p => ({
+          id: p.id || crypto.randomUUID(),
+          startDate: p.startDate,
+          endDate: p.endDate || null
+        })),
+        notes: imported.notes || {},
+        settings: { ...defaultData().settings, ...(imported.settings || {}) }
+      };
+      appData.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
+      saveData(appData);
+      loadSettings();
+      renderAll();
+      toast('Daten importiert');
+    } catch {
+      toast('Fehler beim Importieren');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
 }
+
+function confirmReset() {
+  document.getElementById('confirmTitle').textContent = 'Alle Daten löschen?';
+  document.getElementById('confirmMsg').textContent = 'Alle Perioden, Notizen und Einstellungen werden unwiderruflich gelöscht.';
+  document.getElementById('confirmAction').onclick = () => {
+    appData = defaultData();
+    saveData(appData);
+    loadSettings();
+    renderAll();
+    closeModal('confirmModal');
+    toast('Alle Daten gelöscht');
+  };
+  openModal('confirmModal');
+}
+
+/* ─────────────────────────────────────────
+   NAVIGATION
+   ───────────────────────────────────────── */
+function switchPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === pageId);
+  });
+  if (pageId === 'pageCalendar') renderCalendar();
+  if (pageId === 'pagePeriods') renderPeriodList();
+  if (pageId === 'pageStats') renderStats();
+  if (pageId === 'pageDashboard') renderDashboard();
+}
+
+/* ─────────────────────────────────────────
+   MODALS & TOAST
+   ───────────────────────────────────────── */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+/* ─────────────────────────────────────────
+   THEME
+   ───────────────────────────────────────── */
+function toggleTheme() {
+  const root = document.documentElement;
+  const current = root.getAttribute('data-theme');
+  const isDark = current === 'dark' || (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('meinzyklus_theme', isDark ? 'light' : 'dark');
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const root = document.documentElement;
+  const theme = root.getAttribute('data-theme');
+  const isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.getElementById('themeIcon').innerHTML = isDark ? '&#9788;' : '&#9790;';
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('meinzyklus_theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon();
+})();
+
+/* ─────────────────────────────────────────
+   INIT
+   ───────────────────────────────────────── */
+function renderAll() {
+  renderDashboard();
+  renderCalendar();
+  renderPeriodList();
+  renderStats();
+}
+
+loadSettings();
 renderAll();
+
+const today = new Date();
+document.getElementById('periodStart').max = toStr(today);
+document.getElementById('periodEnd').max = toStr(today);
 </script>
+
 </body>
 </html>

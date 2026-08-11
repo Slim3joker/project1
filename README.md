@@ -1,91 +1,102 @@
-# FBA Cockpit – Amazon Business Dashboard
+# MeinZyklus – Zyklustracker
 
-Ein schlankes Dashboard für den Aufbau eines Amazon-FBA-Business (Amazon.de).
-Eine einzige Datei, kein Server, kein Build-Tool: **`index.html` im Browser
-öffnen – fertig.**
+Eine private Zyklus-Tracking-App zum Selbsthosten auf Unraid.
+Keine Cloud, keine Abo-Kosten – alle Daten bleiben lokal im Browser.
 
-## Was es kann (Sprint 1)
+## Features
 
-- **Übersicht:** KPI-Kacheln (FBA-Bestand, unterwegs, zuhause, Alarme),
-  Lagerreichweiten-Chart mit 28-Tage-Fee-Grenze, Handlungsbedarf,
-  Bewegungsjournal.
-- **Bestand & SKUs:** Bestände je SKU an drei Orten (FBA / unterwegs zu
-  Amazon / zuhause). Bewegungen werden gebucht statt überschrieben –
-  Wareneingang, Sendung an Amazon, Einlagerung, Inventur – so bleiben die
-  Bestände abgeglichen und nachvollziehbar.
-- **Nachschub:** Automatische Empfehlungen nach der eCommerce.de-Methodik:
-  - *An Amazon senden*, wenn die Amazon-Reichweite (FBA + unterwegs) unter
-    35 Tage fällt – Ziel: nie unter die 28-Tage-Grenze
-    (Low-Inventory-Level-Fee).
-  - *Beim Lieferanten bestellen*, wenn der Gesamtbestand unter den
-    **Nachbestellpunkt** fällt.
-  - *Überbestand*-Hinweis ab 120 Tagen Reichweite (Aged-Inventory-Fee).
-- **Firma & Dokumente:** Firmendaten (USt-IdNr., Steuernummer, EORI, IBAN,
-  Amazon Seller-ID …) mit Kopieren-Button, plus Dokumentenliste mit
-  Ablageort/Link (Gewerbeanmeldung, Zertifikate, Lieferantenverträge …).
-- **PPC:** Platzhalter – wird mit der Amazon-MCP-Anbindung befüllt
-  (Impressions, CTR, Conversion Rate, ACoS, TACoS).
+- **Dashboard** – Aktueller Zyklustag, Phase, Countdown zur nächsten Periode
+- **Kalender** – Monatsansicht mit farbcodierten Zyklusphasen
+- **Perioden-Verwaltung** – Perioden starten/beenden, historische Daten nachtragen
+- **Vorhersagen** – Nächste Periode, Eisprung, fruchtbare Tage
+- **Statistiken** – Durchschnittliche Zykluslänge, Regelmäßigkeit, Verlauf
+- **Daten-Export/Import** – JSON-Backup zum Sichern und Wiederherstellen
+- **Dark Mode** – Automatisch oder manuell umschaltbar
+- **Mobil-optimiert** – Funktioniert perfekt auf dem Handy
 
-## Formeln
+## Tech-Stack
 
-```
-Reichweite (Tage)   = Bestand ÷ Ø Verkäufe/Tag
-Nachbestellpunkt    = Ø Verkäufe/Tag × (Lieferzeit + 14 Tage Sicherheitspuffer)
-Bestellmenge        = max(MOQ, Ziel-Reichweite × Ø Verkäufe/Tag)
-Sendemenge (an FBA) = Ziel-Reichweite × Ø Verkäufe/Tag − FBA − unterwegs
+Eine einzige Datei (`index.html`), kein Server, kein Build-Tool.
+Daten werden im `localStorage` des Browsers gespeichert.
+
+## Deployment auf Unraid
+
+### Docker Compose
+
+```bash
+docker-compose up -d --build
 ```
 
-Schwellen: **28 Tage** kritisch (Low-Inventory-Fee), **35 Tage** Warnung
-(Vorlauf zum Einsenden), **120 Tage** Überbestand.
+Die App läuft dann auf `http://<unraid-ip>:8087`.
 
-## Datenhaltung & Backup
+### Manuell mit Docker
 
-Alle Daten liegen im Browser (`localStorage`, Schlüssel `fba-cockpit-v1`) –
-nichts verlässt deinen Rechner. Über **Export (JSON)** sicherst du den
-kompletten Stand als Datei, über **Import** spielst du ihn zurück (auch auf
-einem anderen Gerät nutzbar).
+```bash
+docker build -t meinzyklus .
+docker run -d --name meinzyklus -p 8087:80 --restart unless-stopped meinzyklus
+```
 
-> Wichtig: Browserdaten löschen = Dashboard-Daten weg. Regelmäßig
-> exportieren.
+### Unraid Community Applications
 
-### Datenschema (Export-Format)
+1. Docker-Container manuell hinzufügen
+2. Repository: Lokales Build oder Image
+3. Port-Mapping: `8087:80`
+4. Neustart-Policy: `unless-stopped`
 
-```jsonc
+## Cloudflare Tunnel einrichten
+
+Um die App unter einer eigenen Domain erreichbar zu machen:
+
+1. **Cloudflare Dashboard** → Zero Trust → Networks → Tunnels
+2. Tunnel auswählen (oder neuen erstellen)
+3. **Public Hostname** hinzufügen:
+   - **Subdomain**: z.B. `zyklus` (ergibt `zyklus.deinedomain.de`)
+   - **Domain**: Deine Domain auswählen
+   - **Service Type**: `HTTP`
+   - **URL**: `<unraid-ip>:8087` (z.B. `192.168.1.100:8087`)
+4. Speichern – die App ist sofort unter der Domain erreichbar
+
+### Cloudflare Access (optional, empfohlen!)
+
+Da es private Gesundheitsdaten sind, solltet ihr den Zugriff schützen:
+
+1. Cloudflare Dashboard → Zero Trust → Access → Applications
+2. **Add an Application** → Self-hosted
+3. Application domain: `zyklus.deinedomain.de`
+4. Policy erstellen: z.B. nur eure E-Mail-Adressen erlauben
+5. So müsst ihr euch erst einloggen, bevor die App geladen wird
+
+## Datenformat
+
+Die App speichert Daten als JSON im Browser-localStorage:
+
+```json
 {
-  "version": 1,
-  "firma":     { "firma": "", "ustIdNr": "", "steuernummer": "", "eori": "", ... },
-  "skus": [
+  "periods": [
     {
-      "id": "…", "sku": "KUV-CUBE-WS-01", "asin": "", "name": "…",
-      "fba": 220,          // Bestand bei Amazon
-      "inbound": 0,        // an Amazon gesendet, noch nicht eingelagert
-      "home": 130,         // Bestand zuhause
-      "salesPerDay": 3,    // Ø Verkäufe/Tag (30 Tage)
-      "leadTime": 45,      // Lieferzeit Lieferant → FBA in Tagen
-      "moq": 500,          // Mindestbestellmenge Lieferant
-      "targetDays": 60     // Ziel-Lagerreichweite
+      "id": "uuid",
+      "startDate": "2026-07-14",
+      "endDate": "2026-07-18"
     }
   ],
-  "dokumente": [ { "name": "", "kategorie": "", "datum": "", "link": "", "notiz": "" } ],
-  "journal":   [ { "ts": "ISO-Zeit", "sku": "", "typ": "", "menge": 0, "notiz": "" } ],
-  "ppc": null              // reserviert für die MCP-Anbindung
+  "notes": {
+    "2026-07-15": "Kopfschmerzen"
+  },
+  "settings": {
+    "defaultCycleLength": 28,
+    "defaultPeriodLength": 5
+  }
 }
 ```
 
-## Roadmap: Amazon-MCP-Anbindung
+## Zyklusberechnung
 
-Das Schema oben ist bewusst die Andockstelle für die geplante
-MCP-Verbindung zum Seller-Account. Sobald sie steht, ersetzt sie die
-manuelle Eingabe:
+- **Zykluslänge** = Tage zwischen aufeinanderfolgenden Periodenstarttagen
+- **Eisprung** = Zykluslänge − 14 Tage (Lutealphase ist relativ konstant)
+- **Fruchtbares Fenster** = 5 Tage vor Eisprung bis 1 Tag nach Eisprung
+- **Phasen**: Menstruation → Follikelphase → Eisprung → Lutealphase
 
-1. **FBA-Bestand & Absatz automatisch:** `skus[].fba` und
-   `skus[].salesPerDay` kommen aus dem Seller-Account statt aus der
-   Inventur-Buchung (SP-API: FBA Inventory / Sales & Traffic).
-2. **PPC-Daten:** `ppc` wird mit Kampagnendaten befüllt (Impressions,
-   Klicks, CTR, CVR, ACoS, TACoS) und der PPC-Tab freigeschaltet.
-3. Ablauf dann: Claude ruft die Daten per MCP ab, aktualisiert das JSON und
-   du importierst es – oder das Dashboard wird auf direkten Datenabruf
-   umgestellt.
+## Privatsphäre
 
-Beim ersten Start ist eine Beispiel-SKU (Kuvio Steckdosenwürfel) angelegt,
-damit man sieht, wie alles funktioniert – einfach bearbeiten oder löschen.
+Alle Daten werden ausschließlich im `localStorage` des Browsers gespeichert.
+Es werden keine Daten an Server gesendet. Die App funktioniert komplett offline.

@@ -1,0 +1,8 @@
+version: "3"
+services:
+  meinzyklus:
+    build: .
+    container_name: meinzyklus
+    ports:
+      - "8087:80"
+    restart: unless-stopped
