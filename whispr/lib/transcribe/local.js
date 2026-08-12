@@ -12,6 +12,48 @@ const { fileBlob } = require('./blob');
  * Shell-Escaping). Ein HTTP-POST an den Nachbarcontainer ist stabil,
  * debuggbar und liefert echte Fehlermeldungen.
  */
+/**
+ * `fetch` wirft bei Verbindungsproblemen immer nur "fetch failed" – die
+ * eigentliche Ursache steckt in `err.cause.code`. Ohne diese Übersetzung
+ * sieht ein abgestürzter Whisper-Container genauso aus wie eine falsche URL,
+ * und man sucht den Fehler an der falschen Stelle.
+ */
+function describeFetchError(err, whisperUrl) {
+  const code = (err.cause && err.cause.code) || err.code || '';
+  const where = `Whisper-Dienst unter ${whisperUrl}`;
+
+  if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') {
+    return `${where}: Hostname nicht auflösbar. Läuft der Container unter diesem Namen und hängen beide im selben Docker-Netzwerk?`;
+  }
+  if (code === 'ECONNREFUSED') {
+    return `${where}: Verbindung abgelehnt. Der Container läuft nicht (oder nicht auf diesem Port).`;
+  }
+  if (code === 'ECONNRESET' || code === 'UND_ERR_SOCKET' || code === 'EPIPE') {
+    return `${where}: Verbindung mitten in der Anfrage abgebrochen. Das passiert fast immer, wenn der Whisper-Container beim Laden des Modells abgeschossen wird (zu wenig RAM). Kleineres ASR_MODEL probieren – "small" statt "large-v3" – und mit "docker logs whisper" nachsehen.`;
+  }
+  if (code === 'ETIMEDOUT' || code === 'UND_ERR_CONNECT_TIMEOUT') {
+    return `${where}: Zeitüberschreitung beim Verbinden. Erreichbar, aber keine Antwort – meist eine Firewall oder ein Container, der noch startet.`;
+  }
+  return `${where} nicht erreichbar (${code || err.message}). Läuft der Container "whisper" und stimmt WHISPER_URL?`;
+}
+
+/** Pause, die auf "Abbrechen" sofort reagiert statt die Zeit abzusitzen. */
+function sleep(ms, signal) {
+  return new Promise((resolve, reject) => {
+    if (signal && signal.aborted) return reject(signal.reason || new Error('abgebrochen'));
+    const timer = setTimeout(done, ms);
+    function done() {
+      if (signal) signal.removeEventListener('abort', onAbort);
+      resolve();
+    }
+    function onAbort() {
+      clearTimeout(timer);
+      reject(signal.reason || new Error('abgebrochen'));
+    }
+    if (signal) signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
 async function transcribeLocal(filePath, opts) {
   const { whisperUrl, language, signal, onProgress } = opts;
 
@@ -23,24 +65,41 @@ async function transcribeLocal(filePath, opts) {
   });
   if (language && language !== 'auto') params.set('language', language);
 
-  const form = new FormData();
-  form.append('audio_file', await fileBlob(filePath), path.basename(filePath));
-
   if (onProgress) onProgress('Whisper rechnet … (je nach Länge einige Minuten)');
 
+  // Beim allerersten Auftrag lädt der Dienst sein Modell – dabei ist er kurz
+  // nicht ansprechbar und kann sogar neu starten. Ein zweiter Versuch nach
+  // einer Pause trifft ihn dann warm an. Nur Verbindungsfehler werden
+  // wiederholt, keine HTTP-Fehler und kein Abbruch durch den Nutzer.
+  const ATTEMPTS = 3;
   let res;
-  try {
-    res = await fetch(`${whisperUrl}/asr?${params.toString()}`, {
-      method: 'POST',
-      body: form,
-      signal,
-    });
-  } catch (err) {
-    if (err.name === 'AbortError') throw err;
-    throw new Error(
-      `Whisper-Dienst unter ${whisperUrl} nicht erreichbar (${err.message}). ` +
-        'Läuft der Container "whisper" und stimmt WHISPER_URL?'
-    );
+  for (let attempt = 1; ; attempt++) {
+    // FormData je Versuch neu aufbauen – ein verbrauchter Body ist nicht
+    // wiederverwendbar.
+    const form = new FormData();
+    form.append('audio_file', await fileBlob(filePath), path.basename(filePath));
+
+    try {
+      res = await fetch(`${whisperUrl}/asr?${params.toString()}`, {
+        method: 'POST',
+        body: form,
+        signal,
+      });
+      break;
+    } catch (err) {
+      if (err.name === 'AbortError') throw err;
+      if (attempt >= ATTEMPTS) throw new Error(describeFetchError(err, whisperUrl));
+
+      const waitMs = attempt * 15000;
+      if (onProgress) {
+        onProgress(
+          `Whisper antwortet noch nicht (Versuch ${attempt}/${ATTEMPTS}) – ` +
+            `neuer Versuch in ${waitMs / 1000}s. Beim ersten Lauf lädt der Dienst sein Modell.`
+        );
+      }
+      await sleep(waitMs, signal);
+      if (onProgress) onProgress('Whisper rechnet … (je nach Länge einige Minuten)');
+    }
   }
 
   if (!res.ok) {
@@ -69,4 +128,4 @@ async function transcribeLocal(filePath, opts) {
   };
 }
 
-module.exports = { transcribeLocal };
+module.exports = { transcribeLocal, describeFetchError };

@@ -61,13 +61,44 @@ cd /mnt/user/appdata/whispr
 docker compose up -d --build
 ```
 
-Beim ersten Start lädt der Whisper-Container sein Modell herunter
-(`large-v3` ≈ 3 GB). Es landet in `./whisper-models` und bleibt dort — der
-zweite Start geht sofort.
+Beim ersten Auftrag lädt der Whisper-Container sein Modell herunter. Es landet
+in `./whisper-models` und bleibt dort — ab dem zweiten Mal geht es sofort.
 
-**Ohne Nvidia-GPU:** den `deploy:`-Block beim `whisper`-Service löschen und
-`ASR_MODEL` auf `small` oder `medium` stellen. Auf CPU braucht `large-v3`
-schnell das Fünf- bis Zehnfache der Audiolänge.
+Standard ist `ASR_MODEL: small` auf der CPU, weil das überall läuft. Für
+Deutsch ist `medium` deutlich besser, wenn der Server den RAM hat.
+
+### Mit Nvidia-GPU
+
+In `docker-compose.yml` den CPU-`whisper`-Block auskommentieren und den
+GPU-Block darunter aktivieren. Zwei Dinge sind dabei wichtig:
+
+- **Image muss `:latest-gpu` sein.** Im normalen `:latest` ist kein CUDA
+  enthalten — der Container startet, rechnet aber still auf der CPU weiter.
+- **`runtime: nvidia` statt `deploy:`.** Wenn `docker compose` (mit Leerzeichen)
+  bei dir nicht existiert und du `docker-compose` (mit Bindestrich) brauchst,
+  hast du die alte v1. Die **ignoriert einen `deploy:`-Block komplett und ohne
+  Fehlermeldung** — die Karte wird dann nie durchgereicht.
+
+Prüfen, ob die Nvidia-Runtime da ist (Unraid: Plugin „Nvidia Driver"):
+
+```bash
+docker info | grep -i runtimes
+```
+
+### Wenn es „nicht erreichbar" sagt
+
+Der Klassiker: `large-v3` auf der CPU braucht rund 5 GB RAM und wird beim Laden
+vom Kernel abgeschossen. Die Verbindung reißt mitten in der Anfrage ab, und die
+Oberfläche meldet einen Netzwerkfehler — obwohl das Netzwerk in Ordnung ist.
+
+```bash
+docker inspect whisper --format 'status={{.State.Status}} oom={{.State.OOMKilled}} restarts={{.RestartCount}}'
+docker logs whisper --tail 40
+```
+
+Steht dort `oom=true` oder eine steigende `restarts`-Zahl: kleineres Modell
+nehmen. Der gelbe Punkt oben rechts bedeutet dagegen nur, dass Whisper gerade
+rechnet und den Statuscheck nicht beantwortet — das ist normal.
 
 ### Variante B: zwei Container über die Unraid-Oberfläche
 

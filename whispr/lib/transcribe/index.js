@@ -31,8 +31,12 @@ async function checkBackend(config) {
       });
       if (res.ok) return { ok: true, detail: config.whisperUrl };
       lastStatus = res.status;
-    } catch {
-      return { ok: false, detail: `${config.whisperUrl} nicht erreichbar` };
+    } catch (err) {
+      // Kurzfassung für den Header – die Langfassung steht im Job-Fehler.
+      const code = (err.cause && err.cause.code) || err.name || '';
+      if (code === 'ECONNREFUSED') return { ok: false, detail: `${config.whisperUrl} – Container läuft nicht` };
+      if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') return { ok: false, detail: `${config.whisperUrl} – Name nicht auflösbar` };
+      return { ok: false, detail: `${config.whisperUrl} nicht erreichbar (${code || 'Zeitüberschreitung'})` };
     }
   }
   return { ok: false, detail: `HTTP ${lastStatus} von ${config.whisperUrl}` };

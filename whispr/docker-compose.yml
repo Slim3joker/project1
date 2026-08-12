@@ -29,21 +29,50 @@ services:
     depends_on:
       - whisper
 
+  # ---------------------------------------------------------------------------
+  # Whisper-Dienst, CPU-Variante (Standard – läuft überall)
+  #
+  # `small` ist bewusst der Standard: `large-v3` braucht auf der CPU rund 5 GB
+  # RAM und wird beim Laden gern vom Kernel abgeschossen (OOM). Das sieht in
+  # der Oberfläche aus wie ein Netzwerkfehler ("nicht erreichbar"), ist aber
+  # ein abgestürzter Container. `medium` geht auch, wenn RAM da ist.
+  #
+  # Für GPU: diesen Block auskommentieren und den GPU-Block darunter nehmen.
+  # ---------------------------------------------------------------------------
   whisper:
     image: onerahmet/openai-whisper-asr-webservice:latest
     container_name: whisper
     restart: unless-stopped
     environment:
       ASR_ENGINE: faster_whisper
-      ASR_MODEL: large-v3       # ohne GPU besser: small oder medium
+      ASR_MODEL: small
       ASR_MODEL_PATH: /models
     volumes:
       - ./whisper-models:/models   # Modell wird einmal geladen und bleibt liegen
-    # GPU (nur mit Nvidia-Treiber-Plugin auf Unraid, sonst diesen Block entfernen):
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+
+  # ---------------------------------------------------------------------------
+  # Whisper-Dienst, GPU-Variante (Nvidia)
+  #
+  # Zwei Dinge, die man leicht falsch macht:
+  #   1. Das Image muss `:latest-gpu` sein – im normalen `:latest` ist kein
+  #      CUDA drin, das rechnet still auf der CPU weiter.
+  #   2. `runtime: nvidia` statt eines `deploy:`-Blocks. Das alte
+  #      `docker-compose` (v1, mit Bindestrich) ignoriert `deploy:` komplett
+  #      und ohne Fehlermeldung – die Karte wird dann nie durchgereicht.
+  #
+  # Voraussetzung auf Unraid: Plugin "Nvidia Driver" installiert.
+  # Prüfen mit:  docker info | grep -i runtime
+  # ---------------------------------------------------------------------------
+  # whisper:
+  #   image: onerahmet/openai-whisper-asr-webservice:latest-gpu
+  #   container_name: whisper
+  #   restart: unless-stopped
+  #   runtime: nvidia
+  #   environment:
+  #     ASR_ENGINE: faster_whisper
+  #     ASR_MODEL: large-v3
+  #     ASR_MODEL_PATH: /models
+  #     NVIDIA_VISIBLE_DEVICES: all
+  #     NVIDIA_DRIVER_CAPABILITIES: compute,utility
+  #   volumes:
+  #     - ./whisper-models:/models
