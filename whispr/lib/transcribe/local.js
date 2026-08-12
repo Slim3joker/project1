@@ -3,6 +3,19 @@
 const path = require('path');
 const { fileBlob } = require('./blob');
 
+// undici's interner headersTimeout (Standard: 300 s) bricht Whisper-Anfragen
+// ab, bevor unser eigenes Job-Timeout greift – bei langen Dateien auf der CPU
+// kommt Whisper einfach nicht in 5 Minuten durch. Ein eigener Dispatcher
+// schaltet den Undici-Timeout ab; das JOB_TIMEOUT_MIN in server.js regelt,
+// wann ein Job als hängengeblieben gilt.
+let noTimeoutAgent;
+try {
+  const { Agent } = require('undici');
+  noTimeoutAgent = new Agent({ headersTimeout: 0, bodyTimeout: 0 });
+} catch {
+  /* undici nicht direkt verfügbar – Standard-Timeouts greifen */
+}
+
 /**
  * Backend "local": spricht die HTTP-API von
  * onerahmet/openai-whisper-asr-webservice an.
@@ -67,6 +80,12 @@ function describeFetchError(err, whisperUrl) {
       message: `${where}: Zeitüberschreitung beim Verbinden. Erreichbar, aber keine Antwort – meist eine Firewall oder ein Container, der noch startet.`,
     };
   }
+  if (code === 'UND_ERR_HEADERS_TIMEOUT' || code === 'UND_ERR_BODY_TIMEOUT') {
+    return {
+      kind: 'timeout',
+      message: `${where}: Zeitüberschreitung – Whisper rechnet noch. Die Audiodatei ist wahrscheinlich zu lang für das Modell auf der CPU. Mit GPU oder einem kleineren Modell geht es schneller.`,
+    };
+  }
   return {
     kind: 'unknown',
     message: `${where} nicht erreichbar (${code || err.message}). Läuft der Container "whisper" und stimmt WHISPER_URL?`,
@@ -129,6 +148,7 @@ async function transcribeLocal(filePath, opts) {
         method: 'POST',
         body: form,
         signal,
+        ...(noTimeoutAgent ? { dispatcher: noTimeoutAgent } : {}),
       });
       break;
     } catch (err) {
