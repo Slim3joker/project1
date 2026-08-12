@@ -91,20 +91,47 @@ Prüfen, ob die Nvidia-Runtime da ist (Unraid: Plugin „Nvidia Driver"):
 docker info | grep -i runtimes
 ```
 
-### Wenn es „nicht erreichbar" sagt
-
-Der Klassiker: `large-v3` auf der CPU braucht rund 5 GB RAM und wird beim Laden
-vom Kernel abgeschossen. Die Verbindung reißt mitten in der Anfrage ab, und die
-Oberfläche meldet einen Netzwerkfehler — obwohl das Netzwerk in Ordnung ist.
+## Wenn etwas nicht geht: der Selbsttest
 
 ```bash
-docker inspect whisper --format 'status={{.State.Status}} oom={{.State.OOMKilled}} restarts={{.RestartCount}}'
-docker logs whisper --tail 40
+docker exec whispr node scripts/doctor.js
 ```
 
-Steht dort `oom=true` oder eine steigende `restarts`-Zahl: kleineres Modell
-nehmen. Der gelbe Punkt oben rechts bedeutet dagegen nur, dass Whisper gerade
-rechnet und den Statuscheck nicht beantwortet — das ist normal.
+Das ist der erste Griff bei jedem Problem — er ersetzt das Raten. Geprüft wird
+der komplette Weg **aus dem Container heraus**, also auf genau der Strecke, die
+die App auch nimmt: Konfiguration, Ausgabeordner, freier Speicher, freier RAM
+gemessen am gewählten Modell, Erreichbarkeit des Dienstes und zum Schluss eine
+echte Transkription mit einer selbst erzeugten Tondatei. Läuft der Test durch,
+funktioniert auch ein Upload.
+
+Statt einer Fehlermeldung nennt er die Ursache samt nächstem Schritt:
+
+```
+Erreichbarkeit
+  ✓ Whisper-Dienst antwortet · http://whisper:9000/docs → HTTP 200
+
+Echte Transkription
+  ✗ Transkription fehlgeschlagen · nach 45.1s
+
+  Die Verbindung riss MITTEN in der Anfrage ab. Das ist die Signatur eines
+  abgestürzten Containers, nicht eines Netzwerkfehlers – der Dienst war ja
+  eben noch erreichbar. Fast immer zu wenig RAM beim Laden des Modells.
+  Beweis: docker inspect whisper --format "oom={{.State.OOMKilled}} ..."
+```
+
+Genau dieser Fall ist der Klassiker: `large-v3` braucht auf der CPU rund 5 GB
+RAM und wird beim Laden vom Kernel abgeschossen. In der Oberfläche sieht das
+aus wie ein Netzwerkfehler, obwohl das Netzwerk in Ordnung ist.
+
+Ein **gelber** Punkt oben rechts ist dagegen kein Fehler: Whisper rechnet gerade
+und beantwortet den Statuscheck nicht. Rot heißt Problem, gelb heißt beschäftigt.
+
+Ohne Docker geht der Test auch direkt — dann aber vom Host aus, was einen
+anderen Netzwerkweg nimmt und weniger aussagt:
+
+```bash
+npm run doctor
+```
 
 ### Variante B: zwei Container über die Unraid-Oberfläche
 

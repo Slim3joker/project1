@@ -13,6 +13,8 @@ RUN npm install --omit=dev && npm cache clean --force
 COPY server.js ./
 COPY lib ./lib
 COPY public ./public
+# Selbsttest: docker exec whispr node scripts/doctor.js
+COPY scripts ./scripts
 
 ENV NODE_ENV=production \
     PORT=8098 \

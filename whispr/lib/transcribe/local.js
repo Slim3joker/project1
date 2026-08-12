@@ -13,28 +13,73 @@ const { fileBlob } = require('./blob');
  * debuggbar und liefert echte Fehlermeldungen.
  */
 /**
- * `fetch` wirft bei Verbindungsproblemen immer nur "fetch failed" – die
- * eigentliche Ursache steckt in `err.cause.code`. Ohne diese Übersetzung
- * sieht ein abgestürzter Whisper-Container genauso aus wie eine falsche URL,
- * und man sucht den Fehler an der falschen Stelle.
+ * `fetch` verpackt jede Verbindungsstörung in ein nichtssagendes
+ * "TypeError: fetch failed". Die brauchbare Information liegt eine oder zwei
+ * Ebenen tiefer – und mal als `code`, mal nur als Meldung.
+ */
+function causeCode(err) {
+  const cause = err.cause;
+  if (cause) {
+    if (typeof cause.code === 'string') return cause.code;
+    // Bei mehreren Adressen (IPv4/IPv6) sammelt undici die Einzelfehler.
+    if (Array.isArray(cause.errors)) {
+      const inner = cause.errors.find((e) => typeof e.code === 'string');
+      if (inner) return inner.code;
+    }
+  }
+  return (typeof err.code === 'string' && err.code) || '';
+}
+
+/**
+ * Übersetzt einen Verbindungsfehler in eine Ursache. Ohne das sieht ein
+ * abgestürzter Whisper-Container genauso aus wie eine falsche URL, und man
+ * sucht den Fehler an der falschen Stelle – genau das kostet sonst Stunden.
+ *
+ * `kind` ist die maschinenlesbare Fassung: der Selbsttest hängt daran seine
+ * weiterführenden Hinweise, statt deutschen Fließtext nach Stichworten zu
+ * durchsuchen.
  */
 function describeFetchError(err, whisperUrl) {
-  const code = (err.cause && err.cause.code) || err.code || '';
+  const code = causeCode(err);
   const where = `Whisper-Dienst unter ${whisperUrl}`;
 
   if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') {
-    return `${where}: Hostname nicht auflösbar. Läuft der Container unter diesem Namen und hängen beide im selben Docker-Netzwerk?`;
+    return {
+      kind: 'dns',
+      message: `${where}: Hostname nicht auflösbar. Läuft der Container unter diesem Namen und hängen beide im selben Docker-Netzwerk?`,
+    };
   }
   if (code === 'ECONNREFUSED') {
-    return `${where}: Verbindung abgelehnt. Der Container läuft nicht (oder nicht auf diesem Port).`;
+    return {
+      kind: 'refused',
+      message: `${where}: Verbindung abgelehnt. Der Container läuft nicht (oder nicht auf diesem Port).`,
+    };
   }
   if (code === 'ECONNRESET' || code === 'UND_ERR_SOCKET' || code === 'EPIPE') {
-    return `${where}: Verbindung mitten in der Anfrage abgebrochen. Das passiert fast immer, wenn der Whisper-Container beim Laden des Modells abgeschossen wird (zu wenig RAM). Kleineres ASR_MODEL probieren – "small" statt "large-v3" – und mit "docker logs whisper" nachsehen.`;
+    return {
+      kind: 'reset',
+      message: `${where}: Verbindung mitten in der Anfrage abgebrochen. Das passiert fast immer, wenn der Whisper-Container beim Laden des Modells abgeschossen wird (zu wenig RAM). Kleineres ASR_MODEL probieren – "small" statt "large-v3" – und mit "docker logs whisper" nachsehen.`,
+    };
   }
   if (code === 'ETIMEDOUT' || code === 'UND_ERR_CONNECT_TIMEOUT') {
-    return `${where}: Zeitüberschreitung beim Verbinden. Erreichbar, aber keine Antwort – meist eine Firewall oder ein Container, der noch startet.`;
+    return {
+      kind: 'timeout',
+      message: `${where}: Zeitüberschreitung beim Verbinden. Erreichbar, aber keine Antwort – meist eine Firewall oder ein Container, der noch startet.`,
+    };
   }
-  return `${where} nicht erreichbar (${code || err.message}). Läuft der Container "whisper" und stimmt WHISPER_URL?`;
+  return {
+    kind: 'unknown',
+    message: `${where} nicht erreichbar (${code || err.message}). Läuft der Container "whisper" und stimmt WHISPER_URL?`,
+  };
+}
+
+/** Verbindungsfehler mit Ursache, so dass Aufrufer daran anknüpfen können. */
+function connectionError(err, whisperUrl) {
+  const { kind, message } = describeFetchError(err, whisperUrl);
+  const out = new Error(message);
+  out.kind = kind;
+  out.cause = err;
+  return out;
 }
 
 /** Pause, die auf "Abbrechen" sofort reagiert statt die Zeit abzusitzen. */
@@ -88,7 +133,7 @@ async function transcribeLocal(filePath, opts) {
       break;
     } catch (err) {
       if (err.name === 'AbortError') throw err;
-      if (attempt >= ATTEMPTS) throw new Error(describeFetchError(err, whisperUrl));
+      if (attempt >= ATTEMPTS) throw connectionError(err, whisperUrl);
 
       const waitMs = attempt * 15000;
       if (onProgress) {
@@ -128,4 +173,4 @@ async function transcribeLocal(filePath, opts) {
   };
 }
 
-module.exports = { transcribeLocal, describeFetchError };
+module.exports = { transcribeLocal, describeFetchError, causeCode };
