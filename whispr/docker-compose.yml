@@ -50,6 +50,22 @@ services:
       ASR_MODEL_PATH: /models
     volumes:
       - ./whisper-models:/models   # Modell wird einmal geladen und bleibt liegen
+    # Ohne das ist ein Container, der beim Modell-Laden abstürzt, von außen
+    # nicht von einem gesunden zu unterscheiden: `docker ps` zeigt ihn als
+    # "Up", während er in Wahrheit alle paar Sekunden neu startet. Mit
+    # healthcheck steht dort "(unhealthy)" – und man sucht nicht stundenlang
+    # im Netzwerk. start_period ist großzügig: der erste Start lädt das Modell.
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/docs', timeout=5)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s
+    # Wenn im Log Fehler vom Hugging Face Hub stehen ("Please check your
+    # connection"), kommt der Container nicht ins Internet – auf Unraid meist
+    # ein DNS-Problem. Dann diese zwei Zeilen aktivieren:
+    # dns:
+    #   - 1.1.1.1
 
   # ---------------------------------------------------------------------------
   # Whisper-Dienst, GPU-Variante (Nvidia)

@@ -119,9 +119,41 @@ Echte Transkription
   Beweis: docker inspect whisper --format "oom={{.State.OOMKilled}} ..."
 ```
 
-Genau dieser Fall ist der Klassiker: `large-v3` braucht auf der CPU rund 5 GB
-RAM und wird beim Laden vom Kernel abgeschossen. In der Oberfläche sieht das
-aus wie ein Netzwerkfehler, obwohl das Netzwerk in Ordnung ist.
+Zwei Ursachen sehen von außen gleich aus und sind es nicht:
+
+- **`large-v3` auf der CPU** braucht rund 5 GB RAM und wird beim Laden vom
+  Kernel abgeschossen. Der Selbsttest misst den freien RAM und sagt, welches
+  Modell hineinpasst.
+- **Das Modell kommt nicht an.** Der Dienst lädt es beim ersten Start von
+  Hugging Face. Klappt das nicht, stürzt er ab, wird neu gestartet, stürzt
+  wieder ab — von außen sieht das aus wie ein flackerndes Netzwerk, mal grün,
+  mal rot. Im Log steht dann `Unable to open file 'model.bin'` oder ein Fehler
+  vom Hub. Abhilfe: den angefangenen Download wegwerfen.
+
+```bash
+docker-compose down
+rm -rf whisper-models
+docker-compose up -d
+docker logs -f whisper     # bis "Uvicorn running on http://0.0.0.0:9000"
+```
+
+Kommt derselbe Hub-Fehler wieder, hat der Container kein Internet — auf Unraid
+meist DNS. Prüfen und beheben:
+
+```bash
+docker exec whisper python -c "import urllib.request; print(urllib.request.urlopen('https://huggingface.co', timeout=10).status)"
+```
+
+Bei einem DNS-Fehler in der `docker-compose.yml` beim `whisper`-Service den
+`dns:`-Block aktivieren (steht auskommentiert drin).
+
+Der `whisper`-Service hat einen Healthcheck. Ein Container, der im
+Absturz-Neustart-Kreis hängt, steht in `docker ps` sonst als „Up" da, obwohl
+nichts geht:
+
+```bash
+docker ps | grep whisper     # "(healthy)" · "(unhealthy)" · "(health: starting)"
+```
 
 Ein **gelber** Punkt oben rechts ist dagegen kein Fehler: Whisper rechnet gerade
 und beantwortet den Statuscheck nicht. Rot heißt Problem, gelb heißt beschäftigt.

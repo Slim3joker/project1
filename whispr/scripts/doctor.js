@@ -233,8 +233,17 @@ async function checkReachable() {
         );
       } else if (code === 'ECONNREFUSED') {
         hints.push(
-          'Verbindung abgelehnt – auf dem Port hört niemand. Läuft der Container? ' +
-            'docker ps | grep whisper   ·   docker logs whisper --tail 40'
+          'Verbindung abgelehnt: der Name löst auf, der Container läuft also – aber auf ' +
+            'dem Port hört niemand. Der Dienst IM Container ist gestorben oder startet ' +
+            'noch. Die Logs sagen es:  docker logs whisper --tail 40'
+        );
+        hints.push(
+          'Häufigste Ursache dafür: der Dienst kommt beim Start nicht an sein Modell. ' +
+            'Danach stürzt er ab, wird neu gestartet und stürzt wieder ab – von außen ' +
+            'sieht das aus wie ein flackerndes Netzwerk. Im Log steht dann "Unable to ' +
+            'open file \'model.bin\'" oder ein Fehler vom Hugging Face Hub. Abhilfe: ' +
+            'den angefangenen Download wegwerfen und neu laden lassen – ' +
+            'docker-compose down && rm -rf whisper-models && docker-compose up -d'
         );
       } else {
         hints.push(
