@@ -46,19 +46,25 @@ npm start
 
 ### Variante A: docker-compose (empfohlen)
 
-`docker-compose.yml` liegt bei. Anpassen musst du nur den Ausgabe-Pfad:
-
-```yaml
-    volumes:
-      - ./data:/data
-      - /mnt/user/Notizen/Transkripte:/transkripte   # ← dein Share
-```
-
-Dann:
+`docker-compose.yml` liegt bei. Die eigenen Pfade kommen **nicht** in die yml,
+sondern in eine `.env` daneben — die ist in `.gitignore`, ein `git pull`
+überschreibt sie also nicht:
 
 ```bash
 cd /mnt/user/appdata/whispr
+cp env.compose.example .env
+nano .env          # TRANSKRIPTE_DIR auf deinen Share setzen
 docker compose up -d --build
+```
+
+Falls `docker compose` (mit Leerzeichen) nicht existiert, hast du die alte v1 —
+dann überall `docker-compose` (mit Bindestrich) schreiben.
+
+Wichtig: Nach einer Änderung an `.env` oder `docker-compose.yml` reicht
+`restart` **nicht**, das übernimmt keine neuen Variablen. Es braucht:
+
+```bash
+docker-compose up -d --force-recreate whispr
 ```
 
 Beim ersten Auftrag lädt der Whisper-Container sein Modell herunter. Es landet
