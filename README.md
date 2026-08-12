@@ -89,3 +89,11 @@ manuelle Eingabe:
 
 Beim ersten Start ist eine Beispiel-SKU (Kuvio Steckdosenwürfel) angelegt,
 damit man sieht, wie alles funktioniert – einfach bearbeiten oder löschen.
+
+---
+
+## Weitere Anwendung im Repo
+
+- **[`whispr/`](whispr/README.md)** – Audiodateien hochladen, per Whisper
+  transkribieren lassen und als Markdown (mit Frontmatter) in einen
+  Share-Ordner schreiben. Läuft als Docker-Container auf dem Unraid-Server.

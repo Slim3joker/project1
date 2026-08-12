@@ -1,0 +1,95 @@
+services:
+  whispr:
+    build: .
+    # Alternativ nach dem ersten Build: image: whispr:latest
+    container_name: whispr
+    restart: unless-stopped
+    ports:
+      - "${WHISPR_PORT:-8098}:8098"
+    environment:
+      TRANSCRIBE_BACKEND: local
+      WHISPER_URL: http://whisper:9000
+      WHISPER_LANG: de
+      CONCURRENCY: "1"
+      MAX_UPLOAD_MB: "500"
+      JOB_TIMEOUT_MIN: "120"
+      TIMESTAMPS: "true"
+      # Zugriffsschutz – unbedingt setzen, wenn die App über einen
+      # Cloudflare-Tunnel o. Ä. von außen erreichbar ist:
+      # AUTH_TOKEN: "dein-passwort"
+      # Original-Audio behalten statt löschen:
+      # AUDIO_ARCHIVE_DIR: /audio-archiv
+    volumes:
+      # Job-Datenbank + Uploads während der Verarbeitung
+      - ./data:/data
+      # HIER LANDEN DIE MARKDOWN-DATEIEN. Nicht hier eintragen, sondern in
+      # der Datei `.env` daneben:  TRANSKRIPTE_DIR=/mnt/user/Notizen/Transkripte
+      # So überschreibt ein `git pull` die eigene Einstellung nicht.
+      - ${TRANSKRIPTE_DIR:-./transkripte}:/transkripte
+      # - ${AUDIO_ARCHIVE:-./audio-archiv}:/audio-archiv
+    depends_on:
+      - whisper
+
+  # ---------------------------------------------------------------------------
+  # Whisper-Dienst, CPU-Variante (Standard – läuft überall)
+  #
+  # `small` ist bewusst der Standard: `large-v3` braucht auf der CPU rund 5 GB
+  # RAM und wird beim Laden gern vom Kernel abgeschossen (OOM). Das sieht in
+  # der Oberfläche aus wie ein Netzwerkfehler ("nicht erreichbar"), ist aber
+  # ein abgestürzter Container. `medium` geht auch, wenn RAM da ist.
+  #
+  # Für GPU: diesen Block auskommentieren und den GPU-Block darunter nehmen.
+  # ---------------------------------------------------------------------------
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: whisper
+    restart: unless-stopped
+    environment:
+      ASR_ENGINE: faster_whisper
+      ASR_MODEL: ${ASR_MODEL:-small}
+      ASR_MODEL_PATH: /models
+    volumes:
+      - ./whisper-models:/models   # Modell wird einmal geladen und bleibt liegen
+    # Ohne das ist ein Container, der beim Modell-Laden abstürzt, von außen
+    # nicht von einem gesunden zu unterscheiden: `docker ps` zeigt ihn als
+    # "Up", während er in Wahrheit alle paar Sekunden neu startet. Mit
+    # healthcheck steht dort "(unhealthy)" – und man sucht nicht stundenlang
+    # im Netzwerk. start_period ist großzügig: der erste Start lädt das Modell.
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/docs', timeout=5)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s
+    # Wenn im Log Fehler vom Hugging Face Hub stehen ("Please check your
+    # connection"), kommt der Container nicht ins Internet – auf Unraid meist
+    # ein DNS-Problem. Dann diese zwei Zeilen aktivieren:
+    # dns:
+    #   - 1.1.1.1
+
+  # ---------------------------------------------------------------------------
+  # Whisper-Dienst, GPU-Variante (Nvidia)
+  #
+  # Zwei Dinge, die man leicht falsch macht:
+  #   1. Das Image muss `:latest-gpu` sein – im normalen `:latest` ist kein
+  #      CUDA drin, das rechnet still auf der CPU weiter.
+  #   2. `runtime: nvidia` statt eines `deploy:`-Blocks. Das alte
+  #      `docker-compose` (v1, mit Bindestrich) ignoriert `deploy:` komplett
+  #      und ohne Fehlermeldung – die Karte wird dann nie durchgereicht.
+  #
+  # Voraussetzung auf Unraid: Plugin "Nvidia Driver" installiert.
+  # Prüfen mit:  docker info | grep -i runtime
+  # ---------------------------------------------------------------------------
+  # whisper:
+  #   image: onerahmet/openai-whisper-asr-webservice:latest-gpu
+  #   container_name: whisper
+  #   restart: unless-stopped
+  #   runtime: nvidia
+  #   environment:
+  #     ASR_ENGINE: faster_whisper
+  #     ASR_MODEL: ${ASR_MODEL:-large-v3}
+  #     ASR_MODEL_PATH: /models
+  #     NVIDIA_VISIBLE_DEVICES: all
+  #     NVIDIA_DRIVER_CAPABILITIES: compute,utility
+  #   volumes:
+  #     - ./whisper-models:/models

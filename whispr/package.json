@@ -1,0 +1,19 @@
+{
+  "name": "whispr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Audio hochladen, per Whisper transkribieren, als Markdown in einen Share-Ordner schreiben.",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20.10"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/run.js",
+    "doctor": "node scripts/doctor.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.2.0"
+  }
+}

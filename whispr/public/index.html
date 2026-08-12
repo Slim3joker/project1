@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark" />
+<title>Whispr — Audio zu Markdown</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%99%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0e0f11;--surface:#161820;--surface-2:#1c1f29;--border:#252730;
+    --accent:#6c8ef5;--accent-dim:rgba(108,142,245,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --text:#e8eaf0;--muted:#8b90a0;
+    --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  }
+  html,body{height:100%;background:var(--bg);color:var(--text);
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.6}
+  body{display:flex;flex-direction:column;min-height:100vh}
+
+  header{border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .logo{width:34px;height:34px;background:var(--accent-dim);border:1px solid rgba(108,142,245,.3);
+    border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+  header h1{font-size:17px;font-weight:600;letter-spacing:-.01em}
+  .health{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;
+    font-family:var(--mono);color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0}
+  .dot.ok{background:var(--green)}.dot.bad{background:var(--red)}
+  .dot.busy{background:var(--yellow)}
+
+  main{flex:1;width:100%;max-width:820px;margin:0 auto;padding:32px 20px 72px}
+
+  .dropzone{border:1px dashed var(--border);border-radius:12px;padding:44px 24px;text-align:center;
+    cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:var(--surface)}
+  .dropzone:hover,.dropzone.dragging{border-color:var(--accent);background:var(--accent-dim)}
+  .dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .dz-icon{font-size:32px;display:block;margin-bottom:10px}
+  .dz-label{font-size:16px;font-weight:500;margin-bottom:6px}
+  .dz-hint{font-size:13px;color:var(--muted)}
+  .dz-hint code{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+
+  .queue{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .qi{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);
+    border-radius:9px;padding:12px 14px;font-size:14px}
+  .qi-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .qi-size{font-family:var(--mono);font-size:12px;color:var(--muted);flex-shrink:0}
+  .icon-btn{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:2px 4px;line-height:1}
+  .icon-btn:hover{color:var(--red)}
+
+  details.meta{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+  details.meta summary{padding:12px 16px;cursor:pointer;font-size:13px;color:var(--muted);user-select:none}
+  details.meta summary:hover{color:var(--text)}
+  .meta-grid{padding:4px 16px 16px;display:grid;gap:12px;grid-template-columns:1fr 1fr}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field.wide{grid-column:1/-1}
+  label{font-size:12px;color:var(--muted);font-weight:500}
+  input,select,textarea{background:var(--bg);border:1px solid var(--border);color:var(--text);
+    border-radius:7px;padding:9px 11px;font-size:14px;font-family:inherit;width:100%}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  textarea{resize:vertical;min-height:60px}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;
+    padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;
+    font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .2s,transform .1s}
+  .btn:hover:not(:disabled){opacity:.88}
+  .btn:active:not(:disabled){transform:scale(.995)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  .progress{display:none;margin-top:14px}
+  .progress.on{display:block}
+  .progress-top{display:flex;justify-content:space-between;font-size:12px;font-family:var(--mono);
+    color:var(--muted);margin-bottom:7px}
+  .bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+  .bar > i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .15s}
+
+  .toast{display:none;margin-top:16px;padding:12px 16px;border-radius:9px;font-size:14px;border:1px solid}
+  .toast.on{display:block}
+  .toast.ok{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.25);color:var(--green)}
+  .toast.err{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25);color:var(--red)}
+
+  .section{margin-top:40px}
+  .section-head{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .section-head > span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .section-head .ghost{flex-shrink:0;white-space:nowrap}
+  .ghost{background:none;border:1px solid var(--border);color:var(--muted);font-size:12px;font-family:inherit;
+    padding:5px 11px;border-radius:6px;cursor:pointer;transition:border-color .15s,color .15s}
+  .ghost:hover{border-color:var(--accent);color:var(--text)}
+  .list{display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;align-items:center;gap:12px;padding:13px 15px;background:var(--surface);
+    border:1px solid var(--border);border-radius:9px;font-size:14px;transition:border-color .15s}
+  .row:hover{border-color:#33374a}
+  .row-main{flex:1;min-width:0;cursor:pointer}
+  .row-title{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row-sub.ok{color:var(--green)}.row-sub.run{color:var(--yellow)}.row-sub.err{color:var(--red)}
+  .row-icon{font-size:18px;flex-shrink:0}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:22px 0;
+    border:1px dashed var(--border);border-radius:9px}
+
+  .viewer{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;
+    justify-content:center;padding:20px;z-index:40;backdrop-filter:blur(3px)}
+  .viewer.on{display:flex}
+  .viewer-box{background:var(--surface);border:1px solid var(--border);border-radius:13px;
+    width:100%;max-width:780px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+  .viewer-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .viewer-title{flex:1;min-width:0;font-size:14px;font-weight:600;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .viewer-body{padding:20px 22px;overflow-y:auto;font-size:14.5px;line-height:1.75}
+  .viewer-body pre{white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .viewer-body h1{font-size:20px;margin:0 0 14px}
+  .viewer-body h2{font-size:15px;margin:22px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .viewer-body p{margin:0 0 13px}
+  .viewer-body ul{margin:0 0 13px 18px}
+  .viewer-body li{margin-bottom:5px}
+  .viewer-body blockquote{border-left:2px solid var(--accent);padding-left:12px;color:var(--muted);margin:0 0 13px}
+  .fm{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;
+    font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:18px;white-space:pre-wrap}
+
+  .login{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:60}
+  .login.on{display:flex}
+  .login-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:320px}
+  .login-box h2{font-size:16px;margin-bottom:6px}
+  .login-box p{font-size:13px;color:var(--muted);margin-bottom:16px}
+
+  @media(max-width:560px){.meta-grid{grid-template-columns:1fr}main{padding:22px 14px 60px}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .pulse{animation:pulse 1.6s ease-in-out infinite}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎙️</div>
+  <h1>Whispr</h1>
+  <div class="health"><span class="dot" id="healthDot"></span><span id="healthText">prüfe …</span></div>
+</header>
+
+<main>
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="fileInput" multiple
+      accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.opus,.flac,.aac,.webm,.mp4,.mov,.mkv" />
+    <span class="dz-icon">🎵</span>
+    <div class="dz-label">Audiodateien hier ablegen oder klicken</div>
+    <div class="dz-hint">
+      <code>mp3</code> <code>m4a</code> <code>wav</code> <code>ogg</code> <code>opus</code>
+      <code>flac</code> <code>mp4</code> · mehrere gleichzeitig · max <span id="maxMb">500</span> MB je Datei
+    </div>
+  </div>
+
+  <div class="queue" id="queue"></div>
+
+  <details class="meta" id="metaBox">
+    <summary>Titel, Tags &amp; Sprache (optional)</summary>
+    <div class="meta-grid">
+      <div class="field wide">
+        <label for="fTitle">Titel</label>
+        <input id="fTitle" placeholder="leer = Dateiname wird verwendet" />
+      </div>
+      <div class="field">
+        <label for="fTags">Tags (Komma-getrennt)</label>
+        <input id="fTags" placeholder="meeting, kunde-xy" />
+      </div>
+      <div class="field">
+        <label for="fLang">Sprache</label>
+        <select id="fLang">
+          <option value="de">Deutsch</option>
+          <option value="en">Englisch</option>
+          <option value="tr">Türkisch</option>
+          <option value="fr">Französisch</option>
+          <option value="es">Spanisch</option>
+          <option value="it">Italienisch</option>
+          <option value="auto">Automatisch erkennen</option>
+        </select>
+      </div>
+      <div class="field wide">
+        <label for="fNotes">Notiz (kommt als Zitat oben ins Dokument)</label>
+        <textarea id="fNotes" placeholder="z. B. Kontext, Gesprächspartner, Zweck der Aufnahme"></textarea>
+      </div>
+    </div>
+  </details>
+
+  <button class="btn" id="btnStart" disabled>📤 Hochladen &amp; transkribieren</button>
+
+  <div class="progress" id="progress">
+    <div class="progress-top"><span id="progText">Wird hochgeladen …</span><span id="progPct">0 %</span></div>
+    <div class="bar"><i id="progFill"></i></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <section class="section">
+    <div class="section-head">
+      <span>Aufträge</span>
+      <button class="ghost" id="btnReloadJobs">↻ Aktualisieren</button>
+    </div>
+    <div class="list" id="jobs"><div class="empty">Noch keine Aufträge.</div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span>Markdown-Archiv <span id="outDir" style="text-transform:none;letter-spacing:0"></span></span>
+      <button class="ghost" id="btnReloadFiles">↻ Aktualisieren</button>
+    </div>
+    <div class="list" id="files"><div class="empty">Noch keine Transkripte.</div></div>
+  </section>
+</main>
+
+<div class="viewer" id="viewer">
+  <div class="viewer-box">
+    <div class="viewer-head">
+      <span class="viewer-title" id="viewerTitle">Transkript</span>
+      <button class="ghost" id="btnCopy">Kopieren</button>
+      <button class="ghost" id="btnRaw">Quelltext</button>
+      <button class="ghost" id="btnDownload">⤓ MD</button>
+      <button class="icon-btn" id="btnCloseViewer" title="Schließen">✕</button>
+    </div>
+    <div class="viewer-body" id="viewerBody"></div>
+  </div>
+</div>
+
+<div class="login" id="login">
+  <div class="login-box">
+    <h2>Whispr</h2>
+    <p>Zugriffsschutz ist aktiv. Bitte Passwort eingeben.</p>
+    <input type="password" id="loginToken" placeholder="Passwort" />
+    <button class="btn" id="btnLogin">Anmelden</button>
+    <div class="toast" id="loginErr"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const els = {
+  dropzone: $('dropzone'), fileInput: $('fileInput'), queue: $('queue'),
+  btnStart: $('btnStart'), progress: $('progress'), progText: $('progText'),
+  progPct: $('progPct'), progFill: $('progFill'), toast: $('toast'),
+  jobs: $('jobs'), files: $('files'), viewer: $('viewer'), viewerTitle: $('viewerTitle'),
+  viewerBody: $('viewerBody'), healthDot: $('healthDot'), healthText: $('healthText'),
+  login: $('login'), loginToken: $('loginToken'), loginErr: $('loginErr'),
+};
+
+let pending = [];          // Dateien, die gleich hochgeladen werden
+let currentDoc = null;     // { name, text }
+let showRaw = false;
+let pollTimer = null;
+
+const fmtSize = (b) => b < 1024 ? b + ' B'
+  : b < 1048576 ? (b / 1024).toFixed(1) + ' KB'
+  : (b / 1048576).toFixed(1) + ' MB';
+const fmtDate = (d) => new Date(d).toLocaleString('de-DE',
+  { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function showToast(kind, message) {
+  els.toast.className = 'toast on ' + kind;
+  els.toast.textContent = message;
+}
+function hideToast() { els.toast.className = 'toast'; }
+
+async function api(url, options) {
+  const res = await fetch(url, options);
+  if (res.status === 401) { els.login.classList.add('on'); throw new Error('Nicht angemeldet.'); }
+  return res;
+}
+
+// ---------------------------------------------------------------- Auswahl ---
+function addFiles(fileList) {
+  for (const file of fileList) {
+    if (!pending.some((f) => f.name === file.name && f.size === file.size)) pending.push(file);
+  }
+  renderQueue();
+}
+function renderQueue() {
+  els.queue.innerHTML = pending.map((f, i) => `
+    <div class="qi">
+      <span>🎵</span>
+      <span class="qi-name">${esc(f.name)}</span>
+      <span class="qi-size">${fmtSize(f.size)}</span>
+      <button class="icon-btn" data-drop="${i}" title="Entfernen">✕</button>
+    </div>`).join('');
+  els.btnStart.disabled = pending.length === 0;
+  els.btnStart.textContent = pending.length > 1
+    ? `📤 ${pending.length} Dateien hochladen & transkribieren`
+    : '📤 Hochladen & transkribieren';
+}
+els.queue.addEventListener('click', (e) => {
+  const idx = e.target.dataset && e.target.dataset.drop;
+  if (idx === undefined) return;
+  pending.splice(Number(idx), 1);
+  renderQueue();
+});
+els.fileInput.addEventListener('change', () => { addFiles(els.fileInput.files); els.fileInput.value = ''; });
+els.dropzone.addEventListener('dragover', (e) => { e.preventDefault(); els.dropzone.classList.add('dragging'); });
+els.dropzone.addEventListener('dragleave', () => els.dropzone.classList.remove('dragging'));
+els.dropzone.addEventListener('drop', (e) => {
+  e.preventDefault(); els.dropzone.classList.remove('dragging');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+
+// ----------------------------------------------------------------- Upload ---
+els.btnStart.addEventListener('click', () => {
+  if (!pending.length) return;
+  const form = new FormData();
+  for (const file of pending) form.append('files', file);
+  form.append('title', $('fTitle').value.trim());
+  form.append('tags', $('fTags').value.trim());
+  form.append('language', $('fLang').value);
+  form.append('notes', $('fNotes').value.trim());
+
+  const xhr = new XMLHttpRequest();
+  els.progress.classList.add('on');
+  els.progFill.style.width = '0%';
+  els.progPct.textContent = '0 %';
+  els.btnStart.disabled = true;
+  hideToast();
+
+  xhr.upload.addEventListener('progress', (e) => {
+    if (!e.lengthComputable) return;
+    const pct = Math.round((e.loaded / e.total) * 100);
+    els.progFill.style.width = pct + '%';
+    els.progPct.textContent = pct + ' %';
+    els.progText.textContent = fmtSize(e.loaded) + ' von ' + fmtSize(e.total);
+  });
+  xhr.addEventListener('load', () => {
+    els.progress.classList.remove('on');
+    els.btnStart.disabled = false;
+    if (xhr.status === 401) { els.login.classList.add('on'); return; }
+    let data = {};
+    try { data = JSON.parse(xhr.responseText); } catch { /* unten abgefangen */ }
+    if (xhr.status >= 200 && xhr.status < 300 && data.ok) {
+      showToast('ok', data.jobs.length + ' Datei(en) in der Warteschlange – die Transkription läuft im Hintergrund.');
+      pending = []; renderQueue();
+      $('fTitle').value = ''; $('fNotes').value = '';
+      refreshJobs();
+    } else {
+      showToast('err', data.error || 'Upload fehlgeschlagen (HTTP ' + xhr.status + ').');
+    }
+  });
+  xhr.addEventListener('error', () => {
+    els.progress.classList.remove('on');
+    els.btnStart.disabled = false;
+    showToast('err', 'Verbindung zum Server unterbrochen.');
+  });
+  xhr.open('POST', '/api/upload');
+  xhr.send(form);
+});
+
+// ------------------------------------------------------------------ Jobs ---
+const STATUS = {
+  queued:   { icon: '🕐', cls: '',    label: 'Wartet' },
+  running:  { icon: '⏳', cls: 'run', label: 'Läuft' },
+  done:     { icon: '✅', cls: 'ok',  label: 'Fertig' },
+  error:    { icon: '❌', cls: 'err', label: 'Fehler' },
+  canceled: { icon: '⛔', cls: 'err', label: 'Abgebrochen' },
+};
+
+function jobSubtitle(job) {
+  if (job.status === 'done') return `${job.outputFile} · ${fmtDate(job.finishedAt)}`;
+  if (job.status === 'error') return job.error || 'Fehler';
+  if (job.status === 'canceled') return 'Abgebrochen';
+  return job.progress || 'Wartet …';
+}
+
+async function refreshJobs() {
+  let jobs;
+  try { jobs = await (await api('/api/jobs')).json(); } catch { return; }
+  if (!jobs.length) {
+    els.jobs.innerHTML = '<div class="empty">Noch keine Aufträge.</div>';
+  } else {
+    els.jobs.innerHTML = jobs.map((job) => {
+      const s = STATUS[job.status] || STATUS.queued;
+      const actions = [];
+      if (job.status === 'queued' || job.status === 'running') {
+        actions.push(`<button class="ghost" data-cancel="${job.id}">Abbrechen</button>`);
+      }
+      if (job.status === 'error' || job.status === 'canceled') {
+        actions.push(`<button class="ghost" data-retry="${job.id}">Erneut</button>`);
+      }
+      if (job.status !== 'running') {
+        actions.push(`<button class="icon-btn" data-del="${job.id}" title="Aus Liste entfernen">✕</button>`);
+      }
+      const running = job.status === 'running' ? ' pulse' : '';
+      return `<div class="row">
+        <span class="row-icon${running}">${s.icon}</span>
+        <div class="row-main" ${job.outputFile ? `data-open="${esc(job.outputFile)}"` : ''}>
+          <div class="row-title">${esc(job.title || job.originalName)}</div>
+          <div class="row-sub ${s.cls}">${esc(jobSubtitle(job))}</div>
+        </div>${actions.join('')}
+      </div>`;
+    }).join('');
+  }
+  const active = jobs.some((j) => j.status === 'running' || j.status === 'queued');
+  schedulePoll(active ? 2500 : 20000);
+  return active;
+}
+
+function schedulePoll(ms) {
+  clearTimeout(pollTimer);
+  pollTimer = setTimeout(() => { refreshJobs(); refreshFiles(); }, ms);
+}
+
+els.jobs.addEventListener('click', async (e) => {
+  const t = e.target;
+  const open = t.closest('[data-open]');
+  if (t.dataset.cancel) {
+    await api('/api/jobs/' + t.dataset.cancel + '/cancel', { method: 'POST' });
+    refreshJobs();
+  } else if (t.dataset.retry) {
+    const res = await api('/api/jobs/' + t.dataset.retry + '/retry', { method: 'POST' });
+    const data = await res.json();
+    if (!data.ok) showToast('err', data.error);
+    refreshJobs();
+  } else if (t.dataset.del) {
+    await api('/api/jobs/' + t.dataset.del, { method: 'DELETE' });
+    refreshJobs();
+  } else if (open) {
+    openDoc(open.dataset.open);
+  }
+});
+$('btnReloadJobs').addEventListener('click', refreshJobs);
+
+// --------------------------------------------------------------- Archiv ---
+async function refreshFiles() {
+  let files;
+  try { files = await (await api('/api/transcripts')).json(); } catch { return; }
+  if (!Array.isArray(files) || !files.length) {
+    els.files.innerHTML = '<div class="empty">Noch keine Transkripte.</div>';
+    return;
+  }
+  els.files.innerHTML = files.map((f) => `
+    <div class="row">
+      <span class="row-icon">📄</span>
+      <div class="row-main" data-open="${esc(f.name)}">
+        <div class="row-title">${esc(f.name)}</div>
+        <div class="row-sub">${fmtSize(f.size)} · ${fmtDate(f.modified)}</div>
+      </div>
+      <button class="icon-btn" data-delfile="${esc(f.name)}" title="Datei löschen">✕</button>
+    </div>`).join('');
+}
+els.files.addEventListener('click', async (e) => {
+  const t = e.target;
+  if (t.dataset.delfile) {
+    if (!confirm(`"${t.dataset.delfile}" wirklich löschen?`)) return;
+    await api('/api/transcripts/' + encodeURIComponent(t.dataset.delfile), { method: 'DELETE' });
+    refreshFiles();
+    return;
+  }
+  const open = t.closest('[data-open]');
+  if (open) openDoc(open.dataset.open);
+});
+$('btnReloadFiles').addEventListener('click', refreshFiles);
+
+// --------------------------------------------------------------- Viewer ---
+/** Sehr kleiner Markdown-Renderer – nur für das, was wir selbst erzeugen. */
+function renderMarkdown(md) {
+  let frontmatter = '';
+  let body = md;
+  const match = md.match(/^---\n([\s\S]*?)\n---\n?/);
+  if (match) { frontmatter = match[1]; body = md.slice(match[0].length); }
+
+  const inline = (s) => esc(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|\W)_(.+?)_(?=\W|$)/g, '$1<em>$2</em>');
+
+  const html = [];
+  let list = [];
+  const flushList = () => { if (list.length) { html.push('<ul>' + list.join('') + '</ul>'); list = []; } };
+
+  for (const line of body.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) { flushList(); continue; }
+    if (trimmed.startsWith('## ')) { flushList(); html.push('<h2>' + inline(trimmed.slice(3)) + '</h2>'); }
+    else if (trimmed.startsWith('# ')) { flushList(); html.push('<h1>' + inline(trimmed.slice(2)) + '</h1>'); }
+    else if (trimmed.startsWith('> ')) { flushList(); html.push('<blockquote>' + inline(trimmed.slice(2)) + '</blockquote>'); }
+    else if (trimmed.startsWith('- ')) { list.push('<li>' + inline(trimmed.slice(2)) + '</li>'); }
+    else { flushList(); html.push('<p>' + inline(trimmed) + '</p>'); }
+  }
+  flushList();
+  const fm = frontmatter ? '<div class="fm">' + esc(frontmatter) + '</div>' : '';
+  return fm + html.join('');
+}
+
+async function openDoc(name) {
+  try {
+    const res = await api('/api/transcripts/' + encodeURIComponent(name));
+    if (!res.ok) { showToast('err', 'Transkript nicht gefunden: ' + name); return; }
+    currentDoc = { name, text: await res.text() };
+    showRaw = false;
+    els.viewerTitle.textContent = name;
+    paintViewer();
+    els.viewer.classList.add('on');
+  } catch { /* Login-Overlay übernimmt */ }
+}
+function paintViewer() {
+  if (!currentDoc) return;
+  $('btnRaw').textContent = showRaw ? 'Ansicht' : 'Quelltext';
+  els.viewerBody.innerHTML = showRaw
+    ? '<pre>' + esc(currentDoc.text) + '</pre>'
+    : renderMarkdown(currentDoc.text);
+  els.viewerBody.scrollTop = 0;
+}
+$('btnRaw').addEventListener('click', () => { showRaw = !showRaw; paintViewer(); });
+$('btnCopy').addEventListener('click', async () => {
+  if (!currentDoc) return;
+  try {
+    await navigator.clipboard.writeText(currentDoc.text);
+    $('btnCopy').textContent = 'Kopiert!';
+    setTimeout(() => { $('btnCopy').textContent = 'Kopieren'; }, 1800);
+  } catch { showToast('err', 'Zwischenablage nicht verfügbar (braucht HTTPS).'); }
+});
+$('btnDownload').addEventListener('click', () => {
+  if (currentDoc) window.location.href = '/api/transcripts/' + encodeURIComponent(currentDoc.name) + '?download=1';
+});
+$('btnCloseViewer').addEventListener('click', () => els.viewer.classList.remove('on'));
+els.viewer.addEventListener('click', (e) => { if (e.target === els.viewer) els.viewer.classList.remove('on'); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') els.viewer.classList.remove('on'); });
+
+// ---------------------------------------------------------------- Health ---
+async function refreshHealth() {
+  try {
+    const health = await (await api('/api/health')).json();
+    // Während einer Transkription ist der Whisper-Dienst mit Rechnen
+    // beschäftigt und antwortet nicht auf den Statuscheck. Das ist normal und
+    // darf nicht wie ein Ausfall aussehen – sonst sucht man einen Fehler, den
+    // es nicht gibt.
+    const busy = !health.backend.ok && health.running > 0;
+    const ok = health.backend.ok && health.outputWritable;
+    els.healthDot.className = 'dot ' + (ok ? 'ok' : busy ? 'busy' : 'bad');
+    els.healthText.textContent = busy
+      ? 'Whisper rechnet – Statuscheck pausiert'
+      : !health.backend.ok
+        ? 'Whisper: ' + health.backend.detail
+        : !health.outputWritable
+          ? 'Ausgabeordner nicht beschreibbar'
+          : health.backend.name + ' · ' + health.backend.detail;
+  } catch {
+    els.healthDot.className = 'dot bad';
+    els.healthText.textContent = 'Server nicht erreichbar';
+  }
+}
+
+// ----------------------------------------------------------------- Login ---
+$('btnLogin').addEventListener('click', async () => {
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: els.loginToken.value }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (data.ok) { els.login.classList.remove('on'); boot(); }
+  else { els.loginErr.className = 'toast on err'; els.loginErr.textContent = data.error || 'Anmeldung fehlgeschlagen.'; }
+});
+els.loginToken.addEventListener('keydown', (e) => { if (e.key === 'Enter') $('btnLogin').click(); });
+
+// ------------------------------------------------------------------ Boot ---
+async function boot() {
+  try {
+    const cfg = await (await api('/api/config')).json();
+    $('maxMb').textContent = cfg.maxUploadMb;
+    $('outDir').textContent = '· ' + cfg.outputDir;
+    if (cfg.language) $('fLang').value = cfg.language;
+  } catch { return; }
+  refreshHealth();
+  refreshJobs();
+  refreshFiles();
+  setInterval(refreshHealth, 30000);
+}
+boot();
+</script>
+</body>
+</html>
