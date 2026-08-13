@@ -242,11 +242,30 @@ const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
 
   if (url.pathname === '/api/health') {
-    return sendJson(res, 200, {
+    const health = {
       ok: true,
       notionConfigured: Boolean(NOTION_TOKEN && NOTION_DB_ID),
       calendarConfigured: Boolean(GOOGLE_ICAL_URL),
-    });
+      notion: null,
+      calendar: null,
+    };
+    if (health.notionConfigured) {
+      try {
+        await notion(`/databases/${NOTION_DB_ID}`, { method: 'GET' });
+        health.notion = { read: true };
+      } catch (err) {
+        health.notion = { read: false, status: err.status || null, error: err.message };
+      }
+    }
+    if (health.calendarConfigured) {
+      try {
+        const events = await fetchCalendar();
+        health.calendar = { ok: true, events: events.length };
+      } catch (err) {
+        health.calendar = { ok: false, error: err.message };
+      }
+    }
+    return sendJson(res, 200, health);
   }
 
   if (url.pathname === '/api/calendar' && req.method === 'GET') {

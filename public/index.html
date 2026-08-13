@@ -251,6 +251,22 @@
   .cal-hint b { color: var(--text); font-weight: 700; }
   .cal-hint code { background: var(--surface-hi); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
 
+  /* ---- Status-Banner (Fehler/Hinweise) ---- */
+  .banner {
+    display: flex; gap: 11px; align-items: flex-start; border-radius: 14px; padding: 13px 15px;
+    font-size: 13px; line-height: 1.5; box-shadow: var(--shadow);
+    border: 1px solid color-mix(in srgb, var(--prio-mittel) 40%, transparent);
+    background: color-mix(in srgb, var(--prio-mittel) 12%, var(--surface));
+    color: var(--text);
+  }
+  .banner.err {
+    border-color: color-mix(in srgb, var(--prio-hoch) 45%, transparent);
+    background: color-mix(in srgb, var(--prio-hoch) 12%, var(--surface));
+  }
+  .banner .b-ico { font-size: 18px; line-height: 1.2; flex: 0 0 auto; }
+  .banner b { font-weight: 700; }
+  .banner code { background: var(--surface-hi); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+
   .foot { text-align: center; color: var(--faint); font-size: 12px; padding: 8px 0 4px; }
   .foot .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--good); margin-right: 5px; vertical-align: middle; }
   .foot.offline .status-dot { background: var(--prio-mittel); }
@@ -260,7 +276,7 @@
     transform: translateX(-50%) translateY(20px); opacity: 0;
     background: var(--surface-hi); color: var(--text); border: 1px solid var(--border);
     padding: 10px 16px; border-radius: 12px; font-size: 13.5px; box-shadow: var(--shadow);
-    transition: all .25s ease; pointer-events: none; z-index: 50; max-width: 90vw;
+    transition: all .25s ease; pointer-events: none; z-index: 80; max-width: 90vw;
   }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
@@ -341,6 +357,8 @@
         <div class="stat done"><span class="num" id="stat-done">–</span><span class="lbl">Erledigt</span></div>
       </div>
     </header>
+
+    <div class="banner" id="banner" hidden></div>
 
     <section class="cal" id="calSection" aria-label="Kalender" hidden>
       <div class="section-label">📅 Kalender</div>
@@ -573,11 +591,12 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: newStatus }),
         });
-        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Fehler");
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw Object.assign(new Error(data.error || "Fehler"), { status: res.status });
         toast(wasDone ? "Wieder geöffnet" : "Erledigt ✓");
       } catch (err) {
         t.status = wasDone ? "Done" : "Not started"; // revert
-        toast("Konnte nicht speichern: " + err.message);
+        handleWriteError(err);
       }
     } else {
       toast(wasDone ? "Wieder geöffnet (Vorschau)" : "Erledigt ✓ (Vorschau)");
@@ -590,7 +609,38 @@
     const t = $("toast");
     t.textContent = msg; t.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+  }
+
+  function showBanner(html, kind) {
+    const b = $("banner");
+    b.className = "banner" + (kind === "err" ? " err" : "");
+    b.innerHTML = html;
+    b.hidden = false;
+  }
+  function hideBanner() { $("banner").hidden = true; }
+
+  // Macht aus einem Notion-/Server-Fehler eine verständliche Handlungsanweisung.
+  function notionHint(msg, status) {
+    const m = String(msg || "").toLowerCase();
+    if (status === 401 || status === 403 || m.includes("unauthorized") || m.includes("permission") ||
+        m.includes("restricted") || (m.includes("access") && m.includes("token"))) {
+      return `<b>Deine Notion-Integration darf nicht schreiben.</b> Öffne <code>notion.so/my-integrations</code> → deine Integration → <b>Capabilities</b> und aktiviere „Read content", „Update content" und „Insert content". Danach klappt Abhaken, Anlegen, Bearbeiten & Löschen sofort (kein Neustart nötig).`;
+    }
+    if (m.includes("nicht konfiguriert") || m.includes("token")) {
+      return `<b>Der Server hat keinen gültigen Notion-Token.</b> Prüfe die Variable <code>NOTION_TOKEN</code> beim Container.`;
+    }
+    if (m.includes("could not find") || m.includes("not found") || m.includes("object_not_found")) {
+      return `<b>Die Datenbank ist nicht mit der Integration geteilt.</b> In Notion die DB „Abend-Tasks" öffnen → <code>•••</code> → Connections → deine Integration hinzufügen.`;
+    }
+    return escapeHtml(String(msg || "Unbekannter Fehler."));
+  }
+
+  // Schreibfehler einheitlich behandeln: kurzer Toast + (bei Rechteproblemen) Banner.
+  function handleWriteError(err) {
+    const hint = notionHint(err.message, err.status);
+    toast("Konnte nicht speichern.");
+    showBanner(`<span class="b-ico">⚠️</span><div>${hint}</div>`, "err");
   }
 
   // ---- Anlegen / Bearbeiten / Löschen -------------------------------------
@@ -652,12 +702,12 @@
           body: JSON.stringify(editing ? fields : { ...fields, status: "Not started" }),
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(data.error || "Speichern fehlgeschlagen");
+        if (!res.ok || !data.ok) throw Object.assign(new Error(data.error || "Speichern fehlgeschlagen"), { status: res.status });
         toast(editing ? "Gespeichert ✓" : "Aufgabe hinzugefügt ✓");
-        closeSheet(); await load();
+        hideBanner(); closeSheet(); await load();
       }
     } catch (err) {
-      toast("Fehler: " + err.message);
+      handleWriteError(err);
     } finally {
       $("f-save").disabled = false;
     }
@@ -674,11 +724,11 @@
       } else {
         const res = await fetch(`/api/tasks/${encodeURIComponent(editing.id)}`, { method: "DELETE" });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(data.error || "Löschen fehlgeschlagen");
-        toast("Gelöscht ✓"); closeSheet(); await load();
+        if (!res.ok || !data.ok) throw Object.assign(new Error(data.error || "Löschen fehlgeschlagen"), { status: res.status });
+        toast("Gelöscht ✓"); hideBanner(); closeSheet(); await load();
       }
     } catch (err) {
-      toast("Fehler: " + err.message);
+      handleWriteError(err);
     }
   }
 
@@ -754,7 +804,7 @@
     return el;
   }
 
-  function renderCalendar(events, mode) {
+  function renderCalendar(events, mode, msg) {
     const sec = $("calSection"), body = $("calBody");
     sec.hidden = false; body.innerHTML = "";
 
@@ -762,6 +812,14 @@
       const hint = document.createElement("div");
       hint.className = "cal-hint";
       hint.innerHTML = `📅 <div><b>Kalender verbinden:</b> Trag deine geheime iCal-URL als <code>GOOGLE_ICAL_URL</code> ein (Google&nbsp;Kalender → Einstellungen → „Geheime Adresse im iCal-Format"). Danach erscheinen hier deine Termine – Anleitung steht in der README.</div>`;
+      body.appendChild(hint);
+      return;
+    }
+
+    if (mode === "error") {
+      const hint = document.createElement("div");
+      hint.className = "cal-hint";
+      hint.innerHTML = `⚠️ <div><b>Kalender konnte nicht geladen werden.</b> ${escapeHtml(msg || "")}</div>`;
       body.appendChild(hint);
       return;
     }
@@ -788,40 +846,61 @@
     }
   }
 
-  async function loadCalendar() {
+  // Fetch-Helfer: trennt "Backend nicht erreichbar" (Netzwerk / keine JSON-Antwort)
+  // von "Backend antwortet, aber mit Fehler" (echte Server-Fehlermeldung).
+  async function apiGet(path) {
+    let res;
     try {
-      const res = await fetch("/api/calendar", { headers: { Accept: "application/json" } });
-      const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || "Kalenderfehler");
-      renderCalendar(data.events || [], data.configured ? "ok" : "connect");
+      res = await fetch(path, { headers: { Accept: "application/json" } });
     } catch {
-      renderCalendar(calSeed(), "preview"); // kein Backend -> Beispieltermine
+      return { reachable: false };
+    }
+    let data;
+    try { data = await res.json(); } catch { return { reachable: false }; }
+    return { reachable: true, ok: res.ok && data.ok, status: res.status, data };
+  }
+
+  async function loadCalendar() {
+    const r = await apiGet("/api/calendar");
+    if (!r.reachable) {
+      renderCalendar(calSeed(), "preview"); // echte Vorschau ohne Backend
+    } else if (r.ok) {
+      renderCalendar(r.data.events || [], r.data.configured ? "ok" : "connect");
+    } else {
+      renderCalendar([], "error", r.data.error || "Unbekannter Fehler"); // Feed-Problem, keine Platzhalter
     }
   }
 
   // ---- Load ----------------------------------------------------------------
   async function load() {
-    try {
-      const res = await fetch("/api/tasks", { headers: { Accept: "application/json" } });
-      const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || "Ladefehler");
-      state.tasks = data.tasks;
-      state.offline = false;
+    const r = await apiGet("/api/tasks");
+    if (!r.reachable) {
+      // Kein Backend -> reine Design-Vorschau mit Beispielen
+      state.tasks = SEED; state.offline = true;
+      $("foot").classList.add("offline");
+      $("footText").textContent = "Vorschau-Modus (kein Backend) – Beispiel-Aufgaben";
+      showBanner(`<span class="b-ico">👀</span><div><b>Vorschau-Modus.</b> Das ist nur die Design-Ansicht ohne Server. Die echte App läuft unter <code>hub.erenstower.de</code> – dort sind Aufgaben & Termine echt.</div>`, "warn");
+    } else if (r.ok) {
+      state.tasks = r.data.tasks; state.offline = false;
       $("foot").classList.remove("offline");
       $("footText").textContent = "mit Notion verbunden";
-    } catch (err) {
-      state.tasks = SEED;
-      state.offline = true;
+      hideBanner();
+    } else {
+      // Server läuft, aber Notion-Problem -> KEINE Beispiele, sondern Klartext
+      state.tasks = []; state.offline = false;
       $("foot").classList.add("offline");
-      $("footText").textContent = "Vorschau-Modus (kein Backend) – zeigt Beispiel-Aufgaben";
+      $("footText").textContent = "Server läuft, aber Notion-Fehler";
+      showBanner(`<span class="b-ico">⚠️</span><div>${notionHint(r.data.error, r.status)}</div>`, "err");
     }
     setSub();
     render();
   }
 
-  setupHeader();
-  load();
-  loadCalendar();
+  (async () => {
+    setupHeader();
+    await load();
+    await loadCalendar();
+  })();
 })();
 </script>
 </body>
