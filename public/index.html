@@ -57,6 +57,9 @@
   }
 
   * { box-sizing: border-box; }
+  /* Wichtig: sonst ueberschreibt display:flex/grid das hidden-Attribut und
+     ein unsichtbares Overlay (Sheet/Banner) faengt alle Klicks ab. */
+  [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
