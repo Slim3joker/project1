@@ -1,0 +1,35 @@
+/* Section — vertical rhythm band. Whitespace = premium. */
+
+.kb-section {
+  padding-block: var(--kb-space-12);
+}
+
+.kb-section--spacious {
+  padding-block: var(--kb-space-16);
+}
+
+@media (min-width: 768px) {
+  .kb-section {
+    padding-block: var(--kb-space-24);
+  }
+
+  .kb-section--spacious {
+    padding-block: var(--kb-space-32);
+  }
+}
+
+/* Backgrounds — 'default' stays transparent so the page's warm cream
+   (--kb-background) shows through. */
+
+.kb-section--surface {
+  background: var(--kb-surface);
+}
+
+.kb-section--sunken {
+  background: var(--kb-surface-sunken);
+}
+
+.kb-section--navy {
+  background: var(--kb-color-navy-900);
+  color: var(--kb-text-inverse);
+}

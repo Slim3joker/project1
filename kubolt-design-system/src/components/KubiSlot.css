@@ -1,0 +1,55 @@
+/* KubiSlot — reserved placement, frame and glow environment for KUBI renders. */
+
+.kb-kubi-slot {
+  margin: 0;
+}
+
+.kb-kubi-slot--panel {
+  background: var(--kb-surface-sunken);
+  border-radius: var(--kb-radius-xl);
+  padding: var(--kb-space-8);
+}
+
+/* Stage ------------------------------------------------------------------ */
+
+.kb-kubi-slot__stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: var(--kb-kubi-slot-aspect, 1 / 1);
+}
+
+/* Keep the content painted above the glow circle. */
+.kb-kubi-slot__stage > * {
+  position: relative;
+}
+
+/* Ring-gemstone glow environment — the one cobalt moment, behind KUBI. */
+.kb-kubi-slot--glow .kb-kubi-slot__stage::before {
+  content: '';
+  position: absolute;
+  width: 62%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--kb-radius-full);
+  background: color-mix(in srgb, var(--kb-accent) 12%, transparent);
+  box-shadow: var(--kb-glow-cobalt);
+}
+
+.kb-kubi-slot__img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Caption ---------------------------------------------------------------- */
+
+.kb-kubi-slot__caption {
+  margin-top: var(--kb-space-2);
+  font-size: var(--kb-text-sm);
+  line-height: var(--kb-leading-sm);
+  color: var(--kb-text-secondary);
+  text-align: center;
+}

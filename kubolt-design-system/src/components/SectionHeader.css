@@ -1,0 +1,52 @@
+/* SectionHeader — eyebrow + display title + optional lead.
+   Pure type, no accent: the cobalt moment is not spent on headings. */
+
+.kb-section-header {
+  display: block;
+}
+
+.kb-section-header--center {
+  text-align: center;
+}
+
+.kb-section-header__eyebrow {
+  font-size: var(--kb-text-xs);
+  line-height: var(--kb-leading-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--kb-tracking-caps);
+  font-weight: var(--kb-font-weight-medium);
+  color: var(--kb-text-secondary);
+  margin: 0 0 var(--kb-space-2);
+}
+
+.kb-section-header__title {
+  font-family: var(--kb-font-display);
+  font-weight: var(--kb-font-weight-bold);
+  color: var(--kb-text-primary);
+  margin: 0;
+}
+
+.kb-section-header__title--level-2 {
+  font-size: var(--kb-text-3xl);
+  line-height: var(--kb-leading-3xl);
+  letter-spacing: var(--kb-tracking-tighter);
+}
+
+.kb-section-header__title--level-3 {
+  font-size: var(--kb-text-2xl);
+  line-height: var(--kb-leading-2xl);
+  letter-spacing: var(--kb-tracking-tight);
+}
+
+.kb-section-header__lead {
+  font-size: var(--kb-text-lg);
+  line-height: var(--kb-leading-lg);
+  color: var(--kb-text-secondary);
+  margin: var(--kb-space-3) 0 0;
+  max-width: 65ch;
+}
+
+.kb-section-header--center .kb-section-header__lead {
+  margin-left: auto;
+  margin-right: auto;
+}

@@ -1,0 +1,80 @@
+/* KUBOLT Footer — dark navy band with one quiet glowing cobalt edge.
+   Contrast rule: cobalt on navy is ~2:1 — the accent is the decorative top
+   hairline ONLY, never a text/link color on this surface. */
+
+.kb-footer {
+  position: relative;
+  background: var(--kb-color-navy-900);
+  color: var(--kb-text-inverse);
+  padding-block: var(--kb-space-16);
+  padding-inline: var(--kb-space-6);
+}
+
+/* Signature detail: 2px cobalt hairline with the glow — the one cobalt
+   moment on this dark surface. */
+.kb-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--kb-accent);
+  box-shadow: var(--kb-glow-cobalt);
+}
+
+.kb-footer__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--kb-space-12);
+}
+
+.kb-footer__logo {
+  flex: none;
+}
+
+/* Consumer-supplied column markup lives here. */
+.kb-footer__columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kb-space-12) var(--kb-space-16);
+}
+
+/* Column heading — applied by consumers inside their column markup. */
+.kb-footer__heading {
+  font-size: var(--kb-text-xs);
+  line-height: var(--kb-leading-xs);
+  font-weight: var(--kb-font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--kb-tracking-caps);
+  color: color-mix(in srgb, var(--kb-text-inverse) 60%, transparent);
+  margin: 0 0 var(--kb-space-3);
+}
+
+.kb-footer a {
+  color: color-mix(in srgb, var(--kb-text-inverse) 78%, transparent);
+  text-decoration: none;
+  transition: color var(--kb-transition);
+}
+
+.kb-footer a:hover {
+  color: var(--kb-text-inverse);
+  text-decoration: underline;
+}
+
+.kb-footer a:focus-visible {
+  outline: 2px solid var(--kb-focus-ring);
+  outline-offset: 2px;
+  box-shadow: var(--kb-glow-cobalt);
+}
+
+.kb-footer__bottom {
+  margin-top: var(--kb-space-12);
+  padding-top: var(--kb-space-6);
+  border-top: 1px solid color-mix(in srgb, var(--kb-text-inverse) 15%, transparent);
+  font-size: var(--kb-text-sm);
+  line-height: var(--kb-leading-sm);
+  color: color-mix(in srgb, var(--kb-text-inverse) 60%, transparent);
+}
