@@ -1,0 +1,72 @@
+/* Card — base surface for product + content cards. */
+
+.kb-card {
+  /* Light surface: re-anchor the semantic tokens so a Card composed into a
+     dark band (Section navy / Footer) keeps its light-surface pairings. */
+  --kb-text-primary: var(--kb-color-navy-900);
+  --kb-text-secondary: var(--kb-color-warm-600);
+  --kb-border: var(--kb-color-line-200);
+  --kb-border-strong: var(--kb-color-warm-400);
+  --kb-focus-ring: var(--kb-color-cobalt);
+  background: var(--kb-surface);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  box-shadow: var(--kb-shadow-sm);
+  overflow: hidden; /* media clips to the radius */
+  transition: box-shadow var(--kb-transition), transform var(--kb-transition);
+}
+
+.kb-card:hover {
+  box-shadow: var(--kb-shadow-md);
+}
+
+/* Interactive cards (clickable/linked) lift slightly on hover. */
+.kb-card--interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--kb-shadow-md);
+}
+
+.kb-card--interactive:focus-visible {
+  outline: 2px solid var(--kb-focus-ring);
+  outline-offset: 2px;
+  box-shadow: var(--kb-glow-cobalt);
+}
+
+/* Full-bleed media area — no padding, children fill the box. */
+.kb-card__media {
+  display: block;
+  overflow: hidden;
+}
+
+.kb-card__media > img,
+.kb-card__media > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kb-card__title {
+  font-family: var(--kb-font-display);
+  font-size: var(--kb-text-xl);
+  line-height: var(--kb-leading-xl);
+  font-weight: var(--kb-font-weight-bold);
+  letter-spacing: var(--kb-tracking-tight);
+  color: var(--kb-text-primary);
+  margin: 0 0 var(--kb-space-2);
+}
+
+.kb-card__body {
+  padding: var(--kb-space-6);
+  font-size: var(--kb-text-base);
+  line-height: var(--kb-leading-base);
+  color: var(--kb-text-primary);
+}
+
+.kb-card__footer {
+  padding: var(--kb-space-4) var(--kb-space-6);
+  border-top: 1px solid var(--kb-border);
+  font-size: var(--kb-text-sm);
+  line-height: var(--kb-leading-sm);
+  color: var(--kb-text-secondary);
+}

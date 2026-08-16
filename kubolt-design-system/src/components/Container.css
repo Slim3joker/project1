@@ -1,0 +1,25 @@
+/* Container — centered content column. */
+
+.kb-container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--kb-space-4);
+}
+
+@media (min-width: 640px) {
+  .kb-container {
+    padding-inline: var(--kb-space-6);
+  }
+}
+
+.kb-container--sm {
+  max-width: 720px;
+}
+
+.kb-container--md {
+  max-width: 960px;
+}
+
+.kb-container--lg {
+  max-width: 1200px;
+}

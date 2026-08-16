@@ -1,0 +1,72 @@
+/* StoryBlock — text-image module for the brand story. */
+
+.kb-story-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--kb-space-12);
+  align-items: center;
+}
+
+/* Media ------------------------------------------------------------------ */
+
+.kb-story-block__media {
+  border-radius: var(--kb-radius-xl);
+  overflow: hidden;
+}
+
+/* The story's quiet glowing accent — opt-in, never everywhere. */
+.kb-story-block__media--glow {
+  box-shadow: var(--kb-glow-cobalt);
+}
+
+/* Reverse: media on the right (desktop). */
+.kb-story-block--reverse .kb-story-block__media {
+  order: 2;
+}
+
+.kb-story-block--reverse .kb-story-block__text {
+  order: 1;
+}
+
+/* Text ------------------------------------------------------------------- */
+
+.kb-story-block__eyebrow {
+  margin: 0 0 var(--kb-space-2);
+  font-size: var(--kb-text-xs);
+  line-height: var(--kb-leading-xs);
+  font-weight: var(--kb-font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--kb-tracking-caps);
+  color: var(--kb-text-secondary);
+}
+
+.kb-story-block__title {
+  margin: 0 0 var(--kb-space-4);
+  font-family: var(--kb-font-display);
+  font-size: var(--kb-text-3xl);
+  line-height: var(--kb-leading-3xl);
+  font-weight: var(--kb-font-weight-bold);
+  letter-spacing: var(--kb-tracking-tighter);
+  color: var(--kb-text-primary);
+}
+
+.kb-story-block__body {
+  max-width: 60ch;
+  font-size: var(--kb-text-base);
+  line-height: var(--kb-leading-base);
+  color: var(--kb-text-secondary);
+}
+
+/* Mobile: single column, media always first. ------------------------------ */
+
+@media (max-width: 767.98px) {
+  .kb-story-block {
+    grid-template-columns: 1fr;
+    gap: var(--kb-space-8);
+  }
+
+  .kb-story-block--reverse .kb-story-block__media,
+  .kb-story-block--reverse .kb-story-block__text {
+    order: 0;
+  }
+}

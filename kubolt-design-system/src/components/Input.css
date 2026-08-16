@@ -1,0 +1,88 @@
+/* Input / Textarea — shared .kb-field styles.
+   Calm warm surface at rest; the cobalt ring + glow is reserved for focus. */
+
+.kb-field-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.kb-field-label {
+  font-size: var(--kb-text-sm);
+  line-height: var(--kb-leading-sm);
+  font-weight: var(--kb-font-weight-medium);
+  color: var(--kb-text-primary);
+  margin-bottom: var(--kb-space-1);
+}
+
+.kb-field {
+  /* Light control surface: re-anchor the semantic tokens (see Card.css) so
+     the field stays readable inside dark bands; label/helper outside the
+     control keep the band's adaptive colors. */
+  --kb-text-primary: var(--kb-color-navy-900);
+  --kb-text-secondary: var(--kb-color-warm-600);
+  --kb-border: var(--kb-color-line-200);
+  --kb-border-strong: var(--kb-color-warm-400);
+  --kb-focus-ring: var(--kb-color-cobalt);
+  box-sizing: border-box;
+  width: 100%;
+  background: var(--kb-surface);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  padding: var(--kb-space-2) var(--kb-space-3);
+  font-family: var(--kb-font-sans);
+  font-size: var(--kb-text-base);
+  line-height: var(--kb-leading-base);
+  color: var(--kb-text-primary);
+  transition:
+    border-color var(--kb-transition),
+    box-shadow var(--kb-transition);
+}
+
+.kb-field::placeholder {
+  color: var(--kb-text-secondary);
+}
+
+.kb-field:hover {
+  border-color: var(--kb-border-strong);
+}
+
+.kb-field:disabled {
+  background: var(--kb-surface-sunken);
+  color: var(--kb-text-secondary);
+  cursor: not-allowed;
+}
+
+.kb-field:disabled:hover {
+  border-color: var(--kb-border);
+}
+
+.kb-field--error,
+.kb-field--error:hover {
+  border-color: var(--kb-error);
+}
+
+/* Focus: no outline — the cobalt ring + glow IS the focus style here.
+   Declared last so it wins over hover/error border colors. */
+.kb-field:focus-visible {
+  outline: none;
+  border-color: var(--kb-focus-ring);
+  box-shadow: var(--kb-focus-shadow), var(--kb-glow-cobalt);
+}
+
+.kb-field--textarea {
+  /* ~3 rows of --kb-leading-base text + vertical padding + borders */
+  min-height: calc(4.8em + 2 * var(--kb-space-2) + 2px);
+  resize: vertical;
+}
+
+.kb-field-helper {
+  font-size: var(--kb-text-xs);
+  line-height: var(--kb-leading-xs);
+  color: var(--kb-text-secondary);
+  margin: var(--kb-space-1) 0 0;
+}
+
+.kb-field-helper--error {
+  color: var(--kb-error);
+}

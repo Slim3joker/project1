@@ -1,0 +1,41 @@
+/* Grid — responsive equal columns. Mobile-first: 1 col by default. */
+
+.kb-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.kb-grid--gap-sm {
+  gap: var(--kb-space-4);
+}
+
+.kb-grid--gap-md {
+  gap: var(--kb-space-6);
+}
+
+.kb-grid--gap-lg {
+  gap: var(--kb-space-12);
+}
+
+/* Tablet (640-960px): 2 columns, capped at the requested cols
+   (cols is at least 2, so every variant gets 2 here). */
+@media (min-width: 640px) {
+  .kb-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop (>=960px): the requested column count. */
+@media (min-width: 960px) {
+  .kb-grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kb-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .kb-grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
