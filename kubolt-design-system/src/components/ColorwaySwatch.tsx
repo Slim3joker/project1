@@ -55,16 +55,19 @@ export const ColorwaySwatch = forwardRef<HTMLButtonElement, ColorwaySwatchProps>
       size = 'md',
       showLabel = true,
       className,
+      'aria-label': ariaLabel,
       ...rest
     },
     ref,
   ) {
+    const accessibleName = label ?? prettifyColorway(colorway);
     return (
       <button
         {...rest}
         ref={ref}
         type="button"
         aria-pressed={selected}
+        aria-label={ariaLabel ?? (showLabel ? undefined : accessibleName)}
         className={cx(
           'kb-colorway-swatch',
           selected && 'kb-colorway-swatch--selected',
@@ -80,9 +83,7 @@ export const ColorwaySwatch = forwardRef<HTMLButtonElement, ColorwaySwatchProps>
           )}
         />
         {showLabel && (
-          <span className="kb-colorway-swatch__label">
-            {label ?? prettifyColorway(colorway)}
-          </span>
+          <span className="kb-colorway-swatch__label">{accessibleName}</span>
         )}
       </button>
     );

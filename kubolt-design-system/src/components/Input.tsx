@@ -14,6 +14,11 @@ interface FieldExtraProps {
   helperText?: ReactNode;
   /** Error message — replaces helperText, sets aria-invalid and error styles. */
   error?: ReactNode;
+  /**
+   * Class for the outer field-group wrapper. `className` (and `style`) go to
+   * the control element itself, matching the input-attribute type contract.
+   */
+  wrapperClassName?: string;
 }
 
 export interface InputProps
@@ -43,9 +48,12 @@ function useFieldWiring(
   const autoId = useId();
   const fieldId = id ?? autoId;
   const helperId = `${fieldId}-helper`;
-  const isError = error !== null && error !== undefined;
+  // false and '' render as nothing in React, so they must not count as an
+  // error/helper (supports the idiomatic error={touched && message}).
+  const isError = error != null && error !== false && error !== '';
   const helperContent = isError ? error : helperText;
-  const hasHelper = helperContent !== null && helperContent !== undefined;
+  const hasHelper =
+    helperContent != null && helperContent !== false && helperContent !== '';
   return {
     fieldId,
     helperId,
@@ -74,6 +82,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       error,
       id,
       className,
+      wrapperClassName,
       'aria-describedby': ariaDescribedBy,
       'aria-invalid': ariaInvalid,
       ...rest
@@ -82,8 +91,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   ) {
     const wiring = useFieldWiring(id, helperText, error, ariaDescribedBy);
     return (
-      <div className={cx('kb-field-group', className)}>
-        {label != null && (
+      <div className={cx('kb-field-group', wrapperClassName)}>
+        {label != null && label !== false && (
           <label className="kb-field-label" htmlFor={wiring.fieldId}>
             {label}
           </label>
@@ -92,7 +101,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {...rest}
           ref={ref}
           id={wiring.fieldId}
-          className={cx('kb-field', wiring.isError && 'kb-field--error')}
+          className={cx(
+            'kb-field',
+            wiring.isError && 'kb-field--error',
+            className,
+          )}
           aria-invalid={wiring.isError ? true : ariaInvalid}
           aria-describedby={wiring.describedBy}
         />
@@ -126,6 +139,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       error,
       id,
       className,
+      wrapperClassName,
       'aria-describedby': ariaDescribedBy,
       'aria-invalid': ariaInvalid,
       ...rest
@@ -134,8 +148,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ) {
     const wiring = useFieldWiring(id, helperText, error, ariaDescribedBy);
     return (
-      <div className={cx('kb-field-group', className)}>
-        {label != null && (
+      <div className={cx('kb-field-group', wrapperClassName)}>
+        {label != null && label !== false && (
           <label className="kb-field-label" htmlFor={wiring.fieldId}>
             {label}
           </label>
@@ -148,6 +162,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             'kb-field',
             'kb-field--textarea',
             wiring.isError && 'kb-field--error',
+            className,
           )}
           aria-invalid={wiring.isError ? true : ariaInvalid}
           aria-describedby={wiring.describedBy}

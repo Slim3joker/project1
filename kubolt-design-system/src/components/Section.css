@@ -29,7 +29,25 @@
   background: var(--kb-surface-sunken);
 }
 
+/* The dark band re-maps the inherited semantic text tokens so composed
+   children (StoryBlock copy, SectionHeader lead, FeatureRow text, …) keep
+   WCAG AA on navy; light-surface components (Card, Callout, .kb-field)
+   re-anchor themselves. The focus ring flips to inverse (cobalt on navy is
+   only ~2:1) while the glow stays cobalt as the brand halo. */
 .kb-section--navy {
   background: var(--kb-color-navy-900);
   color: var(--kb-text-inverse);
+  --kb-text-primary: var(--kb-color-cream-50);
+  --kb-text-secondary: color-mix(
+    in srgb,
+    var(--kb-color-cream-50) 78%,
+    transparent
+  );
+  --kb-border: color-mix(in srgb, var(--kb-color-cream-50) 15%, transparent);
+  --kb-border-strong: color-mix(
+    in srgb,
+    var(--kb-color-cream-50) 35%,
+    transparent
+  );
+  --kb-focus-ring: var(--kb-color-cream-50);
 }

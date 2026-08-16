@@ -17,7 +17,8 @@ export interface StoryBlockProps
 }
 
 /**
- * StoryBlock — text-image module for the Kobold → Kobalt → Strom brand story.
+ * StoryBlock — text-image module for the Kobalt brand story
+ * (miners' legend → cobalt → power).
  *
  * Design rules encoded:
  * - Two-column media | text grid, centered; stacks to one column (media first)

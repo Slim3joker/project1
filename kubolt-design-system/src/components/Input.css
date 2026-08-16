@@ -16,6 +16,14 @@
 }
 
 .kb-field {
+  /* Light control surface: re-anchor the semantic tokens (see Card.css) so
+     the field stays readable inside dark bands; label/helper outside the
+     control keep the band's adaptive colors. */
+  --kb-text-primary: var(--kb-color-navy-900);
+  --kb-text-secondary: var(--kb-color-warm-600);
+  --kb-border: var(--kb-color-line-200);
+  --kb-border-strong: var(--kb-color-warm-400);
+  --kb-focus-ring: var(--kb-color-cobalt);
   box-sizing: border-box;
   width: 100%;
   background: var(--kb-surface);

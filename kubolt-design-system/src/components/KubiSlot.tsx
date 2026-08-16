@@ -21,12 +21,18 @@ export interface KubiSlotImageProps extends KubiSlotBaseProps {
    * decision is always deliberate.
    */
   alt: string;
+  /**
+   * Image loading strategy. Defaults to 'lazy'; set 'eager' when the slot is
+   * the hero/LCP image.
+   */
+  loading?: 'lazy' | 'eager';
   children?: never;
 }
 
 export interface KubiSlotChildrenProps extends KubiSlotBaseProps {
   src?: never;
   alt?: never;
+  loading?: never;
   /** Placeholder or illustration node shown instead of an image. */
   children?: ReactNode;
 }
@@ -54,6 +60,7 @@ export function KubiSlot(props: KubiSlotProps) {
     caption,
     src,
     alt,
+    loading = 'lazy',
     children,
     className,
     ...rest
@@ -78,7 +85,7 @@ export function KubiSlot(props: KubiSlotProps) {
             className="kb-kubi-slot__img"
             src={src}
             alt={alt}
-            loading="lazy"
+            loading={loading}
           />
         ) : (
           children

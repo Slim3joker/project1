@@ -64,8 +64,11 @@
   text-decoration: underline;
 }
 
+/* Focus ring flips to inverse on the dark band (cobalt on navy is ~2:1,
+   below the 3:1 non-text minimum); the cobalt glow stays as the brand
+   halo around the high-contrast ring. */
 .kb-footer a:focus-visible {
-  outline: 2px solid var(--kb-focus-ring);
+  outline: 2px solid var(--kb-text-inverse);
   outline-offset: 2px;
   box-shadow: var(--kb-glow-cobalt);
 }

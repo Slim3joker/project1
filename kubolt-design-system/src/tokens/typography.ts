@@ -9,8 +9,9 @@
  * the playfulness, not the type.
  */
 
+// Keep identical to --kb-font-sans in theme.css — two sources, one truth.
 const sansStack =
-  "'DM Sans', 'DM Sans Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+  "'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 export const fontFamily = {
   /** Body / UI. */
