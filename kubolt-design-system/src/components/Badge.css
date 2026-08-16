@@ -1,0 +1,46 @@
+/* Badge — colorway pill. Pastel -base background + family -ink text;
+   navy text modifier is the high-contrast pairing for small labels. */
+
+.kb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kb-space-1);
+  padding: var(--kb-space-1) var(--kb-space-3);
+  border-radius: var(--kb-radius-full);
+  font-family: var(--kb-font-sans);
+  font-size: var(--kb-text-xs);
+  line-height: var(--kb-leading-xs);
+  font-weight: var(--kb-font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--kb-tracking-caps);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tones — colorway base as background, colorway ink as text          */
+/* ------------------------------------------------------------------ */
+
+.kb-badge--sage {
+  background: var(--kb-colorway-sage-green-base);
+  color: var(--kb-colorway-sage-green-ink);
+}
+
+.kb-badge--rose {
+  background: var(--kb-colorway-dusty-rose-base);
+  color: var(--kb-colorway-dusty-rose-ink);
+}
+
+.kb-badge--dove {
+  background: var(--kb-colorway-dove-blue-base);
+  color: var(--kb-colorway-dove-blue-ink);
+}
+
+.kb-badge--sand {
+  background: var(--kb-colorway-sand-cream-base);
+  color: var(--kb-colorway-sand-cream-ink);
+}
+
+/* High-contrast text pairing — declared after tones so it wins. */
+.kb-badge--text-navy {
+  color: var(--kb-color-navy-900);
+}

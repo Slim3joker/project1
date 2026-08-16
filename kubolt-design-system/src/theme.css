@@ -1,0 +1,177 @@
+/**
+ * KUBOLT theme — CSS custom properties.
+ *
+ * Warm pastel base + ONE glowing cobalt accent. Components reference the
+ * semantic layer (--kb-background, --kb-accent, …), never raw hex values.
+ */
+
+:root {
+  /* ---------------------------------------------------------------- */
+  /* Brand core                                                       */
+  /* ---------------------------------------------------------------- */
+  --kb-color-navy: #16294d;
+  --kb-color-cobalt: #1e50e6; /* signature accent (glowing) */
+  --kb-color-cobalt-deep: #0047ab; /* cobalt for text on light (AA) */
+  --kb-color-sage: #9caf9a;
+  --kb-color-rose: #d2a6a1;
+  --kb-color-sand: #efe7d6;
+
+  /* ---------------------------------------------------------------- */
+  /* Product colorways — base (pastel) + ink (text/print of family).  */
+  /* Ink on its own base is ~3:1: large/display type only, never body */
+  /* text. Body text on a pastel surface uses navy.                   */
+  /* ---------------------------------------------------------------- */
+  --kb-colorway-sage-green-base: #9caf9a;
+  --kb-colorway-sage-green-ink: #2c5c46;
+  --kb-colorway-dusty-rose-base: #d2a6a1;
+  --kb-colorway-dusty-rose-ink: #8c4a4a;
+  --kb-colorway-dove-blue-base: #7fa8ba;
+  --kb-colorway-dove-blue-ink: #2c4e5c;
+  --kb-colorway-sand-cream-base: #d4c5a9;
+  --kb-colorway-sand-cream-ink: #6b5a3c;
+
+  /* ---------------------------------------------------------------- */
+  /* Neutrals (warm, leaning cream — never cold/clinical)             */
+  /* ---------------------------------------------------------------- */
+  --kb-color-white: #ffffff;
+  --kb-color-cream-50: #faf8f3;
+  --kb-color-sand-100: #efe7d6;
+  --kb-color-line-200: #e5e0d3;
+  --kb-color-warm-300: #d6cfbf;
+  --kb-color-warm-400: #b7b0a1;
+  --kb-color-warm-500: #8c877b;
+  --kb-color-warm-600: #635f56;
+  --kb-color-ink-800: #2b2a26;
+  --kb-color-navy-900: #16294d;
+
+  /* ---------------------------------------------------------------- */
+  /* Semantic layer — what components actually use                    */
+  /* ---------------------------------------------------------------- */
+  --kb-background: var(--kb-color-cream-50);
+  --kb-surface: var(--kb-color-white);
+  --kb-surface-sunken: var(--kb-color-sand-100);
+  --kb-text-primary: var(--kb-color-navy-900);
+  --kb-text-secondary: var(--kb-color-warm-600);
+  --kb-text-inverse: var(--kb-color-cream-50);
+  --kb-border: var(--kb-color-line-200);
+  --kb-border-strong: var(--kb-color-warm-400);
+  --kb-accent: var(--kb-color-cobalt);
+  --kb-accent-hover: var(--kb-color-cobalt-deep);
+  --kb-accent-text: var(--kb-color-cobalt-deep);
+  --kb-focus-ring: var(--kb-color-cobalt);
+
+  /* Status — muted, tuned to the warm set */
+  --kb-success: #5b8c6e;
+  --kb-warning: #c99a3b;
+  --kb-error: #b5544c;
+
+  /* ---------------------------------------------------------------- */
+  /* Typography — DM Sans; --kb-font-display is the single swap point */
+  /* for the premium upgrade path (General Sans / Söhne).             */
+  /* ---------------------------------------------------------------- */
+  --kb-font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --kb-font-display: var(--kb-font-sans);
+
+  --kb-font-weight-regular: 400;
+  --kb-font-weight-medium: 500;
+  --kb-font-weight-bold: 700;
+
+  /* Type scale (base 16px = 1rem, ratio ~1.25) */
+  --kb-text-xs: 0.75rem;
+  --kb-leading-xs: 1.4;
+  --kb-text-sm: 0.875rem;
+  --kb-leading-sm: 1.5;
+  --kb-text-base: 1rem;
+  --kb-leading-base: 1.6;
+  --kb-text-lg: 1.125rem;
+  --kb-leading-lg: 1.5;
+  --kb-text-xl: 1.25rem;
+  --kb-leading-xl: 1.4;
+  --kb-text-2xl: 1.5rem;
+  --kb-leading-2xl: 1.3;
+  --kb-text-3xl: 2rem;
+  --kb-leading-3xl: 1.2;
+  --kb-text-4xl: 2.5rem;
+  --kb-leading-4xl: 1.15;
+  --kb-text-5xl: 3.25rem;
+  --kb-leading-5xl: 1.05;
+  --kb-text-6xl: 4rem;
+  --kb-leading-6xl: 1;
+
+  /* Letter spacing: headings slightly negative, caps labels positive */
+  --kb-tracking-tight: -0.01em;
+  --kb-tracking-tighter: -0.02em;
+  --kb-tracking-normal: 0;
+  --kb-tracking-caps: 0.04em;
+
+  /* ---------------------------------------------------------------- */
+  /* Spacing — 4px base scale                                         */
+  /* ---------------------------------------------------------------- */
+  --kb-space-1: 4px;
+  --kb-space-2: 8px;
+  --kb-space-3: 12px;
+  --kb-space-4: 16px;
+  --kb-space-5: 20px;
+  --kb-space-6: 24px;
+  --kb-space-8: 32px;
+  --kb-space-10: 40px;
+  --kb-space-12: 48px;
+  --kb-space-16: 64px;
+  --kb-space-20: 80px;
+  --kb-space-24: 96px;
+  --kb-space-32: 128px;
+
+  /* ---------------------------------------------------------------- */
+  /* Radii — defined-soft (the cube's edges), not cartoon-round       */
+  /* ---------------------------------------------------------------- */
+  --kb-radius-sm: 6px;
+  --kb-radius-md: 10px;
+  --kb-radius-lg: 16px;
+  --kb-radius-xl: 24px;
+  --kb-radius-2xl: 32px;
+  --kb-radius-full: 9999px;
+
+  /* ---------------------------------------------------------------- */
+  /* Shadows — soft, navy-tinted (never black)                        */
+  /* ---------------------------------------------------------------- */
+  --kb-shadow-xs: 0 1px 2px rgba(22, 41, 77, 0.06);
+  --kb-shadow-sm: 0 2px 8px rgba(22, 41, 77, 0.08);
+  --kb-shadow-md: 0 8px 24px rgba(22, 41, 77, 0.1);
+  --kb-shadow-lg: 0 16px 48px rgba(22, 41, 77, 0.12);
+  /* THE signature detail — ring gemstone, bolt, CTA hover, focus ring.
+     Use sparingly: it is the one moment where something glows. */
+  --kb-glow-cobalt: 0 0 24px rgba(30, 80, 230, 0.35);
+  /* Focus ring halo — pairs with --kb-focus-ring for outlines */
+  --kb-focus-shadow: 0 0 0 3px rgba(30, 80, 230, 0.28);
+
+  /* ---------------------------------------------------------------- */
+  /* Motion — subtle; one orchestrated moment beats scattered effects */
+  /* ---------------------------------------------------------------- */
+  --kb-duration: 180ms;
+  --kb-ease: ease-out;
+  --kb-transition: 180ms ease-out;
+}
+
+/* Base surface: warm cream, never cold pure-white minimal. */
+.kb-root,
+body.kb-root {
+  background: var(--kb-background);
+  color: var(--kb-text-primary);
+  font-family: var(--kb-font-sans);
+  font-size: var(--kb-text-base);
+  line-height: var(--kb-leading-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kb-root *,
+  [class^='kb-'],
+  [class^='kb-']::before,
+  [class^='kb-']::after,
+  [class*=' kb-'] {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
