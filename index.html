@@ -706,8 +706,13 @@ function getCycleLengths() {
   return lengths;
 }
 
+function getTrimmedCycleLengths() {
+  const lens = [...getCycleLengths()].sort((a, b) => a - b);
+  return lens.length >= 5 ? lens.slice(1, -1) : lens;
+}
+
 function getAvgCycleLength() {
-  const lens = getCycleLengths();
+  const lens = getTrimmedCycleLengths();
   return lens.length ? Math.round(lens.reduce((a, b) => a + b, 0) / lens.length) : appData.settings.defaultCycleLength;
 }
 
@@ -1211,7 +1216,9 @@ function renderStats() {
   const totalPeriods = appData.periods.length;
 
   const regularity = cycleLens.length >= 3 ? (() => {
-    const std = Math.sqrt(cycleLens.reduce((sum, l) => sum + (l - avgCycle) ** 2, 0) / cycleLens.length);
+    const base = getTrimmedCycleLengths();
+    const mean = base.reduce((a, b) => a + b, 0) / base.length;
+    const std = Math.sqrt(base.reduce((sum, l) => sum + (l - mean) ** 2, 0) / base.length);
     if (std <= 2) return { label: 'Sehr regelmäßig', color: 'var(--fertile)' };
     if (std <= 4) return { label: 'Regelmäßig', color: 'var(--follicular)' };
     if (std <= 7) return { label: 'Leicht variabel', color: 'var(--luteal)' };
