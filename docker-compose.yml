@@ -1,0 +1,11 @@
+version: "3"
+services:
+  meinzyklus:
+    build: .
+    container_name: meinzyklus
+    ports:
+      - "8087:80"
+    volumes:
+      # Optionale Startdaten – liegt nur auf dem Server, nie in Git (.gitignore)
+      - ./seed.json:/usr/share/nginx/html/seed.json:ro
+    restart: unless-stopped
