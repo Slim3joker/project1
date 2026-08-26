@@ -29,6 +29,16 @@ docker-compose up -d --build
 
 Die App läuft dann auf `http://<unraid-ip>:8087`.
 
+### Startdaten (seed.json)
+
+Optional kann neben der `docker-compose.yml` eine `seed.json` liegen
+(gleiches Format wie der Export). Browser ohne eigene Daten übernehmen
+sie beim ersten Öffnen automatisch – kein manueller Import nötig.
+Lokale Einträge und Importe haben immer Vorrang und werden nie überschrieben.
+
+**Wichtig:** `seed.json` steht in der `.gitignore` und darf nie ins Repo
+committet werden – sie enthält private Gesundheitsdaten.
+
 ### Manuell mit Docker
 
 ```bash

@@ -789,7 +789,11 @@ function getDayPhase(dateStr) {
       const end = p.endDate || addDays(p.startDate, avgPeriod - 1);
       return dateStr >= p.startDate && dateStr <= end;
     });
-    if (!isActual) return { phase: 'period', predicted: true };
+    const afterRealEnd = periods.some(p => {
+      const d = diffDays(p.startDate, dateStr);
+      return d >= 0 && d < avgCycle && p.endDate && dateStr > p.endDate;
+    });
+    if (!isActual && !afterRealEnd) return { phase: 'period', predicted: true };
   }
 
   if (dayInCycle >= fertileStart && dayInCycle <= fertileEnd) {
@@ -995,6 +999,8 @@ function renderDashboard() {
         })()}
       </div>
     </div>` : ''}
+
+    ${chartCardsHtml()}
   `;
 }
 
@@ -1389,6 +1395,33 @@ document.addEventListener('click', e => {
   }
 });
 
+/* Beide Chart-Karten – auf Dashboard und Statistik-Seite */
+function chartCardsHtml() {
+  const cycles = getCompletedCycles();
+  if (cycles.length < 2) return '';
+  const capNote = cycles.length > 24 ? ` (letzte 24 von ${cycles.length})` : '';
+  return `
+    <div class="card">
+      <div class="card-title">Zyklus-Muster${capNote}</div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:10px">
+        Jede Zeile ein Zyklus, ab Tag&nbsp;1 ausgerichtet – je gleichmäßiger die rechten Enden, desto regelmäßiger der Zyklus.
+      </div>
+      ${svgCycleTimeline(cycles)}
+      <div class="cal-legend">
+        <div class="cal-legend-item"><span class="swatch" style="background:var(--period)"></span> Periode</div>
+        <div class="cal-legend-item"><span class="swatch" style="background:var(--fertile);opacity:0.35"></span> Fruchtbares Fenster</div>
+        <div class="cal-legend-item"><span class="swatch" style="background:var(--ovulation);border-radius:50%"></span> Eisprung (geschätzt)</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Zykluslängen im Verlauf</div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:10px">
+        Tage von Periodenstart zu Periodenstart, mit Durchschnitt und Normalbereich (±2&nbsp;Tage).
+      </div>
+      ${svgCycleLengthChart(cycles)}
+    </div>`;
+}
+
 /* ─────────────────────────────────────────
    STATISTICS
    ───────────────────────────────────────── */
@@ -1418,31 +1451,7 @@ function renderStats() {
     return { label: 'Unregelmäßig', color: 'var(--period)' };
   })() : null;
 
-  const cycles = getCompletedCycles();
-  let historyHtml = '';
-  if (cycles.length >= 2) {
-    const capNote = cycles.length > 24 ? ` (letzte 24 von ${cycles.length})` : '';
-    historyHtml = `
-      <div class="card">
-        <div class="card-title">Zyklus-Muster${capNote}</div>
-        <div style="font-size:13px;color:var(--text-2);margin-bottom:10px">
-          Jede Zeile ein Zyklus, ab Tag&nbsp;1 ausgerichtet – je gleichmäßiger die rechten Enden, desto regelmäßiger der Zyklus.
-        </div>
-        ${svgCycleTimeline(cycles)}
-        <div class="cal-legend">
-          <div class="cal-legend-item"><span class="swatch" style="background:var(--period)"></span> Periode</div>
-          <div class="cal-legend-item"><span class="swatch" style="background:var(--fertile);opacity:0.35"></span> Fruchtbares Fenster</div>
-          <div class="cal-legend-item"><span class="swatch" style="background:var(--ovulation);border-radius:50%"></span> Eisprung (geschätzt)</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Zykluslängen im Verlauf</div>
-        <div style="font-size:13px;color:var(--text-2);margin-bottom:10px">
-          Tage von Periodenstart zu Periodenstart, mit Durchschnitt und Normalbereich (±2&nbsp;Tage).
-        </div>
-        ${svgCycleLengthChart(cycles)}
-      </div>`;
-  }
+  const historyHtml = chartCardsHtml();
 
   el.innerHTML = `
     <div class="card">
@@ -1648,6 +1657,30 @@ renderAll();
 const today = new Date();
 document.getElementById('periodStart').max = toStr(today);
 document.getElementById('periodEnd').max = toStr(today);
+
+/* Erststart: Daten automatisch von seed.json des Servers übernehmen.
+   Läuft nur, wenn dieser Browser noch keine eigenen Daten hat –
+   lokale Einträge und Importe werden nie überschrieben. */
+(async function trySeedFromServer() {
+  if (localStorage.getItem(STORAGE_KEY)) return;
+  try {
+    const res = await fetch('seed.json', { cache: 'no-store' });
+    if (!res.ok) return;
+    const seed = await res.json();
+    if (!Array.isArray(seed.periods) || !seed.periods.length) return;
+    appData = {
+      periods: seed.periods
+        .filter(p => p.startDate)
+        .map(p => ({ id: p.id || crypto.randomUUID(), startDate: p.startDate, endDate: p.endDate || null })),
+      notes: seed.notes || {},
+      settings: { ...defaultData().settings, ...(seed.settings || {}) }
+    };
+    appData.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
+    saveData(appData);
+    loadSettings();
+    renderAll();
+  } catch { /* keine seed.json vorhanden – leer starten */ }
+})();
 </script>
 
 </body>
