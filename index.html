@@ -423,12 +423,29 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); o
 .toast {
   position: fixed; bottom: calc(var(--nav-height) + 20px);
   left: 50%; transform: translateX(-50%) translateY(20px);
-  background: var(--text); color: var(--bg); padding: 10px 20px;
+  background: var(--text); color: var(--bg); padding: 10px 18px;
   border-radius: 20px; font-size: 14px; font-weight: 500;
-  opacity: 0; transition: all 0.3s ease; z-index: 300; pointer-events: none;
-  white-space: nowrap;
+  opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 300; pointer-events: none;
+  display: flex; align-items: center; gap: 14px;
+  max-width: calc(100vw - 32px);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.has-action { pointer-events: auto; }
+.toast-msg { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toast-action {
+  display: none; flex-shrink: 0; color: inherit;
+  font-size: 14px; font-weight: 700; white-space: nowrap;
+  text-decoration: underline; text-underline-offset: 3px; padding: 4px 2px;
+}
+.toast.has-action .toast-action { display: block; }
+
+.link-btn {
+  display: block; width: 100%; text-align: center;
+  margin-top: 10px; padding: 6px; font-size: 13px; color: var(--text-2);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.link-btn:hover { color: var(--text); }
 
 /* ── Confirmation dialog ── */
 .confirm-btns { display: flex; gap: 10px; margin-top: 16px; }
@@ -646,8 +663,22 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); o
   </div>
 </div>
 
+<!-- ── Periode bearbeiten Modal ── -->
+<div class="modal-overlay" id="periodModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Periode bearbeiten</h3>
+      <button class="modal-close" onclick="closeModal('periodModal')">&times;</button>
+    </div>
+    <div id="periodModalBody"></div>
+  </div>
+</div>
+
 <!-- ── Toast ── -->
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast">
+  <span class="toast-msg" id="toastMsg"></span>
+  <button class="toast-action" id="toastAction"></button>
+</div>
 
 <!-- ── Chart Tooltip ── -->
 <div class="chart-tip" id="chartTip"></div>
@@ -664,13 +695,22 @@ const defaultData = () => ({
   settings: { defaultCycleLength: 28, defaultPeriodLength: 5 }
 });
 
+/* crypto.randomUUID gibt es nur in sicheren Kontexten (HTTPS/localhost).
+   Über http://<lokale-ip>:8087 fehlt es – daher eigener Fallback. */
+function uid() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+}
+
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultData();
     const d = JSON.parse(raw);
     d.periods = (d.periods || []).map(p => ({
-      id: p.id || crypto.randomUUID(),
+      id: p.id || uid(),
       startDate: p.startDate,
       endDate: p.endDate || null
     }));
@@ -973,7 +1013,8 @@ function renderDashboard() {
 
     <div class="card" style="padding:12px">
       ${inPeriod
-        ? `<button class="quick-action-btn end-period" onclick="endCurrentPeriod()">&#10003;&ensp;Periode beenden</button>`
+        ? `<button class="quick-action-btn end-period" onclick="endCurrentPeriod()">&#10003;&ensp;Periode beenden</button>
+           <button class="link-btn" onclick="openPeriodEditor('${last.id}')">Versehentlich eingetragen? Korrigieren oder löschen</button>`
         : `<button class="quick-action-btn" onclick="startPeriodToday()">&#9679;&ensp;Periode hat begonnen</button>`
       }
     </div>
@@ -1128,6 +1169,80 @@ function saveDayNote(dateStr) {
 /* ─────────────────────────────────────────
    PERIOD MANAGEMENT
    ───────────────────────────────────────── */
+
+/* Jede Änderung ist rückgängig zu machen: vorher Zustand sichern,
+   nachher Toast mit "Rückgängig" anbieten. */
+function snapshot() {
+  return JSON.stringify(appData);
+}
+
+function commitWithUndo(msg, before) {
+  saveData(appData);
+  renderAll();
+  toast(msg, {
+    label: 'Rückgängig',
+    run: () => {
+      appData = JSON.parse(before);
+      saveData(appData);
+      loadSettings();
+      renderAll();
+      toast('Rückgängig gemacht');
+    }
+  });
+}
+
+function overlapsExisting(start, end, ignoreId) {
+  const newEnd = end || addDays(start, getAvgPeriodLength() - 1);
+  return appData.periods.some(p => {
+    if (p.id === ignoreId) return false;
+    const pEnd = p.endDate || addDays(p.startDate, getAvgPeriodLength() - 1);
+    return start <= pEnd && newEnd >= p.startDate;
+  });
+}
+
+function openPeriodEditor(id) {
+  const p = appData.periods.find(x => x.id === id);
+  if (!p) return;
+  const today = todayStr();
+  document.getElementById('periodModalBody').innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label for="editStart">Beginn</label>
+        <input type="date" id="editStart" value="${p.startDate}" max="${today}">
+      </div>
+      <div class="form-group">
+        <label for="editEnd">Ende</label>
+        <input type="date" id="editEnd" value="${p.endDate || ''}" max="${today}">
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--text-2);margin-top:10px">
+      Ende leer lassen, solange die Periode noch läuft.
+    </div>
+    <div class="confirm-btns">
+      <button class="btn btn-danger" onclick="deletePeriod('${p.id}')">Eintrag löschen</button>
+      <button class="btn btn-primary" onclick="savePeriodEdit('${p.id}')">Speichern</button>
+    </div>`;
+  openModal('periodModal');
+}
+
+function savePeriodEdit(id) {
+  const p = appData.periods.find(x => x.id === id);
+  if (!p) { closeModal('periodModal'); return; }
+
+  const start = document.getElementById('editStart').value;
+  const end = document.getElementById('editEnd').value;
+  if (!start) { toast('Bitte Startdatum angeben'); return; }
+  if (end && end < start) { toast('Enddatum muss nach Startdatum liegen'); return; }
+  if (overlapsExisting(start, end, id)) { toast('Zeitraum überlappt mit bestehender Periode'); return; }
+
+  const before = snapshot();
+  p.startDate = start;
+  p.endDate = end || null;
+  appData.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
+  closeModal('periodModal');
+  commitWithUndo('Periode aktualisiert', before);
+}
+
 function addPeriod() {
   const startEl = document.getElementById('periodStart');
   const endEl = document.getElementById('periodEnd');
@@ -1136,60 +1251,53 @@ function addPeriod() {
 
   if (!start) { toast('Bitte Startdatum angeben'); return; }
   if (end && end < start) { toast('Enddatum muss nach Startdatum liegen'); return; }
+  if (overlapsExisting(start, end)) { toast('Zeitraum überlappt mit bestehender Periode'); return; }
 
-  const overlaps = appData.periods.some(p => {
-    const pEnd = p.endDate || addDays(p.startDate, getAvgPeriodLength() - 1);
-    return start <= pEnd && (end || addDays(start, getAvgPeriodLength() - 1)) >= p.startDate;
-  });
-  if (overlaps) { toast('Zeitraum überlappt mit bestehender Periode'); return; }
-
+  const before = snapshot();
   appData.periods.push({
-    id: crypto.randomUUID(),
+    id: uid(),
     startDate: start,
     endDate: end || null
   });
   appData.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
-  saveData(appData);
 
   startEl.value = '';
   endEl.value = '';
 
-  toast('Periode gespeichert');
-  renderAll();
+  commitWithUndo('Periode gespeichert', before);
 }
 
 function deletePeriod(id) {
+  if (!appData.periods.some(p => p.id === id)) return;
+  const before = snapshot();
   appData.periods = appData.periods.filter(p => p.id !== id);
-  saveData(appData);
-  toast('Periode gelöscht');
-  renderAll();
+  closeModal('periodModal');
+  commitWithUndo('Periode gelöscht', before);
 }
 
 function startPeriodToday() {
   const today = todayStr();
   if (isInActivePeriod()) { toast('Es läuft bereits eine Periode'); return; }
 
+  const before = snapshot();
   appData.periods.push({
-    id: crypto.randomUUID(),
+    id: uid(),
     startDate: today,
     endDate: null
   });
   appData.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
-  saveData(appData);
 
-  toast('Periode gestartet');
-  renderAll();
+  commitWithUndo('Periode gestartet', before);
 }
 
 function endCurrentPeriod() {
   const last = getLastPeriod();
   if (!last || last.endDate) { toast('Keine aktive Periode'); return; }
 
+  const before = snapshot();
   last.endDate = todayStr();
-  saveData(appData);
 
-  toast('Periode beendet');
-  renderAll();
+  commitWithUndo('Periode beendet', before);
 }
 
 function renderPeriodList() {
@@ -1207,12 +1315,13 @@ function renderPeriodList() {
     return `
       <div class="period-entry">
         <div class="pe-dot"></div>
-        <div class="pe-info">
+        <div class="pe-info" style="cursor:pointer" onclick="openPeriodEditor('${p.id}')">
           <div class="pe-dates">${formatDate(p.startDate)} – ${endLabel}</div>
           <div class="pe-meta">${duration}</div>
         </div>
         <div class="pe-actions">
-          <button class="pe-action-btn delete" onclick="deletePeriod('${p.id}')" title="Löschen">&times;</button>
+          <button class="pe-action-btn" onclick="openPeriodEditor('${p.id}')" title="Bearbeiten" aria-label="Bearbeiten">&#9998;</button>
+          <button class="pe-action-btn delete" onclick="deletePeriod('${p.id}')" title="Löschen" aria-label="Löschen">&times;</button>
         </div>
       </div>`;
   }).join('');
@@ -1542,7 +1651,7 @@ function importData(event) {
       }
       appData = {
         periods: imported.periods.map(p => ({
-          id: p.id || crypto.randomUUID(),
+          id: p.id || uid(),
           startDate: p.startDate,
           endDate: p.endDate || null
         })),
@@ -1608,12 +1717,23 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 });
 
 let toastTimer;
-function toast(msg) {
+function toast(msg, action) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  const btn = document.getElementById('toastAction');
+  document.getElementById('toastMsg').textContent = msg;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+
+  if (action) {
+    btn.textContent = action.label;
+    btn.onclick = () => { el.classList.remove('show', 'has-action'); action.run(); };
+    el.classList.add('has-action');
+  } else {
+    btn.onclick = null;
+    el.classList.remove('has-action');
+  }
+
+  el.classList.add('show');
+  toastTimer = setTimeout(() => el.classList.remove('show', 'has-action'), action ? 7000 : 2500);
 }
 
 /* ─────────────────────────────────────────
@@ -1671,7 +1791,7 @@ document.getElementById('periodEnd').max = toStr(today);
     appData = {
       periods: seed.periods
         .filter(p => p.startDate)
-        .map(p => ({ id: p.id || crypto.randomUUID(), startDate: p.startDate, endDate: p.endDate || null })),
+        .map(p => ({ id: p.id || uid(), startDate: p.startDate, endDate: p.endDate || null })),
       notes: seed.notes || {},
       settings: { ...defaultData().settings, ...(seed.settings || {}) }
     };
@@ -1679,7 +1799,9 @@ document.getElementById('periodEnd').max = toStr(today);
     saveData(appData);
     loadSettings();
     renderAll();
-  } catch { /* keine seed.json vorhanden – leer starten */ }
+  } catch (err) {
+    console.warn('Startdaten (seed.json) konnten nicht geladen werden:', err);
+  }
 })();
 </script>
 
