@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FBA Cockpit – Amazon Business Dashboard</title>
+<title>FBA Cockpit</title>
 <style>
   :root {
     color-scheme: light;
@@ -17,11 +17,14 @@
     --border:         rgba(11,11,11,0.10);
     --series-1:       #2a78d6;
     --series-1-track: #cde2fb;
+    --series-2:       #eb6834;
+    --series-3:       #1baf7a;
     --status-good:    #0ca30c;
     --status-warn:    #fab219;
     --status-serious: #ec835a;
     --status-crit:    #d03b3b;
     --good-text:      #006300;
+    --ghost:          rgba(11,11,11,0.04);
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
@@ -36,7 +39,10 @@
       --border:         rgba(255,255,255,0.10);
       --series-1:       #3987e5;
       --series-1-track: #184f95;
+      --series-2:       #d95926;
+      --series-3:       #199e70;
       --good-text:      #0ca30c;
+      --ghost:          rgba(255,255,255,0.06);
     }
   }
   :root[data-theme="dark"] {
@@ -51,24 +57,57 @@
     --border:         rgba(255,255,255,0.10);
     --series-1:       #3987e5;
     --series-1-track: #184f95;
+    --series-2:       #d95926;
+    --series-3:       #199e70;
     --good-text:      #0ca30c;
+    --ghost:          rgba(255,255,255,0.06);
   }
 
   * { box-sizing: border-box; }
+  html { height: 100%; }
   body {
-    margin: 0;
+    margin: 0; min-height: 100%;
     background: var(--page);
     color: var(--text-primary);
     font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
   }
-  header {
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    padding: 16px 24px 0;
-    max-width: 1100px; margin: 0 auto;
+
+  /* ---------- App-Shell: Sidebar + Main ---------- */
+  .app { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+  aside.side {
+    border-right: 1px solid var(--grid);
+    background: var(--surface-1);
+    padding: 18px 12px 16px;
+    display: flex; flex-direction: column; gap: 4px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
   }
-  header h1 { font-size: 20px; margin: 0; }
-  header .sub { color: var(--text-muted); font-size: 13px; }
-  header .spacer { flex: 1; }
+  .brand { padding: 0 10px 12px; }
+  .brand .brand-name { font-size: 17px; font-weight: 700; letter-spacing: 0.01em; }
+  .brand .brand-sub { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  nav.side-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .nav-group-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); padding: 12px 10px 4px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 9px;
+    font: inherit; font-size: 14px; text-align: left;
+    color: var(--text-secondary);
+    background: none; border: none; border-radius: 8px;
+    padding: 7px 10px; cursor: pointer; width: 100%;
+  }
+  .nav-item:hover { background: var(--ghost); color: var(--text-primary); }
+  .nav-item.active { background: var(--ghost); color: var(--text-primary); font-weight: 600; box-shadow: inset 2px 0 0 var(--series-1); }
+  .nav-item .ico { width: 20px; text-align: center; flex: none; }
+  .nav-item .cnt { margin-left: auto; font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .side-foot { padding: 10px 10px 0; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--grid); }
+
+  main { min-width: 0; padding: 18px 26px 70px; max-width: 1240px; }
+  .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .toolbar h1 { font-size: 20px; margin: 0; }
+  .toolbar .sub { color: var(--text-muted); font-size: 13px; }
+  .toolbar .spacer { flex: 1; }
+
   .btn {
     font: inherit; font-size: 13px;
     color: var(--text-primary);
@@ -82,28 +121,11 @@
   .btn.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
   .btn.small { padding: 3px 8px; font-size: 12px; }
   .btn.danger { color: var(--status-crit); }
+  .btn:focus-visible, .nav-item:focus-visible { outline: 2px solid var(--series-1); outline-offset: 1px; }
 
-  nav.tabs {
-    display: flex; gap: 4px; flex-wrap: wrap;
-    max-width: 1100px; margin: 16px auto 0;
-    padding: 0 24px;
-    border-bottom: 1px solid var(--grid);
-  }
-  nav.tabs button {
-    font: inherit; font-size: 14px;
-    background: none; border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--text-secondary);
-    padding: 8px 12px; cursor: pointer;
-  }
-  nav.tabs button.active {
-    color: var(--text-primary);
-    border-bottom-color: var(--series-1);
-    font-weight: 600;
-  }
-  main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 60px; }
-  section.tab { display: none; }
-  section.tab.active { display: block; }
+  section.mod { display: none; }
+  section.mod.active { display: block; }
+  .mod-hint { color: var(--text-muted); font-size: 13px; margin: -6px 0 14px; max-width: 72ch; }
 
   .card {
     background: var(--surface-1);
@@ -113,9 +135,14 @@
     margin-bottom: 16px;
   }
   .card h2 { font-size: 15px; margin: 0 0 4px; }
-  .card .hint { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; }
+  .card .hint { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; max-width: 80ch; }
+  .card-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .card-head .spacer { flex: 1; }
+  .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+  .two-col .card { margin-bottom: 0; }
+  .two-col { margin-bottom: 16px; }
 
-  /* KPI row */
+  /* KPI-Kacheln */
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
   .tile {
     background: var(--surface-1);
@@ -124,12 +151,11 @@
     padding: 14px 16px;
   }
   .tile .label { font-size: 13px; color: var(--text-secondary); }
-  .tile .value { font-size: 30px; font-weight: 600; line-height: 1.2; }
+  .tile .value { font-size: 28px; font-weight: 600; line-height: 1.25; }
   .tile .note  { font-size: 12px; color: var(--text-muted); }
   .tile .note.good { color: var(--good-text); }
   .tile .note.bad  { color: var(--status-crit); }
 
-  /* Status badges: icon + label, text in ink tokens */
   .badge {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 12px; font-weight: 600;
@@ -139,9 +165,13 @@
     padding: 2px 10px 2px 8px;
     white-space: nowrap;
   }
-  .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .chip {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    color: var(--text-secondary); border: 1px solid var(--border);
+    border-radius: 999px; padding: 1px 8px; white-space: nowrap;
+  }
 
-  /* Tables */
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
   th { color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -149,28 +179,31 @@
   tr:last-child td { border-bottom: none; }
   .table-scroll { overflow-x: auto; }
   td .mono { color: var(--text-muted); font-size: 12px; }
+  .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
-  /* Bar chart (Reichweite) */
+  /* Div-Balkenchart (Reichweite, PPC-Ausgaben) */
   .chart { position: relative; padding: 8px 0 4px; }
   .bar-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 10px; min-height: 26px; }
   .bar-row .bar-label { font-size: 13px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bar-track { position: relative; height: 26px; display: flex; align-items: center; }
-  .bar {
-    height: 16px;
-    background: var(--series-1);
-    border-radius: 0 4px 4px 0;
-    min-width: 2px;
-  }
+  .bar { height: 16px; background: var(--series-1); border-radius: 0 4px 4px 0; min-width: 2px; }
   .bar-value { font-size: 12px; color: var(--text-secondary); margin-left: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .threshold {
-    position: absolute; top: 0; bottom: 18px; width: 1px;
-    background: var(--baseline);
-  }
-  .threshold-label {
-    position: absolute; bottom: 0; transform: translateX(-50%);
-    font-size: 11px; color: var(--text-muted); white-space: nowrap;
-  }
+  .threshold { position: absolute; top: 0; bottom: 18px; width: 1px; background: var(--baseline); }
+  .threshold-label { position: absolute; bottom: 0; transform: translateX(-50%); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
   .chart-footer { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+  /* SVG-Charts (Umsatz, TACoS) */
+  .svg-chart { width: 100%; height: auto; display: block; }
+  .svg-chart text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .svg-chart .gridline { stroke: var(--grid); stroke-width: 1; }
+  .svg-chart .axisline { stroke: var(--baseline); stroke-width: 1; }
+  .svg-chart .ticktext { fill: var(--text-muted); font-size: 11px; }
+  .svg-chart .valtext { fill: var(--text-secondary); font-size: 11px; }
+  .svg-chart .col { fill: var(--series-1); }
+  .svg-chart .line { stroke: var(--series-2); stroke-width: 2; fill: none; }
+  .svg-chart .pt { fill: var(--series-2); stroke: var(--surface-1); stroke-width: 2; }
+  .svg-chart .target { stroke: var(--baseline); stroke-width: 1; stroke-dasharray: 4 4; }
+  .svg-chart .hover-slot { fill: transparent; }
 
   #tooltip {
     position: fixed; z-index: 50; display: none;
@@ -179,16 +212,12 @@
     border-radius: 8px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     padding: 8px 12px; font-size: 13px;
-    pointer-events: none; max-width: 280px;
+    pointer-events: none; max-width: 300px;
   }
   #tooltip .tt-value { font-weight: 700; font-size: 15px; }
   #tooltip .tt-label { color: var(--text-secondary); }
 
-  /* Alerts */
-  .alert-item {
-    display: flex; gap: 10px; align-items: flex-start;
-    padding: 10px 0; border-bottom: 1px solid var(--grid);
-  }
+  .alert-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--grid); }
   .alert-item:last-child { border-bottom: none; }
   .alert-item .icon { font-size: 16px; line-height: 1.4; }
   .alert-item .body { flex: 1; }
@@ -196,7 +225,6 @@
   .alert-item .detail { font-size: 13px; color: var(--text-secondary); }
   .empty { color: var(--text-muted); font-size: 14px; padding: 8px 0; }
 
-  /* Forms */
   form.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
   label.field { display: block; font-size: 12px; color: var(--text-secondary); }
   label.field input, label.field select, label.field textarea {
@@ -212,11 +240,13 @@
   .field-row { display: flex; align-items: center; gap: 8px; }
   .field-row input { flex: 1; }
   .form-actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+  .inline-setting { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+  .inline-setting input { width: 64px; font: inherit; font-size: 13px; color: var(--text-primary); background: var(--page); border: 1px solid var(--border); border-radius: 6px; padding: 3px 6px; text-align: right; }
 
   dialog {
     background: var(--surface-1); color: var(--text-primary);
     border: 1px solid var(--border); border-radius: 12px;
-    padding: 20px; max-width: 560px; width: calc(100vw - 48px);
+    padding: 20px; max-width: 620px; width: calc(100vw - 48px);
   }
   dialog::backdrop { background: rgba(0,0,0,0.4); }
   dialog h3 { margin: 0 0 12px; font-size: 16px; }
@@ -225,114 +255,295 @@
   .doc-link { color: var(--series-1); text-decoration: none; word-break: break-all; }
   .doc-link:hover { text-decoration: underline; }
   .muted { color: var(--text-muted); }
-  .ppc-soon { border: 1px dashed var(--baseline); border-radius: 12px; padding: 24px; text-align: center; color: var(--text-secondary); }
+  .good-ink { color: var(--good-text); }
+  .bad-ink { color: var(--status-crit); }
+
+  /* Aufgaben-Board */
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .board-col { background: var(--page); border: 1px solid var(--grid); border-radius: 10px; padding: 10px; min-height: 80px; }
+  .board-col h3 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 8px; padding: 0 4px; }
+  .task-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .task-card .t-title { font-size: 14px; font-weight: 600; }
+  .task-card .t-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 5px 0 7px; font-size: 12px; color: var(--text-muted); }
+  .task-card.done .t-title { text-decoration: line-through; color: var(--text-muted); font-weight: 500; }
+  .due-over { color: var(--status-crit); font-weight: 600; }
+
+  /* Wochenroutine */
+  .routine-item { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--grid); }
+  .routine-item:last-child { border-bottom: none; }
+  .routine-item input[type="checkbox"] { width: 16px; height: 16px; margin-top: 3px; accent-color: var(--series-1); }
+  .routine-item label { cursor: pointer; font-size: 14px; }
+  .routine-item.done label { color: var(--text-muted); text-decoration: line-through; }
+  .routine-item .r-mod { font-size: 12px; color: var(--text-muted); }
+
+  /* Skill-Hub */
+  .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .skill-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .skill-card .s-name { font-weight: 700; font-size: 14px; }
+  .skill-card .s-slug { font-size: 11px; color: var(--text-muted); font-family: ui-monospace, monospace; }
+  .skill-card .s-desc { font-size: 13px; color: var(--text-secondary); margin: 6px 0 10px; }
+  .prompt-row { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-top: 1px solid var(--grid); }
+  .prompt-row .p-text { flex: 1; font-size: 12.5px; color: var(--text-secondary); }
+  .skill-cat-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin: 22px 0 10px; }
+  .skill-cat-title:first-of-type { margin-top: 4px; }
+
+  /* Rank-Badges Keywords */
+  .rank-b { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .rank-b .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+  .star { color: var(--status-warn); }
+  .progress-track { background: var(--ghost); border: 1px solid var(--grid); border-radius: 999px; height: 8px; overflow: hidden; min-width: 90px; }
+  .progress-fill { background: var(--series-1); height: 100%; border-radius: 999px; }
+
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    aside.side { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--grid); padding: 12px; }
+    nav.side-nav { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+    .nav-group-title { display: none; }
+    .nav-item { width: auto; }
+    .nav-item .cnt { display: none; }
+    .side-foot { display: none; }
+    main { padding: 16px 16px 60px; }
+    .bar-row { grid-template-columns: 110px 1fr; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-item, .btn { transition: background-color 0.12s ease, border-color 0.12s ease; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <div>
-    <h1>FBA Cockpit</h1>
-    <div class="sub" id="firma-sub">Dein Amazon-Business im Überblick</div>
-  </div>
-  <div class="spacer"></div>
-  <button class="btn" id="btn-export" title="Alle Daten als JSON-Datei sichern">Export (JSON)</button>
-  <button class="btn" id="btn-import" title="JSON-Backup wieder einlesen">Import</button>
-  <input type="file" id="import-file" accept="application/json" hidden>
-  <button class="btn" id="btn-theme" title="Hell/Dunkel umschalten">🌓</button>
-</header>
-
-<nav class="tabs" id="tabs">
-  <button data-tab="uebersicht" class="active">Übersicht</button>
-  <button data-tab="bestand">Bestand &amp; SKUs</button>
-  <button data-tab="nachschub">Nachschub</button>
-  <button data-tab="firma">Firma &amp; Dokumente</button>
-  <button data-tab="ppc">PPC <span class="muted">(bald)</span></button>
-</nav>
-
-<main>
-  <section class="tab active" id="tab-uebersicht">
-    <div class="kpi-row" id="kpi-row"></div>
-    <div class="card">
-      <h2>Lagerreichweite FBA</h2>
-      <p class="hint">Tage, bis der Amazon-Bestand bei aktuellem Absatz leer ist. Unter 28 Tagen droht die Low-Inventory-Level-Fee.</p>
-      <div class="chart" id="reichweite-chart"></div>
-      <div class="chart-footer">Reichweite = FBA-Bestand ÷ Ø Verkäufe/Tag · Details je SKU im Tab „Bestand &amp; SKUs“</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-name">FBA Cockpit</div>
+      <div class="brand-sub" id="firma-sub">Dein Amazon-Business</div>
     </div>
-    <div class="card">
-      <h2>Handlungsbedarf</h2>
-      <p class="hint">Automatisch berechnet aus Beständen, Absatz und Lieferzeiten.</p>
-      <div id="uebersicht-alerts"></div>
-    </div>
-    <div class="card">
-      <h2>Letzte Bewegungen</h2>
-      <div class="table-scroll"><table id="journal-table"></table></div>
-    </div>
-  </section>
+    <nav class="side-nav" id="side-nav"></nav>
+    <div class="side-foot">Daten bleiben im Browser (localStorage). Regelmäßig exportieren.</div>
+  </aside>
 
-  <section class="tab" id="tab-bestand">
-    <div class="card">
-      <h2>Bestand je SKU</h2>
-      <p class="hint">FBA = bei Amazon · Unterwegs = an Amazon gesendet, noch nicht eingelagert · Zuhause = bei dir. Über „Bewegung“ buchst du Zu-/Abgänge und Inventuren, damit die Bestände immer abgeglichen sind.</p>
-      <div class="table-scroll"><table id="sku-table"></table></div>
-      <div style="margin-top:12px">
-        <button class="btn primary" id="btn-add-sku">+ SKU anlegen</button>
+  <main>
+    <div class="toolbar">
+      <div>
+        <h1 id="mod-title">Übersicht</h1>
+        <div class="sub" id="mod-sub"></div>
       </div>
+      <div class="spacer"></div>
+      <button class="btn" id="btn-export" title="Alle Daten als JSON-Datei sichern">Export (JSON)</button>
+      <button class="btn" id="btn-import" title="JSON-Backup wieder einlesen">Import</button>
+      <input type="file" id="import-file" accept="application/json" hidden>
+      <button class="btn" id="btn-theme" title="Hell/Dunkel umschalten">🌓</button>
     </div>
-  </section>
 
-  <section class="tab" id="tab-nachschub">
-    <div class="card">
-      <h2>An Amazon senden</h2>
-      <p class="hint">Empfohlen, wenn FBA + unterwegs unter 35 Tage Reichweite fällt und zuhause Ware liegt. Ziel: nie unter die 28-Tage-Grenze (Low-Inventory-Fee). Beim Shipment „Amazon-Optimized Splits“ wählen, um die Inbound Placement Fee zu vermeiden.</p>
-      <div id="alerts-senden"></div>
-    </div>
-    <div class="card">
-      <h2>Beim Lieferanten bestellen</h2>
-      <p class="hint">Nachbestellpunkt = Ø Verkäufe/Tag × Lieferzeit + 14 Tage Sicherheitspuffer. Fällt der Gesamtbestand (FBA + unterwegs + zuhause) darunter, sofort bestellen. Bestellmenge = Ziel-Reichweite × Tagesabsatz, mindestens die MOQ.</p>
-      <div id="alerts-bestellen"></div>
-    </div>
-    <div class="card">
-      <h2>Überbestand / Aged Inventory</h2>
-      <p class="hint">Bestand mit mehr als 120 Tagen Reichweite bindet Kapital und riskiert ab 90 Tagen Lagerdauer die Aged-Inventory-Fee. Gegenmittel: Sales pushen, Preis oder Coupon anpassen.</p>
-      <div id="alerts-aged"></div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-firma">
-    <div class="card">
-      <h2>Firmendaten</h2>
-      <p class="hint">Griffbereit für Rechnungen, Amazon-Verifizierung, Lieferanten und Behörden. Der Kopieren-Button legt den Wert in die Zwischenablage.</p>
-      <form class="grid" id="firma-form"></form>
-    </div>
-    <div class="card">
-      <h2>Dokumente</h2>
-      <p class="hint">Wichtige Unterlagen mit Ablageort (Link oder Pfad), damit du im Zweifel nicht suchen musst – z.&nbsp;B. Gewerbeanmeldung, USt-Bescheinigung, Lieferantenverträge, Produktzertifikate (CE, LFGB …).</p>
-      <div class="table-scroll"><table id="doc-table"></table></div>
-      <div style="margin-top:12px">
-        <button class="btn primary" id="btn-add-doc">+ Dokument erfassen</button>
+    <!-- ================= Übersicht ================= -->
+    <section class="mod active" id="mod-uebersicht">
+      <div id="demo-notice"></div>
+      <div class="kpi-row" id="kpi-row"></div>
+      <div class="card">
+        <h2>Handlungsbedarf</h2>
+        <p class="hint">Automatisch aus Beständen, Absatz, Aufgaben und Kampagnen berechnet – die wichtigsten Punkte zuerst.</p>
+        <div id="uebersicht-alerts"></div>
       </div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-ppc">
-    <div class="card">
-      <h2>PPC &amp; Performance</h2>
-      <p class="hint">Dieser Bereich wird mit der Amazon-MCP-Anbindung befüllt.</p>
-      <div class="ppc-soon">
-        <p><strong>Kommt mit der Amazon-Anbindung:</strong></p>
-        <p>Impressions · Klicks · CTR · Conversion Rate · ACoS · TACoS · Sponsored-Products-Kampagnen</p>
-        <p class="muted">Sobald die MCP-Verbindung zu deinem Seller-Account steht, laufen die Kampagnendaten automatisch hier ein. Die Datenstruktur ist bereits vorbereitet (siehe README).</p>
+      <div class="two-col">
+        <div class="card">
+          <h2>Lagerreichweite FBA</h2>
+          <p class="hint">Tage, bis der Amazon-Bestand bei aktuellem Absatz leer ist. Unter 28 Tagen droht die Low-Inventory-Level-Fee.</p>
+          <div class="chart" id="reichweite-chart"></div>
+          <div class="chart-footer">Reichweite = FBA-Bestand ÷ Ø Verkäufe/Tag · Details im Modul „Bestand &amp; SKUs“</div>
+        </div>
+        <div class="card">
+          <h2>Letzte Bewegungen</h2>
+          <p class="hint">Bewegungsjournal aus dem Modul „Bestand &amp; SKUs“.</p>
+          <div class="table-scroll"><table id="journal-table"></table></div>
+        </div>
       </div>
-    </div>
-  </section>
-</main>
+    </section>
 
+    <!-- ================= Umsatz & Profit ================= -->
+    <section class="mod" id="mod-umsatz">
+      <p class="mod-hint">Wöchentliches KPI-Reporting: Umsatz, Werbekosten, Wareneinsatz und Gebühren je Kalenderwoche erfassen – ACoS, TACoS, Profit und Marge werden berechnet. Quelle: Seller Central (Zahlungen/Geschäftsberichte) bzw. Helium&nbsp;10 Profits.</p>
+      <div class="kpi-row" id="umsatz-kpis"></div>
+      <div class="two-col">
+        <div class="card">
+          <h2>Umsatz je Woche</h2>
+          <p class="hint">Gesamtumsatz (€) der letzten 12 erfassten Wochen.</p>
+          <div id="umsatz-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h2>TACoS je Woche</h2>
+            <div class="spacer"></div>
+            <span class="inline-setting">Ziel <input type="number" id="set-tacos" min="1" max="99" step="0.5"> %</span>
+          </div>
+          <p class="hint">TACoS = Werbekosten ÷ Gesamtumsatz. Sinkender TACoS bei stabilem Umsatz = organischer Anteil wächst.</p>
+          <div id="tacos-chart"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>Wochen</h2>
+          <div class="spacer"></div>
+          <button class="btn primary" id="btn-add-week">+ Woche erfassen</button>
+        </div>
+        <p class="hint">Profit = Umsatz − Werbekosten − Wareneinsatz − Gebühren/Sonstiges (vereinfachte Deckungsbeitragsrechnung). Marge = Profit ÷ Umsatz.</p>
+        <div class="table-scroll"><table id="week-table"></table></div>
+      </div>
+    </section>
+
+    <!-- ================= Aufgaben & Routine ================= -->
+    <section class="mod" id="mod-aufgaben">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <h2>Wochenroutine</h2>
+            <div class="spacer"></div>
+            <span class="muted" id="routine-progress" style="font-size:13px"></span>
+          </div>
+          <p class="hint" id="routine-week-hint"></p>
+          <div id="routine-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h2>Neue Aufgabe</h2>
+          </div>
+          <p class="hint">Alles, was im Business ansteht – mit Bereich, Priorität und Fälligkeit. Überfällige Aufgaben erscheinen im Handlungsbedarf auf der Übersicht.</p>
+          <button class="btn primary" id="btn-add-task">+ Aufgabe anlegen</button>
+        </div>
+      </div>
+      <div class="board" id="task-board"></div>
+    </section>
+
+    <!-- ================= Bestand & SKUs ================= -->
+    <section class="mod" id="mod-bestand">
+      <div class="card">
+        <h2>Bestand je SKU</h2>
+        <p class="hint">FBA = bei Amazon · Unterwegs = an Amazon gesendet, noch nicht eingelagert · Zuhause = bei dir. Über „Bewegung“ buchst du Zu-/Abgänge und Inventuren, damit die Bestände immer abgeglichen sind.</p>
+        <div class="table-scroll"><table id="sku-table"></table></div>
+        <div style="margin-top:12px">
+          <button class="btn primary" id="btn-add-sku">+ SKU anlegen</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Nachschub ================= -->
+    <section class="mod" id="mod-nachschub">
+      <div class="card">
+        <h2>An Amazon senden</h2>
+        <p class="hint">Empfohlen, wenn FBA + unterwegs unter 35 Tage Reichweite fällt und zuhause Ware liegt. Ziel: nie unter die 28-Tage-Grenze (Low-Inventory-Fee). Beim Shipment „Amazon-Optimized Splits“ wählen, um die Inbound Placement Fee zu vermeiden.</p>
+        <div id="alerts-senden"></div>
+      </div>
+      <div class="card">
+        <h2>Beim Lieferanten bestellen</h2>
+        <p class="hint">Nachbestellpunkt = Ø Verkäufe/Tag × Lieferzeit + 14 Tage Sicherheitspuffer. Fällt der Gesamtbestand (FBA + unterwegs + zuhause) darunter, sofort bestellen. Bestellmenge = Ziel-Reichweite × Tagesabsatz, mindestens die MOQ.</p>
+        <div id="alerts-bestellen"></div>
+      </div>
+      <div class="card">
+        <h2>Überbestand / Aged Inventory</h2>
+        <p class="hint">Bestand mit mehr als 120 Tagen Reichweite bindet Kapital und riskiert ab 90 Tagen Lagerdauer die Aged-Inventory-Fee. Gegenmittel: Sales pushen, Preis oder Coupon anpassen.</p>
+        <div id="alerts-aged"></div>
+      </div>
+    </section>
+
+    <!-- ================= PPC ================= -->
+    <section class="mod" id="mod-ppc">
+      <p class="mod-hint">Kampagnen-Stände aus der Werbekonsole erfassen (Zeitraum frei wählbar, z.&nbsp;B. letzte 30 Tage) – CTR, CPC, CVR und ACoS werden berechnet. Für die Analyse des Suchbegriffsberichts den Skill <strong>amazon-ppc-profi</strong> im Skill-Hub nutzen.</p>
+      <div class="kpi-row" id="ppc-kpis"></div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <h2>Ausgaben je Kampagne</h2>
+            <div class="spacer"></div>
+            <span class="inline-setting">Ziel-ACoS <input type="number" id="set-acos" min="1" max="99" step="0.5"> %</span>
+          </div>
+          <div class="chart" id="ppc-chart"></div>
+        </div>
+        <div class="card">
+          <h2>Low-Bid-Spielregeln</h2>
+          <p class="hint">Kurzreferenz aus der PPC-Strategie – Details und Auswertung über den Skill amazon-ppc-profi.</p>
+          <div id="ppc-rules"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>Kampagnen</h2>
+          <div class="spacer"></div>
+          <button class="btn primary" id="btn-add-camp">+ Kampagne erfassen</button>
+        </div>
+        <div class="table-scroll"><table id="camp-table"></table></div>
+      </div>
+    </section>
+
+    <!-- ================= Keywords & SEO ================= -->
+    <section class="mod" id="mod-keywords">
+      <p class="mod-hint">Keyword-Tracker für die wichtigsten Keywords der Master Keyword List (MKL). Rankings regelmäßig aktualisieren (Helium&nbsp;10 Keyword Tracker oder Inkognito-Suche). Rang 11–30 = Striking Distance – dort zuerst pushen.</p>
+      <div class="kpi-row" id="kw-kpis"></div>
+      <div class="card">
+        <div class="card-head">
+          <h2>Keywords</h2>
+          <div class="spacer"></div>
+          <button class="btn primary" id="btn-add-kw">+ Keyword anlegen</button>
+        </div>
+        <div class="table-scroll"><table id="kw-table"></table></div>
+      </div>
+    </section>
+
+    <!-- ================= Reviews ================= -->
+    <section class="mod" id="mod-reviews">
+      <p class="mod-hint">Bewertungsstand je SKU – Anzahl und Sterne regelmäßig (z.&nbsp;B. wöchentlich) vom Listing übernehmen. Meilensteine: 10 → 25 → 50 → 100 → 200 Bewertungen. Strategie und Vine über den Skill <strong>amazon-review-logistik-profi</strong>.</p>
+      <div class="kpi-row" id="rev-kpis"></div>
+      <div class="card">
+        <h2>Reviews je SKU</h2>
+        <p class="hint">Zahlen werden an der SKU gepflegt („Bearbeiten“ öffnet die SKU mit den Review-Feldern).</p>
+        <div class="table-scroll"><table id="rev-table"></table></div>
+      </div>
+    </section>
+
+    <!-- ================= Skill-Hub ================= -->
+    <section class="mod" id="mod-skills">
+      <p class="mod-hint">Deine Claude-Skills als Arbeitsoberfläche: Prompt kopieren, in Claude einfügen (claude.ai oder Claude Code), Ergebnis zurück ins Dashboard übernehmen. Die Skills sind in deinem Claude-Konto installiert und springen auf diese Formulierungen an.</p>
+      <div id="skill-hub"></div>
+    </section>
+
+    <!-- ================= Firma & Dokumente ================= -->
+    <section class="mod" id="mod-firma">
+      <div class="card">
+        <h2>Firmendaten</h2>
+        <p class="hint">Griffbereit für Rechnungen, Amazon-Verifizierung, Lieferanten und Behörden. Der Kopieren-Button legt den Wert in die Zwischenablage.</p>
+        <form class="grid" id="firma-form"></form>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>Dokumente</h2>
+          <div class="spacer"></div>
+          <button class="btn primary" id="btn-add-doc">+ Dokument erfassen</button>
+        </div>
+        <p class="hint">Wichtige Unterlagen mit Ablageort (Link oder Pfad) – z.&nbsp;B. Gewerbeanmeldung, USt-Bescheinigung, Lieferantenverträge, Produktzertifikate (CE, LFGB …).</p>
+        <div class="table-scroll"><table id="doc-table"></table></div>
+      </div>
+    </section>
+
+    <!-- ================= Links ================= -->
+    <section class="mod" id="mod-links">
+      <div class="card">
+        <div class="card-head">
+          <h2>Schnellzugriff</h2>
+          <div class="spacer"></div>
+          <button class="btn primary" id="btn-add-link">+ Link anlegen</button>
+        </div>
+        <p class="hint">Die Werkzeuge des Tagesgeschäfts – Seller Central, Werbekonsole, Helium&nbsp;10 &amp; Co.</p>
+        <div class="table-scroll"><table id="link-table"></table></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= Dialoge ================= -->
 <dialog id="sku-dialog">
   <h3 id="sku-dialog-title">SKU anlegen</h3>
   <form class="grid" id="sku-form" method="dialog">
-    <label class="field">SKU *<input name="sku" required placeholder="z. B. KUV-CUBE-WS-01"></label>
+    <label class="field">SKU *<input name="sku" required placeholder="z. B. KUB-CUBE-BL-01"></label>
     <label class="field">ASIN<input name="asin" placeholder="B0…"></label>
-    <label class="field" style="grid-column:1/-1">Produktname *<input name="name" required placeholder="z. B. Kuvio Steckdosenwürfel weiß"></label>
+    <label class="field" style="grid-column:1/-1">Produktname *<input name="name" required placeholder="z. B. KUBOLT Steckdosenwürfel blau"></label>
     <label class="field">FBA-Bestand<input name="fba" type="number" min="0" step="1" value="0"></label>
     <label class="field">Unterwegs zu Amazon<input name="inbound" type="number" min="0" step="1" value="0"></label>
     <label class="field">Bestand zuhause<input name="home" type="number" min="0" step="1" value="0"></label>
@@ -340,9 +551,22 @@
     <label class="field">Lieferzeit Lieferant → FBA (Tage)<input name="leadTime" type="number" min="0" step="1" value="45"></label>
     <label class="field">MOQ Lieferant (Stück)<input name="moq" type="number" min="0" step="1" value="0"></label>
     <label class="field">Ziel-Reichweite (Tage)<input name="targetDays" type="number" min="1" step="1" value="60"></label>
+    <label class="field">Verkaufspreis (€)<input name="preis" type="number" min="0" step="0.01" placeholder="z. B. 24,99"></label>
+    <label class="field">Landed Cost / Stück (€)<input name="landedCost" type="number" min="0" step="0.01" placeholder="EK + Fracht + Zoll"></label>
+    <label class="field">Bewertungen (Anzahl)<input name="reviewCount" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Sterne-Schnitt<input name="reviewRating" type="number" min="0" max="5" step="0.1" placeholder="z. B. 4,6"></label>
+    <label class="field">Vine
+      <select name="vine">
+        <option value="">–</option>
+        <option value="geplant">geplant</option>
+        <option value="beantragt">beantragt</option>
+        <option value="läuft">läuft</option>
+        <option value="abgeschlossen">abgeschlossen</option>
+      </select>
+    </label>
     <div class="form-actions">
       <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
-      <button class="btn primary" value="ok" id="sku-save">Speichern</button>
+      <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
 </dialog>
@@ -393,62 +617,281 @@
   </form>
 </dialog>
 
+<dialog id="week-dialog">
+  <h3 id="week-dialog-title">Woche erfassen</h3>
+  <form class="grid" id="week-form" method="dialog">
+    <label class="field">Wochenstart (Montag) *<input name="start" type="date" required></label>
+    <label class="field">Umsatz gesamt (€) *<input name="umsatz" type="number" min="0" step="0.01" required></label>
+    <label class="field">Verkaufte Einheiten<input name="einheiten" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Werbekosten (€)<input name="adSpend" type="number" min="0" step="0.01" value="0"></label>
+    <label class="field">Werbeumsatz (€)<input name="adUmsatz" type="number" min="0" step="0.01" value="0" title="Über Werbung zugeordneter Umsatz – für ACoS"></label>
+    <label class="field">Wareneinsatz (€)<input name="wareneinsatz" type="number" min="0" step="0.01" value="0" title="Verkaufte Einheiten × Landed Cost"></label>
+    <label class="field">Gebühren &amp; Sonstiges (€)<input name="kosten" type="number" min="0" step="0.01" value="0" title="Amazon-Gebühren, FBA, Lager, Retourenkosten …"></label>
+    <label class="field">Retouren (Einheiten)<input name="retouren" type="number" min="0" step="1" value="0"></label>
+    <label class="field" style="grid-column:1/-1">Notiz<input name="notiz" placeholder="z. B. Coupon-Woche, OOS ab Donnerstag …"></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="ok">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="camp-dialog">
+  <h3 id="camp-dialog-title">Kampagne erfassen</h3>
+  <form class="grid" id="camp-form" method="dialog">
+    <label class="field" style="grid-column:1/-1">Kampagnenname *<input name="name" required placeholder="z. B. SP Auto – Cube Launch"></label>
+    <label class="field">Typ
+      <select name="typ">
+        <option>SP Auto</option>
+        <option>SP Broad</option>
+        <option>SP Exact</option>
+        <option>SP Produkt-Targeting</option>
+        <option>Sponsored Brands</option>
+        <option>Sponsored Display</option>
+      </select>
+    </label>
+    <label class="field">Status
+      <select name="status">
+        <option>Aktiv</option>
+        <option>Pausiert</option>
+        <option>Archiviert</option>
+      </select>
+    </label>
+    <label class="field">Tagesbudget (€)<input name="budget" type="number" min="0" step="0.01" value="0"></label>
+    <label class="field">Impressionen<input name="impressionen" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Klicks<input name="klicks" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Ausgaben (€)<input name="ausgaben" type="number" min="0" step="0.01" value="0"></label>
+    <label class="field">Werbeumsatz (€)<input name="umsatz" type="number" min="0" step="0.01" value="0"></label>
+    <label class="field">Bestellungen<input name="bestellungen" type="number" min="0" step="1" value="0"></label>
+    <label class="field">Daten-Stand<input name="stand" type="date"></label>
+    <label class="field" style="grid-column:1/-1">Notiz<input name="notiz" placeholder="z. B. Zeitraum 30 Tage, Gebot 0,25 €"></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="ok">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="kw-dialog">
+  <h3 id="kw-dialog-title">Keyword anlegen</h3>
+  <form class="grid" id="kw-form" method="dialog">
+    <label class="field" style="grid-column:1/-1">Keyword *<input name="keyword" required placeholder="z. B. steckdosenwürfel"></label>
+    <label class="field">SKU<select name="sku"></select></label>
+    <label class="field">Suchvolumen/Monat<input name="sv" type="number" min="0" step="1" placeholder="aus Helium 10"></label>
+    <label class="field">Rang aktuell<input name="rang" type="number" min="1" step="1" placeholder="leer = nicht in Top 306"></label>
+    <label class="field">Rang-Ziel<input name="ziel" type="number" min="1" step="1" placeholder="z. B. 8"></label>
+    <label class="field">Indexiert
+      <select name="indexiert">
+        <option value="unbekannt">unbekannt</option>
+        <option value="ja">ja</option>
+        <option value="nein">nein</option>
+      </select>
+    </label>
+    <label class="field">Priorität
+      <select name="prio">
+        <option>Haupt</option>
+        <option>Neben</option>
+        <option>Long-Tail</option>
+      </select>
+    </label>
+    <label class="field">Zuletzt geprüft<input name="geprueft" type="date"></label>
+    <label class="field" style="grid-column:1/-1">Notiz<input name="notiz"></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="ok">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="task-dialog">
+  <h3 id="task-dialog-title">Aufgabe anlegen</h3>
+  <form class="grid" id="task-form" method="dialog">
+    <label class="field" style="grid-column:1/-1">Aufgabe *<input name="titel" required placeholder="z. B. Suchbegriffsbericht ziehen und Wasted Spend negieren"></label>
+    <label class="field">Bereich
+      <select name="bereich">
+        <option>PPC</option>
+        <option>SEO</option>
+        <option>Listing</option>
+        <option>Logistik</option>
+        <option>Reviews</option>
+        <option>Sourcing</option>
+        <option>Marke</option>
+        <option>Finanzen</option>
+        <option>Sonstiges</option>
+      </select>
+    </label>
+    <label class="field">Priorität
+      <select name="prio">
+        <option>Hoch</option>
+        <option selected>Mittel</option>
+        <option>Niedrig</option>
+      </select>
+    </label>
+    <label class="field">Fällig am<input name="faellig" type="date"></label>
+    <label class="field" style="grid-column:1/-1">Notiz<input name="notiz"></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="ok">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="link-dialog">
+  <h3 id="link-dialog-title">Link anlegen</h3>
+  <form class="grid" id="link-form" method="dialog">
+    <label class="field">Name *<input name="name" required placeholder="z. B. Seller Central"></label>
+    <label class="field">Kategorie
+      <select name="kategorie">
+        <option>Amazon</option>
+        <option>Tools</option>
+        <option>Intern</option>
+        <option>Sonstiges</option>
+      </select>
+    </label>
+    <label class="field" style="grid-column:1/-1">URL *<input name="url" required placeholder="https://…"></label>
+    <div class="form-actions">
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="ok">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
 <div id="tooltip"></div>
 
 <script>
 "use strict";
 
 /* ---------- Datenhaltung ----------
- * Alles liegt unter einem Schlüssel im localStorage.
- * Export/Import (JSON) dient als Backup – und als Schnittstelle:
- * Die spätere Amazon-MCP-Anbindung schreibt in dieselbe Struktur
- * (skus[].fba, skus[].salesPerDay, ppc{…}), statt dass du sie tippst.
+ * Alles liegt unter einem Schlüssel im localStorage (Schema v2).
+ * Bestehende Daten aus dem FBA Cockpit v1 (fba-cockpit-v1) werden beim
+ * ersten Start automatisch übernommen; der alte Schlüssel bleibt unberührt.
+ * Export/Import (JSON) dient als Backup – und als Andockstelle für die
+ * spätere Amazon-MCP-Anbindung (SP-API: Bestände, Sales, PPC).
  */
-const STORAGE_KEY = "fba-cockpit-v1";
+const STORAGE_KEY = "fba-cockpit-v2";
+const LEGACY_KEY = "fba-cockpit-v1";
 const THEME_KEY = "fba-cockpit-theme";
 
 const DEFAULT_DATA = {
-  version: 1,
+  version: 2,
+  einstellungen: { tacosZiel: 15, acosZiel: 25 },
   firma: {
     firma: "", rechtsform: "", inhaber: "", strasse: "", plzOrt: "",
     email: "", telefon: "", steuernummer: "", ustIdNr: "", eori: "",
     iban: "", bank: "", amazonSellerId: "", notizen: ""
   },
-  skus: [
-    {
-      id: "demo-1", demo: true,
-      sku: "KUV-CUBE-WS-01", asin: "", name: "Kuvio Steckdosenwürfel weiß (Beispiel)",
-      fba: 220, inbound: 0, home: 130,
-      salesPerDay: 3, leadTime: 45, moq: 500, targetDays: 60
-    }
-  ],
-  dokumente: [
-    { id: "demo-d1", demo: true, name: "Gewerbeanmeldung (Beispiel)", kategorie: "Gewerbe & Recht", datum: "", link: "", notiz: "Beispiel-Eintrag – bearbeiten oder löschen" }
-  ],
+  skus: [],
+  wochen: [],
+  kampagnen: [],
+  keywords: [],
+  aufgaben: [],
+  routine: { woche: "", done: {} },
+  links: [],
+  dokumente: [],
   journal: [],
   ppc: null
 };
 
+const SKU_DEFAULTS = { preis: 0, landedCost: 0, reviewCount: 0, reviewRating: 0, vine: "" };
+
+function normalize(d) {
+  const out = Object.assign(structuredClone(DEFAULT_DATA), d);
+  out.version = 2;
+  out.einstellungen = Object.assign({ tacosZiel: 15, acosZiel: 25 }, d && d.einstellungen);
+  out.routine = Object.assign({ woche: "", done: {} }, d && d.routine);
+  for (const k of ["skus", "wochen", "kampagnen", "keywords", "aufgaben", "links", "dokumente", "journal"]) {
+    if (!Array.isArray(out[k])) out[k] = [];
+  }
+  out.skus = out.skus.map(s => Object.assign({}, SKU_DEFAULTS, s));
+  return out;
+}
+
+function seedLinks() {
+  return [
+    { id: uid(), name: "Seller Central", url: "https://sellercentral.amazon.de", kategorie: "Amazon" },
+    { id: uid(), name: "Werbekonsole (Amazon Ads)", url: "https://advertising.amazon.de", kategorie: "Amazon" },
+    { id: uid(), name: "Brand Registry", url: "https://brandregistry.amazon.de", kategorie: "Amazon" },
+    { id: uid(), name: "Helium 10", url: "https://members.helium10.com", kategorie: "Tools" }
+  ];
+}
+
+function seedDemo(data) {
+  const heute = new Date();
+  const mo = mondayOf(heute);
+  const woAgo = n => toDateInput(new Date(mo.getTime() - n * 7 * 86400000));
+  data.skus.push({
+    id: "demo-1", demo: true,
+    sku: "KUB-CUBE-BL-01", asin: "", name: "KUBOLT Steckdosenwürfel blau (Beispiel)",
+    fba: 220, inbound: 0, home: 130,
+    salesPerDay: 3, leadTime: 45, moq: 500, targetDays: 60,
+    preis: 24.99, landedCost: 6.5, reviewCount: 14, reviewRating: 4.6, vine: "läuft"
+  });
+  data.wochen.push(
+    { id: "demo-w1", demo: true, start: woAgo(2), umsatz: 512.5, einheiten: 21, adSpend: 96.4, adUmsatz: 289, wareneinsatz: 136.5, kosten: 178, retouren: 1, notiz: "Beispielwoche" },
+    { id: "demo-w2", demo: true, start: woAgo(1), umsatz: 634.8, einheiten: 26, adSpend: 88.2, adUmsatz: 305, wareneinsatz: 169, kosten: 214, retouren: 0, notiz: "Beispielwoche" }
+  );
+  data.kampagnen.push(
+    { id: "demo-c1", demo: true, name: "SP Auto – Cube Launch (Beispiel)", typ: "SP Auto", status: "Aktiv", budget: 10, impressionen: 18450, klicks: 214, ausgaben: 61.9, umsatz: 188.9, bestellungen: 8, stand: toDateInput(heute), notiz: "Zeitraum 30 Tage" },
+    { id: "demo-c2", demo: true, name: "SP Exact – Haupt-Keywords (Beispiel)", typ: "SP Exact", status: "Aktiv", budget: 15, impressionen: 9210, klicks: 162, ausgaben: 26.3, umsatz: 116.1, bestellungen: 5, stand: toDateInput(heute), notiz: "Zeitraum 30 Tage" }
+  );
+  data.keywords.push(
+    { id: "demo-k1", demo: true, keyword: "steckdosenwürfel (Beispiel)", sku: "KUB-CUBE-BL-01", sv: 9800, rang: 18, ziel: 8, indexiert: "ja", prio: "Haupt", geprueft: toDateInput(heute), notiz: "" },
+    { id: "demo-k2", demo: true, keyword: "mehrfachsteckdose würfel (Beispiel)", sku: "KUB-CUBE-BL-01", sv: 2400, rang: 7, ziel: 5, indexiert: "ja", prio: "Haupt", geprueft: toDateInput(heute), notiz: "" },
+    { id: "demo-k3", demo: true, keyword: "usb c steckdose würfel (Beispiel)", sku: "KUB-CUBE-BL-01", sv: 1900, rang: 34, ziel: 15, indexiert: "ja", prio: "Neben", geprueft: toDateInput(heute), notiz: "" }
+  );
+  data.aufgaben.push(
+    { id: "demo-t1", demo: true, titel: "Suchbegriffsbericht ziehen & Wasted Spend negieren (Beispiel)", bereich: "PPC", prio: "Hoch", status: "offen", faellig: toDateInput(new Date(heute.getTime() + 2 * 86400000)), notiz: "", erstellt: nowIso() },
+    { id: "demo-t2", demo: true, titel: "A+ Content Modul 3 überarbeiten (Beispiel)", bereich: "Listing", prio: "Mittel", status: "offen", faellig: "", notiz: "", erstellt: nowIso() }
+  );
+  data.dokumente.push({ id: "demo-d1", demo: true, name: "Gewerbeanmeldung (Beispiel)", kategorie: "Gewerbe & Recht", datum: "", link: "", notiz: "Beispiel-Eintrag – bearbeiten oder löschen" });
+  return data;
+}
+
+function migrateV1(v1) {
+  const d = normalize({});
+  if (v1 && typeof v1 === "object") {
+    if (v1.firma) d.firma = Object.assign(structuredClone(DEFAULT_DATA.firma), v1.firma);
+    if (Array.isArray(v1.skus)) d.skus = v1.skus.map(s => Object.assign({}, SKU_DEFAULTS, s));
+    if (Array.isArray(v1.dokumente)) d.dokumente = v1.dokumente.slice();
+    if (Array.isArray(v1.journal)) d.journal = v1.journal.slice();
+  }
+  d.links = seedLinks();
+  return d;
+}
+
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return structuredClone(DEFAULT_DATA);
-    const d = JSON.parse(raw);
-    return Object.assign(structuredClone(DEFAULT_DATA), d);
+    if (raw) return normalize(JSON.parse(raw));
+    const legacyRaw = localStorage.getItem(LEGACY_KEY);
+    if (legacyRaw) {
+      const migrated = migrateV1(JSON.parse(legacyRaw));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+      return migrated;
+    }
+    const fresh = seedDemo(normalize({}));
+    fresh.links = seedLinks();
+    return fresh;
   } catch (e) {
     console.error("Konnte Daten nicht laden:", e);
-    return structuredClone(DEFAULT_DATA);
+    return normalize({});
   }
 }
 function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }
+  catch (e) { console.error("Speichern fehlgeschlagen:", e); }
 }
-let DATA = loadData();
 
 /* ---------- Helfer ---------- */
 const $ = sel => document.querySelector(sel);
 const fmt = new Intl.NumberFormat("de-DE");
 const fmt1 = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 });
+const fmtEuro = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
+const fmtEuro0 = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+function fmtPct(frac, digits) {
+  if (frac == null || !isFinite(frac)) return "–";
+  return new Intl.NumberFormat("de-DE", { maximumFractionDigits: digits == null ? 1 : digits }).format(frac * 100) + " %";
+}
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -463,6 +906,16 @@ function el(tag, attrs = {}, ...children) {
   }
   return node;
 }
+const SVG_NS = "http://www.w3.org/2000/svg";
+function svg(tag, attrs = {}, ...children) {
+  const node = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  for (const c of children) { if (c != null) node.append(c); }
+  return node;
+}
 function uid() { return "id-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 1e6).toString(36); }
 function nowIso() { return new Date().toISOString(); }
 function fmtDate(iso) {
@@ -471,17 +924,46 @@ function fmtDate(iso) {
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" }) +
     " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
 }
+function fmtDay(dateStr) {
+  if (!dateStr) return "–";
+  return new Date(dateStr + "T00:00").toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" });
+}
+function toDateInput(d) {
+  const p = n => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+function mondayOf(d) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+  return x;
+}
+function isoWeek(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return { year: date.getUTCFullYear(), week: Math.ceil((((date - yearStart) / 86400000) + 1) / 7) };
+}
+function kwLabel(startStr) {
+  const w = isoWeek(new Date(startStr + "T00:00"));
+  return "KW" + String(w.week).padStart(2, "0");
+}
+function niceCeil(v) {
+  if (!(v > 0)) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(v)));
+  const m = v / p;
+  const f = m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10;
+  return f * p;
+}
+function fmtAxis(v) { return v >= 1000 ? fmt1.format(v / 1000) + "k" : fmt.format(v); }
+function safeDiv(a, b) { return b > 0 ? a / b : null; }
 
-/* ---------- Kennzahlen je SKU ----------
- * Formeln (eCommerce.de-Methodik):
- *   Reichweite            = Bestand ÷ Ø Verkäufe/Tag
- *   Nachbestellpunkt      = Ø Verkäufe/Tag × (Lieferzeit + 14 Tage Puffer)
- *   Bestellmenge          = max(MOQ, Ziel-Reichweite × Ø Verkäufe/Tag)
- *   Sendung an Amazon     = auffüllen auf Ziel-Reichweite, begrenzt auf Bestand zuhause
- */
+/* ---------- Kennzahlen je SKU (eCommerce.de-Methodik) ---------- */
 const KRITISCH_TAGE = 28;   // Low-Inventory-Level-Fee-Grenze
 const WARN_TAGE = 35;       // Vorlauf, um rechtzeitig zu senden
 const AGED_TAGE = 120;      // Überbestands-Hinweis
+const REVIEW_MEILENSTEINE = [10, 25, 50, 100, 200, 500, 1000];
 
 function calc(sku) {
   const sales = Number(sku.salesPerDay) || 0;
@@ -509,9 +991,45 @@ function calc(sku) {
   return { sales, fba, inbound, home, total, reichweiteFba, reichweiteAmazon,
            nachbestellpunkt, bestellmenge, status, statusText, sendMenge, bestellen, aged };
 }
+function calcWeek(w) {
+  const umsatz = Number(w.umsatz) || 0;
+  const adSpend = Number(w.adSpend) || 0;
+  const adUmsatz = Number(w.adUmsatz) || 0;
+  const wareneinsatz = Number(w.wareneinsatz) || 0;
+  const kosten = Number(w.kosten) || 0;
+  const einheiten = Number(w.einheiten) || 0;
+  const retouren = Number(w.retouren) || 0;
+  const acos = safeDiv(adSpend, adUmsatz);
+  const tacos = safeDiv(adSpend, umsatz);
+  const profit = umsatz - adSpend - wareneinsatz - kosten;
+  const marge = safeDiv(profit, umsatz);
+  const retQuote = safeDiv(retouren, einheiten);
+  return { umsatz, adSpend, adUmsatz, wareneinsatz, kosten, einheiten, retouren, acos, tacos, profit, marge, retQuote };
+}
+function calcCamp(k) {
+  const impressionen = Number(k.impressionen) || 0;
+  const klicks = Number(k.klicks) || 0;
+  const ausgaben = Number(k.ausgaben) || 0;
+  const umsatz = Number(k.umsatz) || 0;
+  const bestellungen = Number(k.bestellungen) || 0;
+  return {
+    impressionen, klicks, ausgaben, umsatz, bestellungen,
+    ctr: safeDiv(klicks, impressionen),
+    cpc: safeDiv(ausgaben, klicks),
+    cvr: safeDiv(bestellungen, klicks),
+    acos: safeDiv(ausgaben, umsatz)
+  };
+}
 function fmtTage(t) {
   if (!isFinite(t)) return "–";
   return fmt.format(Math.round(t)) + " Tage";
+}
+function sortedWeeks() {
+  return DATA.wochen.slice().sort((a, b) => a.start < b.start ? -1 : a.start > b.start ? 1 : 0);
+}
+function nextMilestone(count) {
+  for (const m of REVIEW_MEILENSTEINE) { if (count < m) return m; }
+  return null;
 }
 
 const STATUS_COLOR = { good: "var(--status-good)", warn: "var(--status-warn)", crit: "var(--status-crit)", serious: "var(--status-serious)" };
@@ -522,7 +1040,84 @@ function badge(status, text) {
     STATUS_ICON[status] + " " + text);
 }
 
+let DATA = loadData();
+
+/* ---------- Navigation ---------- */
+const NAV = [
+  { titel: "Steuern", items: [
+    { id: "uebersicht", label: "Übersicht", ico: "📊", sub: "Die Lage auf einen Blick – KPIs, Handlungsbedarf, Bewegungen." },
+    { id: "umsatz", label: "Umsatz & Profit", ico: "📈", sub: "Wochen-KPIs: Umsatz, ACoS, TACoS, Profit, Marge." },
+    { id: "aufgaben", label: "Aufgaben & Routine", ico: "✅", sub: "Wochenroutine und Aufgabenboard.", cnt: () => DATA.aufgaben.filter(t => t.status !== "erledigt").length }
+  ]},
+  { titel: "Betrieb", items: [
+    { id: "bestand", label: "Bestand & SKUs", ico: "📦", sub: "Bestände an drei Orten, Bewegungen, Stammdaten je SKU." },
+    { id: "nachschub", label: "Nachschub", ico: "🚚", sub: "Was einsenden, was bestellen, wo Überbestand liegt." },
+    { id: "ppc", label: "PPC & Werbung", ico: "🎯", sub: "Kampagnen-Stände, ACoS, CPC – nach der Low-Bid-Strategie.", cnt: () => DATA.kampagnen.filter(k => k.status === "Aktiv").length },
+    { id: "keywords", label: "Keywords & SEO", ico: "🔍", sub: "Keyword-Tracker: Rankings, Indexierung, Striking Distance.", cnt: () => DATA.keywords.length },
+    { id: "reviews", label: "Reviews", ico: "⭐", sub: "Bewertungsaufbau je SKU – Anzahl, Sterne, Vine, Meilensteine." }
+  ]},
+  { titel: "Basis", items: [
+    { id: "skills", label: "Claude Skill-Hub", ico: "🧠", sub: "Deine Amazon-Skills als Prompt-Bibliothek – kopieren und in Claude einfügen." },
+    { id: "firma", label: "Firma & Dokumente", ico: "🏢", sub: "Firmendaten griffbereit, Dokumente mit Ablageort." },
+    { id: "links", label: "Links", ico: "🔗", sub: "Schnellzugriff auf Seller Central, Werbekonsole, Helium 10 …" }
+  ]}
+];
+const ALL_MODS = NAV.flatMap(g => g.items);
+let activeMod = "uebersicht";
+
+function renderNav() {
+  const nav = $("#side-nav");
+  nav.replaceChildren();
+  for (const g of NAV) {
+    nav.append(el("div", { class: "nav-group-title" }, g.titel));
+    for (const it of g.items) {
+      const cnt = it.cnt ? it.cnt() : null;
+      nav.append(el("button", {
+        class: "nav-item" + (it.id === activeMod ? " active" : ""),
+        onclick: () => showModule(it.id)
+      },
+        el("span", { class: "ico" }, it.ico),
+        el("span", {}, it.label),
+        cnt ? el("span", { class: "cnt" }, String(cnt)) : null));
+    }
+  }
+}
+function showModule(id) {
+  if (!ALL_MODS.some(m => m.id === id)) id = "uebersicht";
+  activeMod = id;
+  for (const s of document.querySelectorAll("section.mod")) s.classList.toggle("active", s.id === "mod-" + id);
+  const meta = ALL_MODS.find(m => m.id === id);
+  $("#mod-title").textContent = meta.label;
+  $("#mod-sub").textContent = meta.sub;
+  if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+  renderNav();
+  window.scrollTo({ top: 0 });
+}
+window.addEventListener("hashchange", () => {
+  const id = location.hash.replace("#", "");
+  if (id && id !== activeMod) showModule(id);
+});
+
+/* ---------- Tooltip ---------- */
+const tooltip = $("#tooltip");
+function showTip(e, lines) {
+  tooltip.replaceChildren(
+    el("div", { class: "tt-value" }, lines[0]),
+    ...lines.slice(1).map(l => el("div", { class: "tt-label" }, l)));
+  tooltip.style.display = "block";
+  const x = Math.min(e.clientX + 14, window.innerWidth - tooltip.offsetWidth - 8);
+  const y = Math.min(e.clientY + 14, window.innerHeight - tooltip.offsetHeight - 8);
+  tooltip.style.left = x + "px";
+  tooltip.style.top = y + "px";
+}
+function hideTip() { tooltip.style.display = "none"; }
+
 /* ---------- Übersicht ---------- */
+function latestWeeks() {
+  const ws = sortedWeeks();
+  return { last: ws[ws.length - 1] || null, prev: ws[ws.length - 2] || null };
+}
+
 function renderKpis() {
   const row = $("#kpi-row");
   row.replaceChildren();
@@ -532,12 +1127,38 @@ function renderKpis() {
     fba += c.fba; home += c.home; inbound += c.inbound;
     if (c.status !== "good" || c.bestellen) alarme++;
   }
-  const tiles = [
-    { label: "FBA-Bestand (Amazon)", value: fmt.format(fba), note: "Einheiten eingelagert" },
-    { label: "Unterwegs zu Amazon", value: fmt.format(inbound), note: "Einheiten im Inbound" },
-    { label: "Bestand zuhause", value: fmt.format(home), note: "Einheiten bei dir" },
-    { label: "Alarme", value: fmt.format(alarme), note: alarme === 0 ? "Alles im grünen Bereich" : "Siehe Handlungsbedarf", noteClass: alarme === 0 ? "good" : "bad" }
-  ];
+  const offene = DATA.aufgaben.filter(t => t.status !== "erledigt");
+  const heute = toDateInput(new Date());
+  const ueberfaellig = offene.filter(t => t.faellig && t.faellig < heute).length;
+
+  const { last, prev } = latestWeeks();
+  const tiles = [];
+  if (last) {
+    const cl = calcWeek(last);
+    let note = kwLabel(last.start), noteClass = "";
+    if (prev) {
+      const cp = calcWeek(prev);
+      const delta = safeDiv(cl.umsatz - cp.umsatz, cp.umsatz);
+      if (delta != null) {
+        note = (delta >= 0 ? "▲ " : "▼ ") + fmtPct(Math.abs(delta), 0) + " vs. Vorwoche";
+        noteClass = delta >= 0 ? "good" : "bad";
+      }
+    }
+    tiles.push({ label: "Umsatz " + kwLabel(last.start), value: fmtEuro0.format(cl.umsatz), note, noteClass });
+    const ziel = (Number(DATA.einstellungen.tacosZiel) || 15) / 100;
+    tiles.push({
+      label: "TACoS " + kwLabel(last.start),
+      value: fmtPct(cl.tacos),
+      note: cl.tacos == null ? "Werbekosten fehlen" : (cl.tacos <= ziel ? "im Ziel (≤ " + fmtPct(ziel, 1) + ")" : "über Ziel (" + fmtPct(ziel, 1) + ")"),
+      noteClass: cl.tacos == null ? "" : (cl.tacos <= ziel ? "good" : "bad")
+    });
+  } else {
+    tiles.push({ label: "Umsatz", value: "–", note: "Noch keine Woche erfasst → Umsatz & Profit" });
+  }
+  tiles.push({ label: "FBA-Bestand (Amazon)", value: fmt.format(fba), note: fmt.format(inbound) + " unterwegs · " + fmt.format(home) + " zuhause" });
+  tiles.push({ label: "Alarme Bestand", value: fmt.format(alarme), note: alarme === 0 ? "Alles im grünen Bereich" : "Siehe Handlungsbedarf", noteClass: alarme === 0 ? "good" : "bad" });
+  tiles.push({ label: "Offene Aufgaben", value: fmt.format(offene.length), note: ueberfaellig > 0 ? fmt.format(ueberfaellig) + " überfällig" : "keine überfällig", noteClass: ueberfaellig > 0 ? "bad" : "good" });
+
   for (const t of tiles) {
     row.append(el("div", { class: "tile" },
       el("div", { class: "label" }, t.label),
@@ -546,57 +1167,26 @@ function renderKpis() {
   }
 }
 
-function renderChart() {
-  const wrap = $("#reichweite-chart");
+function hasDemo() {
+  return ["skus", "wochen", "kampagnen", "keywords", "aufgaben", "dokumente"]
+    .some(k => DATA[k].some(x => x.demo));
+}
+function removeDemo() {
+  for (const k of ["skus", "wochen", "kampagnen", "keywords", "aufgaben", "dokumente"]) {
+    DATA[k] = DATA[k].filter(x => !x.demo);
+  }
+  saveData(); renderAll();
+}
+function renderDemoNotice() {
+  const wrap = $("#demo-notice");
   wrap.replaceChildren();
-  const skus = DATA.skus.filter(s => calc(s).sales > 0);
-  if (skus.length === 0) {
-    wrap.append(el("div", { class: "empty" }, "Noch keine SKU mit Absatzdaten. Lege im Tab „Bestand & SKUs“ eine SKU an und trage Ø Verkäufe/Tag ein."));
-    return;
-  }
-  const MAX_ANZEIGE = 120;
-  const maxVal = Math.max(MAX_ANZEIGE, ...skus.map(s => Math.min(calc(s).reichweiteFba, MAX_ANZEIGE)));
-  for (const s of skus) {
-    const c = calc(s);
-    const val = Math.min(c.reichweiteFba, MAX_ANZEIGE);
-    const pct = Math.max(1, (val / maxVal) * 100);
-    const bar = el("div", { class: "bar", style: "width:" + pct + "%" });
-    const track = el("div", { class: "bar-track" }, bar,
-      el("span", { class: "bar-value" }, fmtTage(c.reichweiteFba) + (c.reichweiteFba > MAX_ANZEIGE ? " ▸" : "")));
-    const rowEl = el("div", {
-      class: "bar-row", tabindex: "0",
-      onpointermove: e => showTooltip(e, s, c),
-      onpointerleave: hideTooltip,
-      onfocus: e => showTooltip(e, s, c),
-      onblur: hideTooltip
-    }, el("div", { class: "bar-label", title: s.name }, s.sku), track);
-    wrap.append(rowEl);
-  }
-  // Schwellenlinie bei 28 Tagen: Balkenspur beginnt bei 190px (180px Label + 10px Lücke)
-  const frac = KRITISCH_TAGE / maxVal;
-  const leftCalc = "calc(190px + (100% - 190px) * " + frac + ")";
-  wrap.append(el("div", { class: "threshold", style: "left:" + leftCalc }));
-  wrap.append(el("div", { style: "position:relative;height:16px" },
-    el("div", { class: "threshold-label", style: "left:" + leftCalc },
-      KRITISCH_TAGE + " Tage (Fee-Grenze)")));
+  if (!hasDemo()) return;
+  wrap.append(el("div", { class: "card" },
+    el("div", { style: "display:flex;gap:12px;align-items:center;flex-wrap:wrap" },
+      el("div", { style: "flex:1;font-size:13px;color:var(--text-secondary)" },
+        "Zum Kennenlernen sind Beispieldaten angelegt (überall mit „Beispiel“ markiert). Einfach bearbeiten – oder mit einem Klick entfernen."),
+      el("button", { class: "btn small", onclick: () => { if (confirm("Alle Beispieldaten entfernen?")) removeDemo(); } }, "Beispieldaten entfernen"))));
 }
-
-const tooltip = $("#tooltip");
-function showTooltip(e, s, c) {
-  tooltip.replaceChildren(
-    el("div", { class: "tt-value" }, fmtTage(c.reichweiteFba)),
-    el("div", { class: "tt-label" }, s.name),
-    el("div", { class: "tt-label" },
-      "FBA " + fmt.format(c.fba) + " · unterwegs " + fmt.format(c.inbound) +
-      " · zuhause " + fmt.format(c.home) + " · Ø " + fmt1.format(c.sales) + "/Tag")
-  );
-  tooltip.style.display = "block";
-  const x = Math.min(e.clientX + 14, window.innerWidth - tooltip.offsetWidth - 8);
-  const y = Math.min(e.clientY + 14, window.innerHeight - tooltip.offsetHeight - 8);
-  tooltip.style.left = x + "px";
-  tooltip.style.top = y + "px";
-}
-function hideTooltip() { tooltip.style.display = "none"; }
 
 function buildAlerts() {
   const senden = [], bestellen = [], aged = [];
@@ -622,12 +1212,32 @@ function renderUebersichtAlerts() {
     items.push({ icon: "⚠️", title: "An Amazon senden: " + s.sku,
       detail: "Reichweite bei Amazon nur noch " + fmtTage(c.reichweiteAmazon) + ". Empfohlen: " + fmt.format(c.sendMenge) + " Einheiten aus deinem Bestand zuhause einsenden." });
   }
+  const heute = toDateInput(new Date());
+  for (const t of DATA.aufgaben) {
+    if (t.status !== "erledigt" && t.faellig && t.faellig < heute) {
+      items.push({ icon: "⏰", title: "Überfällige Aufgabe: " + t.titel,
+        detail: "Fällig am " + fmtDay(t.faellig) + " · Bereich " + (t.bereich || "–") + " · Priorität " + (t.prio || "–") + "." });
+    }
+  }
+  const acosZiel = (Number(DATA.einstellungen.acosZiel) || 25) / 100;
+  for (const k of DATA.kampagnen) {
+    if (k.status !== "Aktiv") continue;
+    const c = calcCamp(k);
+    if (c.acos != null && c.acos > acosZiel * 1.5 && c.ausgaben >= 20) {
+      items.push({ icon: "💸", title: "ACoS weit über Ziel: " + k.name,
+        detail: "ACoS " + fmtPct(c.acos) + " bei " + fmtEuro.format(c.ausgaben) + " Ausgaben (Ziel " + fmtPct(acosZiel, 0) + "). Gebote senken oder Suchbegriffe negieren – Skill amazon-ppc-profi." });
+    }
+    if (c.klicks >= 30 && c.bestellungen === 0) {
+      items.push({ icon: "💸", title: "Klicks ohne Sale: " + k.name,
+        detail: fmt.format(c.klicks) + " Klicks, 0 Bestellungen, " + fmtEuro.format(c.ausgaben) + " ausgegeben. Suchbegriffsbericht prüfen und Wasted Spend negieren." });
+    }
+  }
   for (const { s, c } of aged) {
     items.push({ icon: "🧊", title: "Überbestand: " + s.sku,
       detail: "Reichweite " + fmtTage(c.reichweiteFba) + " – Aged-Inventory-Fee droht ab 90 Tagen Lagerdauer. Sales pushen oder Preis/Coupon prüfen." });
   }
   if (items.length === 0) {
-    wrap.append(el("div", { class: "empty" }, "✅ Kein Handlungsbedarf – alle Bestände im Zielbereich."));
+    wrap.append(el("div", { class: "empty" }, "✅ Kein Handlungsbedarf – Bestände, Aufgaben und Kampagnen im Zielbereich."));
     return;
   }
   for (const it of items) {
@@ -639,6 +1249,41 @@ function renderUebersichtAlerts() {
   }
 }
 
+function renderChart() {
+  const wrap = $("#reichweite-chart");
+  wrap.replaceChildren();
+  const skus = DATA.skus.filter(s => calc(s).sales > 0);
+  if (skus.length === 0) {
+    wrap.append(el("div", { class: "empty" }, "Noch keine SKU mit Absatzdaten. Im Modul „Bestand & SKUs“ eine SKU anlegen und Ø Verkäufe/Tag eintragen."));
+    return;
+  }
+  const MAX_ANZEIGE = 120;
+  const maxVal = Math.max(MAX_ANZEIGE, ...skus.map(s => Math.min(calc(s).reichweiteFba, MAX_ANZEIGE)));
+  for (const s of skus) {
+    const c = calc(s);
+    const val = Math.min(c.reichweiteFba, MAX_ANZEIGE);
+    const pct = Math.max(1, (val / maxVal) * 100);
+    const bar = el("div", { class: "bar", style: "width:" + pct + "%" });
+    const track = el("div", { class: "bar-track" }, bar,
+      el("span", { class: "bar-value" }, fmtTage(c.reichweiteFba) + (c.reichweiteFba > MAX_ANZEIGE ? " ▸" : "")));
+    const rowEl = el("div", {
+      class: "bar-row", tabindex: "0",
+      onpointermove: e => showTip(e, [fmtTage(c.reichweiteFba), s.name,
+        "FBA " + fmt.format(c.fba) + " · unterwegs " + fmt.format(c.inbound) + " · zuhause " + fmt.format(c.home) + " · Ø " + fmt1.format(c.sales) + "/Tag"]),
+      onpointerleave: hideTip,
+      onblur: hideTip
+    }, el("div", { class: "bar-label", title: s.name }, s.sku), track);
+    wrap.append(rowEl);
+  }
+  const LABEL_W = 190; // 180px Label + 10px Lücke
+  const frac = KRITISCH_TAGE / maxVal;
+  const leftCalc = "calc(" + LABEL_W + "px + (100% - " + LABEL_W + "px) * " + frac + ")";
+  wrap.append(el("div", { class: "threshold", style: "left:" + leftCalc }));
+  wrap.append(el("div", { style: "position:relative;height:16px" },
+    el("div", { class: "threshold-label", style: "left:" + leftCalc },
+      KRITISCH_TAGE + " Tage (Fee-Grenze)")));
+}
+
 function renderJournal() {
   const table = $("#journal-table");
   table.replaceChildren();
@@ -648,15 +1293,386 @@ function renderJournal() {
     return;
   }
   table.append(el("tr", {},
-    el("th", {}, "Wann"), el("th", {}, "SKU"), el("th", {}, "Bewegung"), el("th", { class: "num" }, "Menge"), el("th", {}, "Notiz")));
+    el("th", {}, "Wann"), el("th", {}, "SKU"), el("th", {}, "Bewegung"), el("th", { class: "num" }, "Menge")));
   for (const j of rows) {
     table.append(el("tr", {},
       el("td", {}, fmtDate(j.ts)),
       el("td", {}, j.sku),
       el("td", {}, j.text),
-      el("td", { class: "num" }, fmt.format(j.menge)),
-      el("td", { class: "muted" }, j.notiz || "–")));
+      el("td", { class: "num" }, fmt.format(j.menge))));
   }
+}
+
+/* ---------- Umsatz & Profit ---------- */
+function renderUmsatzKpis() {
+  const row = $("#umsatz-kpis");
+  row.replaceChildren();
+  const { last, prev } = latestWeeks();
+  if (!last) {
+    row.append(el("div", { class: "tile" },
+      el("div", { class: "label" }, "Noch keine Daten"),
+      el("div", { class: "value" }, "–"),
+      el("div", { class: "note" }, "Erste Woche über „+ Woche erfassen“ anlegen.")));
+    return;
+  }
+  const c = calcWeek(last);
+  const cp = prev ? calcWeek(prev) : null;
+  const kw = kwLabel(last.start);
+  const tiles = [
+    { label: "Umsatz " + kw, value: fmtEuro0.format(c.umsatz),
+      note: cp ? deltaNote(c.umsatz, cp.umsatz, false) : kw, noteClass: cp ? (c.umsatz >= cp.umsatz ? "good" : "bad") : "" },
+    { label: "Profit " + kw, value: fmtEuro0.format(c.profit),
+      note: c.marge != null ? "Marge " + fmtPct(c.marge) : "Marge –",
+      noteClass: c.profit >= 0 ? "good" : "bad" },
+    { label: "ACoS " + kw, value: fmtPct(c.acos),
+      note: c.acos == null ? "Werbeumsatz fehlt" : "Werbekosten ÷ Werbeumsatz" },
+    { label: "TACoS " + kw, value: fmtPct(c.tacos),
+      note: tacosNote(c.tacos), noteClass: tacosClass(c.tacos) },
+    { label: "Retourenquote " + kw, value: fmtPct(c.retQuote),
+      note: c.retouren + " von " + c.einheiten + " Einheiten",
+      noteClass: c.retQuote != null && c.retQuote > 0.08 ? "bad" : "" }
+  ];
+  for (const t of tiles) {
+    row.append(el("div", { class: "tile" },
+      el("div", { class: "label" }, t.label),
+      el("div", { class: "value" }, t.value),
+      el("div", { class: "note " + (t.noteClass || "") }, t.note)));
+  }
+}
+function deltaNote(cur, prevVal, invert) {
+  const delta = safeDiv(cur - prevVal, Math.abs(prevVal));
+  if (delta == null) return "vs. Vorwoche: –";
+  const up = delta >= 0;
+  return (up ? "▲ " : "▼ ") + fmtPct(Math.abs(delta), 0) + " vs. Vorwoche";
+}
+function tacosNote(tacos) {
+  if (tacos == null) return "Werbekosten fehlen";
+  const ziel = (Number(DATA.einstellungen.tacosZiel) || 15) / 100;
+  return tacos <= ziel ? "im Ziel (≤ " + fmtPct(ziel) + ")" : "über Ziel (" + fmtPct(ziel) + ")";
+}
+function tacosClass(tacos) {
+  if (tacos == null) return "";
+  const ziel = (Number(DATA.einstellungen.tacosZiel) || 15) / 100;
+  return tacos <= ziel ? "good" : "bad";
+}
+
+const CHART_W = 720, CHART_H = 240;
+const M = { l: 46, r: 12, t: 16, b: 28 };
+
+function chartFrame(yMax, fmtTick) {
+  const plotW = CHART_W - M.l - M.r, plotH = CHART_H - M.t - M.b;
+  const g = svg("g", {});
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const v = yMax * i / steps;
+    const y = M.t + plotH - plotH * i / steps;
+    if (i > 0) g.append(svg("line", { class: "gridline", x1: M.l, y1: y, x2: CHART_W - M.r, y2: y }));
+    g.append(svg("text", { class: "ticktext", x: M.l - 6, y: y + 4, "text-anchor": "end" }, fmtTick(v)));
+  }
+  g.append(svg("line", { class: "axisline", x1: M.l, y1: M.t + plotH, x2: CHART_W - M.r, y2: M.t + plotH }));
+  return { g, plotW, plotH };
+}
+function roundedTopRect(x, y, w, h, r) {
+  if (h <= r) r = Math.max(0, h - 0.5);
+  return "M" + x + "," + (y + h) +
+    " L" + x + "," + (y + r) +
+    " Q" + x + "," + y + " " + (x + r) + "," + y +
+    " L" + (x + w - r) + "," + y +
+    " Q" + (x + w) + "," + y + " " + (x + w) + "," + (y + r) +
+    " L" + (x + w) + "," + (y + h) + " Z";
+}
+
+function renderUmsatzChart() {
+  const wrap = $("#umsatz-chart");
+  wrap.replaceChildren();
+  const ws = sortedWeeks().slice(-12);
+  if (ws.length === 0) {
+    wrap.append(el("div", { class: "empty" }, "Noch keine Woche erfasst."));
+    return;
+  }
+  const vals = ws.map(w => calcWeek(w));
+  const yMax = niceCeil(Math.max(...vals.map(v => v.umsatz), 1));
+  const root = svg("svg", { class: "svg-chart", viewBox: "0 0 " + CHART_W + " " + CHART_H, role: "img", "aria-label": "Umsatz je Woche" });
+  const { g, plotW, plotH } = chartFrame(yMax, fmtAxis);
+  root.append(g);
+  const slot = plotW / ws.length;
+  const barW = Math.min(46, slot * 0.62);
+  ws.forEach((w, i) => {
+    const v = vals[i];
+    const h = yMax > 0 ? (v.umsatz / yMax) * plotH : 0;
+    const x = M.l + slot * i + (slot - barW) / 2;
+    const y = M.t + plotH - h;
+    g.append(svg("path", { class: "col", d: roundedTopRect(x, y, barW, h, 4) }));
+    g.append(svg("text", { class: "ticktext", x: M.l + slot * i + slot / 2, y: CHART_H - 8, "text-anchor": "middle" }, kwLabel(w.start)));
+    if (i === ws.length - 1 && h > 0) {
+      g.append(svg("text", { class: "valtext", x: x + barW / 2, y: Math.max(y - 5, 11), "text-anchor": "middle" }, fmtEuro0.format(v.umsatz)));
+    }
+    g.append(svg("rect", {
+      class: "hover-slot", x: M.l + slot * i, y: M.t, width: slot, height: plotH,
+      onpointermove: e => showTip(e, [fmtEuro.format(v.umsatz), kwLabel(w.start) + " · ab " + fmtDay(w.start),
+        fmt.format(v.einheiten) + " Einheiten · TACoS " + fmtPct(v.tacos) + " · Profit " + fmtEuro0.format(v.profit)]),
+      onpointerleave: hideTip
+    }));
+  });
+  wrap.append(root);
+}
+
+function renderTacosChart() {
+  const wrap = $("#tacos-chart");
+  wrap.replaceChildren();
+  const ws = sortedWeeks().slice(-12);
+  const pts = ws.map(w => ({ w, c: calcWeek(w) })).filter(p => p.c.tacos != null);
+  if (pts.length === 0) {
+    wrap.append(el("div", { class: "empty" }, "Noch keine Woche mit Umsatz und Werbekosten erfasst."));
+    return;
+  }
+  const ziel = (Number(DATA.einstellungen.tacosZiel) || 15) / 100;
+  const yMax = Math.max(niceCeil(Math.max(...pts.map(p => p.c.tacos), ziel) * 100), 5) / 100;
+  const root = svg("svg", { class: "svg-chart", viewBox: "0 0 " + CHART_W + " " + CHART_H, role: "img", "aria-label": "TACoS je Woche" });
+  const { g, plotW, plotH } = chartFrame(yMax, v => fmt1.format(v * 100) + " %");
+  root.append(g);
+  const slot = plotW / pts.length;
+  const xOf = i => M.l + slot * i + slot / 2;
+  const yOf = v => M.t + plotH - (v / yMax) * plotH;
+
+  const zy = yOf(ziel);
+  g.append(svg("line", { class: "target", x1: M.l, y1: zy, x2: CHART_W - M.r, y2: zy }));
+  g.append(svg("text", { class: "ticktext", x: CHART_W - M.r, y: zy - 5, "text-anchor": "end" }, "Ziel " + fmt1.format(ziel * 100) + " %"));
+
+  let d = "";
+  pts.forEach((p, i) => { d += (i === 0 ? "M" : " L") + xOf(i) + "," + yOf(p.c.tacos); });
+  g.append(svg("path", { class: "line", d }));
+  pts.forEach((p, i) => {
+    const last = i === pts.length - 1;
+    g.append(svg("circle", { class: "pt", cx: xOf(i), cy: yOf(p.c.tacos), r: last ? 4.5 : 3.5 }));
+    g.append(svg("text", { class: "ticktext", x: xOf(i), y: CHART_H - 8, "text-anchor": "middle" }, kwLabel(p.w.start)));
+    if (last) {
+      g.append(svg("text", { class: "valtext", x: xOf(i), y: yOf(p.c.tacos) - 9, "text-anchor": "middle" }, fmtPct(p.c.tacos)));
+    }
+    g.append(svg("rect", {
+      class: "hover-slot", x: M.l + slot * i, y: M.t, width: slot, height: plotH,
+      onpointermove: e => showTip(e, [fmtPct(p.c.tacos), kwLabel(p.w.start) + " · ab " + fmtDay(p.w.start),
+        "Werbekosten " + fmtEuro.format(p.c.adSpend) + " ÷ Umsatz " + fmtEuro.format(p.c.umsatz)]),
+      onpointerleave: hideTip
+    }));
+  });
+  wrap.append(root);
+}
+
+function renderWeekTable() {
+  const table = $("#week-table");
+  table.replaceChildren();
+  const ws = sortedWeeks().reverse();
+  if (ws.length === 0) {
+    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine Woche erfasst – „+ Woche erfassen“ startet das Wochen-Reporting.")));
+    return;
+  }
+  table.append(el("tr", {},
+    el("th", {}, "Woche"),
+    el("th", { class: "num" }, "Umsatz"),
+    el("th", { class: "num" }, "Einheiten"),
+    el("th", { class: "num" }, "Werbekosten"),
+    el("th", { class: "num" }, "ACoS"),
+    el("th", { class: "num" }, "TACoS"),
+    el("th", { class: "num" }, "Profit"),
+    el("th", { class: "num" }, "Marge"),
+    el("th", { class: "num" }, "Retouren"),
+    el("th", {}, "")));
+  for (const w of ws) {
+    const c = calcWeek(w);
+    table.append(el("tr", {},
+      el("td", {},
+        el("div", {}, kwLabel(w.start) + " · ab " + fmtDay(w.start)),
+        w.notiz ? el("div", { class: "mono" }, w.notiz) : null),
+      el("td", { class: "num" }, fmtEuro.format(c.umsatz)),
+      el("td", { class: "num" }, fmt.format(c.einheiten)),
+      el("td", { class: "num" }, fmtEuro.format(c.adSpend)),
+      el("td", { class: "num" }, fmtPct(c.acos)),
+      el("td", { class: "num " + (tacosClass(c.tacos) === "bad" ? "bad-ink" : "") }, fmtPct(c.tacos)),
+      el("td", { class: "num " + (c.profit < 0 ? "bad-ink" : "good-ink") }, fmtEuro.format(c.profit)),
+      el("td", { class: "num" }, fmtPct(c.marge)),
+      el("td", { class: "num" }, fmt.format(c.retouren)),
+      el("td", {},
+        el("div", { class: "row-actions" },
+          el("button", { class: "btn small", onclick: () => openWeekDialog(w.id) }, "Bearbeiten"),
+          el("button", { class: "btn small danger", onclick: () => deleteWeek(w.id) }, "Löschen")))));
+  }
+}
+
+const weekDialog = $("#week-dialog");
+const weekForm = $("#week-form");
+let editWeekId = null;
+function openWeekDialog(id) {
+  editWeekId = id || null;
+  $("#week-dialog-title").textContent = id ? "Woche bearbeiten" : "Woche erfassen";
+  weekForm.reset();
+  if (id) {
+    const w = DATA.wochen.find(x => x.id === id);
+    for (const key of ["start", "umsatz", "einheiten", "adSpend", "adUmsatz", "wareneinsatz", "kosten", "retouren", "notiz"]) {
+      if (weekForm.elements[key]) weekForm.elements[key].value = w[key] ?? "";
+    }
+  } else {
+    weekForm.elements.start.value = toDateInput(mondayOf(new Date()));
+  }
+  weekDialog.showModal();
+}
+weekForm.addEventListener("submit", e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  const f = weekForm.elements;
+  const start = toDateInput(mondayOf(new Date(f.start.value + "T00:00")));
+  const dupe = DATA.wochen.find(w => w.start === start && w.id !== editWeekId);
+  if (dupe) { alert("Für die Woche ab " + fmtDay(start) + " gibt es schon einen Eintrag – bitte diesen bearbeiten."); return; }
+  const obj = {
+    start,
+    umsatz: Math.max(0, Number(f.umsatz.value) || 0),
+    einheiten: Math.max(0, Math.round(Number(f.einheiten.value) || 0)),
+    adSpend: Math.max(0, Number(f.adSpend.value) || 0),
+    adUmsatz: Math.max(0, Number(f.adUmsatz.value) || 0),
+    wareneinsatz: Math.max(0, Number(f.wareneinsatz.value) || 0),
+    kosten: Math.max(0, Number(f.kosten.value) || 0),
+    retouren: Math.max(0, Math.round(Number(f.retouren.value) || 0)),
+    notiz: f.notiz.value.trim()
+  };
+  if (editWeekId) {
+    const w = DATA.wochen.find(x => x.id === editWeekId);
+    Object.assign(w, obj); delete w.demo;
+  } else {
+    DATA.wochen.push(Object.assign({ id: uid() }, obj));
+  }
+  saveData(); renderAll();
+});
+function deleteWeek(id) {
+  const w = DATA.wochen.find(x => x.id === id);
+  if (!confirm("Woche ab " + fmtDay(w.start) + " wirklich löschen?")) return;
+  DATA.wochen = DATA.wochen.filter(x => x.id !== id);
+  saveData(); renderAll();
+}
+
+/* ---------- Aufgaben & Wochenroutine ---------- */
+const ROUTINE = [
+  { id: "kpi", text: "Wochen-KPIs erfassen: Umsatz, Einheiten, Werbekosten", mod: "umsatz", modLabel: "Umsatz & Profit" },
+  { id: "lager", text: "Lagerreichweite prüfen – nichts unter 35 Tagen?", mod: "nachschub", modLabel: "Nachschub" },
+  { id: "str", text: "Suchbegriffsbericht ziehen, Wasted Spend negieren", mod: "ppc", modLabel: "PPC" },
+  { id: "rank", text: "Keyword-Rankings aktualisieren (Fokus Striking Distance)", mod: "keywords", modLabel: "Keywords" },
+  { id: "revs", text: "Neue Bewertungen prüfen und Stand je SKU aktualisieren", mod: "reviews", modLabel: "Reviews" },
+  { id: "buybox", text: "Preisstatus & Buy Box in Seller Central checken", mod: "links", modLabel: "Seller Central" },
+  { id: "promo", text: "Laufende Coupons/Aktionen prüfen (Budget, Laufzeit)", mod: "links", modLabel: "Seller Central" },
+  { id: "zahlungen", text: "Zahlungen & Erstattungen kurz gegenchecken", mod: "links", modLabel: "Seller Central" }
+];
+function currentWeekKey() {
+  const w = isoWeek(new Date());
+  return w.year + "-W" + String(w.week).padStart(2, "0");
+}
+function ensureRoutineWeek() {
+  const key = currentWeekKey();
+  if (DATA.routine.woche !== key) {
+    DATA.routine = { woche: key, done: {} };
+    saveData();
+  }
+}
+function renderRoutine() {
+  ensureRoutineWeek();
+  const list = $("#routine-list");
+  list.replaceChildren();
+  const doneCount = ROUTINE.filter(r => DATA.routine.done[r.id]).length;
+  $("#routine-progress").textContent = doneCount + " / " + ROUTINE.length + " erledigt";
+  $("#routine-week-hint").textContent = "Setzt sich jeden Montag automatisch zurück · aktuelle Woche: " + DATA.routine.woche.replace("-W", " · KW");
+  for (const r of ROUTINE) {
+    const done = !!DATA.routine.done[r.id];
+    const cb = el("input", { type: "checkbox", id: "rt-" + r.id,
+      onchange: e => { DATA.routine.done[r.id] = e.target.checked; saveData(); renderRoutine(); } });
+    cb.checked = done;
+    list.append(el("div", { class: "routine-item" + (done ? " done" : "") },
+      cb,
+      el("div", {},
+        el("label", { for: "rt-" + r.id }, r.text),
+        el("div", { class: "r-mod" }, "→ " + r.modLabel))));
+  }
+}
+
+function renderTaskBoard() {
+  const board = $("#task-board");
+  board.replaceChildren();
+  const cols = [
+    { key: "offen", titel: "Offen" },
+    { key: "inArbeit", titel: "In Arbeit" },
+    { key: "erledigt", titel: "Erledigt (zuletzt)" }
+  ];
+  const heute = toDateInput(new Date());
+  const prioRank = { "Hoch": 0, "Mittel": 1, "Niedrig": 2 };
+  for (const col of cols) {
+    let tasks = DATA.aufgaben.filter(t => (t.status || "offen") === col.key);
+    if (col.key === "erledigt") {
+      tasks = tasks.sort((a, b) => (b.erledigtAm || "").localeCompare(a.erledigtAm || "")).slice(0, 12);
+    } else {
+      tasks = tasks.sort((a, b) =>
+        (a.faellig || "9999").localeCompare(b.faellig || "9999") ||
+        (prioRank[a.prio] ?? 1) - (prioRank[b.prio] ?? 1));
+    }
+    const colEl = el("div", { class: "board-col" }, el("h3", {}, col.titel + " · " + tasks.length));
+    if (tasks.length === 0) colEl.append(el("div", { class: "empty" }, "–"));
+    for (const t of tasks) {
+      const over = t.status !== "erledigt" && t.faellig && t.faellig < heute;
+      const actions = el("div", { class: "row-actions" });
+      if (t.status === "offen") actions.append(el("button", { class: "btn small", onclick: () => setTaskStatus(t.id, "inArbeit") }, "→ In Arbeit"));
+      if (t.status !== "erledigt") actions.append(el("button", { class: "btn small", onclick: () => setTaskStatus(t.id, "erledigt") }, "✓ Erledigt"));
+      if (t.status === "erledigt") actions.append(el("button", { class: "btn small", onclick: () => setTaskStatus(t.id, "offen") }, "↺ Wieder öffnen"));
+      actions.append(
+        el("button", { class: "btn small", onclick: () => openTaskDialog(t.id) }, "Bearbeiten"),
+        el("button", { class: "btn small danger", onclick: () => deleteTask(t.id) }, "Löschen"));
+      colEl.append(el("div", { class: "task-card" + (t.status === "erledigt" ? " done" : "") },
+        el("div", { class: "t-title" }, t.titel),
+        el("div", { class: "t-meta" },
+          el("span", { class: "chip" }, t.bereich || "Sonstiges"),
+          el("span", { class: "chip" }, "Prio " + (t.prio || "Mittel")),
+          t.faellig ? el("span", { class: over ? "due-over" : "" }, "fällig " + fmtDay(t.faellig)) : null,
+          t.notiz ? el("span", { class: "muted" }, t.notiz) : null),
+        actions));
+    }
+    board.append(colEl);
+  }
+}
+function setTaskStatus(id, status) {
+  const t = DATA.aufgaben.find(x => x.id === id);
+  if (!t) return;
+  t.status = status;
+  if (status === "erledigt") t.erledigtAm = nowIso(); else delete t.erledigtAm;
+  delete t.demo;
+  saveData(); renderAll();
+}
+const taskDialog = $("#task-dialog");
+const taskForm = $("#task-form");
+let editTaskId = null;
+function openTaskDialog(id) {
+  editTaskId = id || null;
+  $("#task-dialog-title").textContent = id ? "Aufgabe bearbeiten" : "Aufgabe anlegen";
+  taskForm.reset();
+  if (id) {
+    const t = DATA.aufgaben.find(x => x.id === id);
+    for (const key of ["titel", "bereich", "prio", "faellig", "notiz"]) {
+      if (taskForm.elements[key]) taskForm.elements[key].value = t[key] ?? "";
+    }
+  }
+  taskDialog.showModal();
+}
+taskForm.addEventListener("submit", e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  const f = taskForm.elements;
+  const obj = { titel: f.titel.value.trim(), bereich: f.bereich.value, prio: f.prio.value,
+    faellig: f.faellig.value, notiz: f.notiz.value.trim() };
+  if (editTaskId) {
+    const t = DATA.aufgaben.find(x => x.id === editTaskId);
+    Object.assign(t, obj); delete t.demo;
+  } else {
+    DATA.aufgaben.push(Object.assign({ id: uid(), status: "offen", erstellt: nowIso() }, obj));
+  }
+  saveData(); renderAll();
+});
+function deleteTask(id) {
+  const t = DATA.aufgaben.find(x => x.id === id);
+  if (!confirm("Aufgabe „" + t.titel + "“ wirklich löschen?")) return;
+  DATA.aufgaben = DATA.aufgaben.filter(x => x.id !== id);
+  saveData(); renderAll();
 }
 
 /* ---------- Bestand & SKUs ---------- */
@@ -691,7 +1707,7 @@ function renderSkuTable() {
       el("td", { class: "num" }, fmt.format(c.nachbestellpunkt)),
       el("td", {}, badge(c.status, c.statusText)),
       el("td", {},
-        el("div", { style: "display:flex;gap:6px;flex-wrap:wrap" },
+        el("div", { class: "row-actions" },
           el("button", { class: "btn small", onclick: () => openMoveDialog(s.id) }, "Bewegung"),
           el("button", { class: "btn small", onclick: () => openSkuDialog(s.id) }, "Bearbeiten"),
           el("button", { class: "btn small danger", onclick: () => deleteSku(s.id) }, "Löschen")))));
@@ -707,7 +1723,7 @@ function openSkuDialog(id) {
   skuForm.reset();
   if (id) {
     const s = DATA.skus.find(x => x.id === id);
-    for (const key of ["sku", "asin", "name", "fba", "inbound", "home", "salesPerDay", "leadTime", "moq", "targetDays"]) {
+    for (const key of ["sku", "asin", "name", "fba", "inbound", "home", "salesPerDay", "leadTime", "moq", "targetDays", "preis", "landedCost", "reviewCount", "reviewRating", "vine"]) {
       if (skuForm.elements[key]) skuForm.elements[key].value = s[key] ?? "";
     }
   }
@@ -724,7 +1740,12 @@ skuForm.addEventListener("submit", e => {
     salesPerDay: Math.max(0, Number(f.salesPerDay.value) || 0),
     leadTime: Math.max(0, Math.round(Number(f.leadTime.value) || 0)),
     moq: Math.max(0, Math.round(Number(f.moq.value) || 0)),
-    targetDays: Math.max(1, Math.round(Number(f.targetDays.value) || 60))
+    targetDays: Math.max(1, Math.round(Number(f.targetDays.value) || 60)),
+    preis: Math.max(0, Number(f.preis.value) || 0),
+    landedCost: Math.max(0, Number(f.landedCost.value) || 0),
+    reviewCount: Math.max(0, Math.round(Number(f.reviewCount.value) || 0)),
+    reviewRating: Math.min(5, Math.max(0, Number(f.reviewRating.value) || 0)),
+    vine: f.vine.value
   };
   if (editSkuId) {
     const s = DATA.skus.find(x => x.id === editSkuId);
@@ -817,6 +1838,474 @@ function renderNachschub() {
     "✅ Kein Überbestand.");
 }
 
+/* ---------- PPC ---------- */
+const PPC_RULES = [
+  ["Niedrig starten", "Startgebote unten ansetzen (z. B. 0,15–0,30 €) und nur bei nachgewiesener Performance in kleinen Schritten erhöhen."],
+  ["Wasted Spend killen", "Suchbegriffe mit vielen Klicks und 0 Bestellungen als exakt negativ setzen – wöchentlich über den Suchbegriffsbericht."],
+  ["Struktur", "Auto entdeckt, Broad qualifiziert, Exact skaliert: Gewinner-Suchbegriffe von Auto/Broad in Exact-Kampagnen übernehmen und dort höher bieten."],
+  ["Budget folgt Leistung", "Budgets nur dort erhöhen, wo der ACoS unter dem Ziel liegt – nicht, um Impressionen zu kaufen."],
+  ["TACoS im Blick", "Der TACoS (Modul Umsatz & Profit) entscheidet, ob Werbung das Geschäft trägt – nicht der ACoS allein."]
+];
+function renderPpcKpis() {
+  const row = $("#ppc-kpis");
+  row.replaceChildren();
+  const active = DATA.kampagnen.filter(k => k.status !== "Archiviert");
+  let ausgaben = 0, umsatz = 0, klicks = 0, impressionen = 0, bestellungen = 0;
+  for (const k of active) {
+    const c = calcCamp(k);
+    ausgaben += c.ausgaben; umsatz += c.umsatz; klicks += c.klicks;
+    impressionen += c.impressionen; bestellungen += c.bestellungen;
+  }
+  const acos = safeDiv(ausgaben, umsatz);
+  const acosZiel = (Number(DATA.einstellungen.acosZiel) || 25) / 100;
+  const tiles = [
+    { label: "Ausgaben (erfasste Stände)", value: fmtEuro0.format(ausgaben), note: fmt.format(active.length) + " Kampagnen" },
+    { label: "Werbeumsatz", value: fmtEuro0.format(umsatz), note: fmt.format(bestellungen) + " Bestellungen" },
+    { label: "ACoS gesamt", value: fmtPct(acos),
+      note: acos == null ? "–" : (acos <= acosZiel ? "im Ziel (≤ " + fmtPct(acosZiel, 0) + ")" : "über Ziel (" + fmtPct(acosZiel, 0) + ")"),
+      noteClass: acos == null ? "" : (acos <= acosZiel ? "good" : "bad") },
+    { label: "Ø CPC", value: safeDiv(ausgaben, klicks) != null ? fmtEuro.format(ausgaben / klicks) : "–",
+      note: "CTR " + fmtPct(safeDiv(klicks, impressionen), 2) },
+    { label: "CVR (Klick → Kauf)", value: fmtPct(safeDiv(bestellungen, klicks)), note: fmt.format(klicks) + " Klicks" }
+  ];
+  for (const t of tiles) {
+    row.append(el("div", { class: "tile" },
+      el("div", { class: "label" }, t.label),
+      el("div", { class: "value" }, t.value),
+      el("div", { class: "note " + (t.noteClass || "") }, t.note)));
+  }
+}
+function renderPpcRules() {
+  const wrap = $("#ppc-rules");
+  wrap.replaceChildren();
+  for (const [t, d] of PPC_RULES) {
+    wrap.append(el("div", { class: "alert-item" },
+      el("div", { class: "icon" }, "▸"),
+      el("div", { class: "body" },
+        el("div", { class: "title" }, t),
+        el("div", { class: "detail" }, d))));
+  }
+}
+function renderPpcChart() {
+  const wrap = $("#ppc-chart");
+  wrap.replaceChildren();
+  const camps = DATA.kampagnen.filter(k => k.status !== "Archiviert" && (Number(k.ausgaben) || 0) > 0)
+    .sort((a, b) => (Number(b.ausgaben) || 0) - (Number(a.ausgaben) || 0)).slice(0, 10);
+  if (camps.length === 0) {
+    wrap.append(el("div", { class: "empty" }, "Noch keine Kampagne mit Ausgaben erfasst."));
+    return;
+  }
+  const maxVal = Math.max(...camps.map(k => Number(k.ausgaben) || 0));
+  for (const k of camps) {
+    const c = calcCamp(k);
+    const pct = Math.max(1, (c.ausgaben / maxVal) * 100);
+    wrap.append(el("div", {
+      class: "bar-row", tabindex: "0",
+      onpointermove: e => showTip(e, [fmtEuro.format(c.ausgaben), k.name,
+        "Umsatz " + fmtEuro.format(c.umsatz) + " · ACoS " + fmtPct(c.acos) + " · " + fmt.format(c.klicks) + " Klicks"]),
+      onpointerleave: hideTip,
+      onblur: hideTip
+    },
+      el("div", { class: "bar-label", title: k.name }, k.name),
+      el("div", { class: "bar-track" },
+        el("div", { class: "bar", style: "width:" + pct + "%" }),
+        el("span", { class: "bar-value" }, fmtEuro0.format(c.ausgaben) + " · ACoS " + fmtPct(c.acos)))));
+  }
+}
+function renderCampTable() {
+  const table = $("#camp-table");
+  table.replaceChildren();
+  if (DATA.kampagnen.length === 0) {
+    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine Kampagne erfasst – Stände aus der Werbekonsole übernehmen.")));
+    return;
+  }
+  const acosZiel = (Number(DATA.einstellungen.acosZiel) || 25) / 100;
+  table.append(el("tr", {},
+    el("th", {}, "Kampagne"),
+    el("th", {}, "Typ"),
+    el("th", {}, "Status"),
+    el("th", { class: "num" }, "Budget/Tag"),
+    el("th", { class: "num" }, "Impr."),
+    el("th", { class: "num" }, "Klicks"),
+    el("th", { class: "num" }, "CTR"),
+    el("th", { class: "num" }, "CPC"),
+    el("th", { class: "num" }, "Ausgaben"),
+    el("th", { class: "num" }, "Umsatz"),
+    el("th", { class: "num" }, "ACoS"),
+    el("th", {}, "Stand"),
+    el("th", {}, "")));
+  const sorted = DATA.kampagnen.slice().sort((a, b) => (a.status === "Aktiv" ? 0 : 1) - (b.status === "Aktiv" ? 0 : 1) || (Number(b.ausgaben) || 0) - (Number(a.ausgaben) || 0));
+  for (const k of sorted) {
+    const c = calcCamp(k);
+    const acosBad = c.acos != null && c.acos > acosZiel;
+    table.append(el("tr", {},
+      el("td", {},
+        el("div", {}, k.name),
+        k.notiz ? el("div", { class: "mono" }, k.notiz) : null),
+      el("td", {}, el("span", { class: "chip" }, k.typ || "–")),
+      el("td", {}, k.status || "–"),
+      el("td", { class: "num" }, fmtEuro.format(Number(k.budget) || 0)),
+      el("td", { class: "num" }, fmt.format(c.impressionen)),
+      el("td", { class: "num" }, fmt.format(c.klicks)),
+      el("td", { class: "num" }, fmtPct(c.ctr, 2)),
+      el("td", { class: "num" }, c.cpc != null ? fmtEuro.format(c.cpc) : "–"),
+      el("td", { class: "num" }, fmtEuro.format(c.ausgaben)),
+      el("td", { class: "num" }, fmtEuro.format(c.umsatz)),
+      el("td", { class: "num " + (acosBad ? "bad-ink" : "") }, fmtPct(c.acos)),
+      el("td", {}, fmtDay(k.stand)),
+      el("td", {},
+        el("div", { class: "row-actions" },
+          el("button", { class: "btn small", onclick: () => openCampDialog(k.id) }, "Bearbeiten"),
+          el("button", { class: "btn small danger", onclick: () => deleteCamp(k.id) }, "Löschen")))));
+  }
+}
+const campDialog = $("#camp-dialog");
+const campForm = $("#camp-form");
+let editCampId = null;
+function openCampDialog(id) {
+  editCampId = id || null;
+  $("#camp-dialog-title").textContent = id ? "Kampagne bearbeiten" : "Kampagne erfassen";
+  campForm.reset();
+  if (id) {
+    const k = DATA.kampagnen.find(x => x.id === id);
+    for (const key of ["name", "typ", "status", "budget", "impressionen", "klicks", "ausgaben", "umsatz", "bestellungen", "stand", "notiz"]) {
+      if (campForm.elements[key]) campForm.elements[key].value = k[key] ?? "";
+    }
+  } else {
+    campForm.elements.stand.value = toDateInput(new Date());
+  }
+  campDialog.showModal();
+}
+campForm.addEventListener("submit", e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  const f = campForm.elements;
+  const obj = {
+    name: f.name.value.trim(), typ: f.typ.value, status: f.status.value,
+    budget: Math.max(0, Number(f.budget.value) || 0),
+    impressionen: Math.max(0, Math.round(Number(f.impressionen.value) || 0)),
+    klicks: Math.max(0, Math.round(Number(f.klicks.value) || 0)),
+    ausgaben: Math.max(0, Number(f.ausgaben.value) || 0),
+    umsatz: Math.max(0, Number(f.umsatz.value) || 0),
+    bestellungen: Math.max(0, Math.round(Number(f.bestellungen.value) || 0)),
+    stand: f.stand.value, notiz: f.notiz.value.trim()
+  };
+  if (editCampId) {
+    const k = DATA.kampagnen.find(x => x.id === editCampId);
+    Object.assign(k, obj); delete k.demo;
+  } else {
+    DATA.kampagnen.push(Object.assign({ id: uid() }, obj));
+  }
+  saveData(); renderAll();
+});
+function deleteCamp(id) {
+  const k = DATA.kampagnen.find(x => x.id === id);
+  if (!confirm("Kampagne „" + k.name + "“ wirklich löschen?")) return;
+  DATA.kampagnen = DATA.kampagnen.filter(x => x.id !== id);
+  saveData(); renderAll();
+}
+
+/* ---------- Keywords & SEO ---------- */
+function kwStatus(k) {
+  const rang = Number(k.rang) || null;
+  if (k.indexiert === "nein") return { status: "crit", text: "nicht indexiert" };
+  if (rang == null) return { status: "serious", text: "kein Ranking" };
+  if (rang <= 10) return { status: "good", text: "Top 10" };
+  if (rang <= 30) return { status: "warn", text: "Striking Distance" };
+  return { status: "serious", text: "Rang " + rang };
+}
+function renderKwKpis() {
+  const row = $("#kw-kpis");
+  row.replaceChildren();
+  const kws = DATA.keywords;
+  const top10 = kws.filter(k => (Number(k.rang) || 999) <= 10).length;
+  const striking = kws.filter(k => { const r = Number(k.rang) || 999; return r >= 11 && r <= 30; }).length;
+  const noIndex = kws.filter(k => k.indexiert === "nein").length;
+  const tiles = [
+    { label: "Keywords im Tracker", value: fmt.format(kws.length), note: "MKL-Auszug – die wichtigsten zuerst" },
+    { label: "Top 10", value: fmt.format(top10), note: kws.length ? fmtPct(top10 / kws.length, 0) + " der Keywords" : "–", noteClass: top10 > 0 ? "good" : "" },
+    { label: "Striking Distance (11–30)", value: fmt.format(striking), note: striking > 0 ? "Hier zuerst pushen (PPC + Content)" : "–", noteClass: striking > 0 ? "bad" : "" },
+    { label: "Nicht indexiert", value: fmt.format(noIndex), note: noIndex > 0 ? "Ins Listing/Backend aufnehmen!" : "alles indexiert", noteClass: noIndex > 0 ? "bad" : "good" }
+  ];
+  for (const t of tiles) {
+    row.append(el("div", { class: "tile" },
+      el("div", { class: "label" }, t.label),
+      el("div", { class: "value" }, t.value),
+      el("div", { class: "note " + (t.noteClass || "") }, t.note)));
+  }
+}
+function renderKwTable() {
+  const table = $("#kw-table");
+  table.replaceChildren();
+  if (DATA.keywords.length === 0) {
+    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine Keywords angelegt – die wichtigsten Keywords aus der MKL eintragen.")));
+    return;
+  }
+  table.append(el("tr", {},
+    el("th", {}, "Keyword"),
+    el("th", {}, "SKU"),
+    el("th", { class: "num" }, "SV/Monat"),
+    el("th", { class: "num" }, "Rang"),
+    el("th", { class: "num" }, "Ziel"),
+    el("th", {}, "Status"),
+    el("th", {}, "Prio"),
+    el("th", {}, "Geprüft"),
+    el("th", {}, "")));
+  const sorted = DATA.keywords.slice().sort((a, b) => (Number(a.rang) || 999) - (Number(b.rang) || 999));
+  for (const k of sorted) {
+    const st = kwStatus(k);
+    table.append(el("tr", {},
+      el("td", {},
+        el("div", {}, k.keyword),
+        k.notiz ? el("div", { class: "mono" }, k.notiz) : null),
+      el("td", {}, k.sku || "–"),
+      el("td", { class: "num" }, k.sv ? fmt.format(k.sv) : "–"),
+      el("td", { class: "num" },
+        el("span", { class: "rank-b" },
+          el("span", { class: "dot", style: "background:" + STATUS_COLOR[st.status] }),
+          k.rang ? String(k.rang) : "–")),
+      el("td", { class: "num" }, k.ziel ? String(k.ziel) : "–"),
+      el("td", {}, badge(st.status, st.text)),
+      el("td", {}, el("span", { class: "chip" }, k.prio || "–")),
+      el("td", {}, fmtDay(k.geprueft)),
+      el("td", {},
+        el("div", { class: "row-actions" },
+          el("button", { class: "btn small", onclick: () => openKwDialog(k.id) }, "Bearbeiten"),
+          el("button", { class: "btn small danger", onclick: () => deleteKw(k.id) }, "Löschen")))));
+  }
+}
+const kwDialog = $("#kw-dialog");
+const kwForm = $("#kw-form");
+let editKwId = null;
+function openKwDialog(id) {
+  editKwId = id || null;
+  $("#kw-dialog-title").textContent = id ? "Keyword bearbeiten" : "Keyword anlegen";
+  kwForm.reset();
+  const skuSel = kwForm.elements.sku;
+  skuSel.replaceChildren(el("option", { value: "" }, "–"));
+  for (const s of DATA.skus) skuSel.append(el("option", { value: s.sku }, s.sku));
+  if (id) {
+    const k = DATA.keywords.find(x => x.id === id);
+    for (const key of ["keyword", "sku", "sv", "rang", "ziel", "indexiert", "prio", "geprueft", "notiz"]) {
+      if (kwForm.elements[key]) kwForm.elements[key].value = k[key] ?? "";
+    }
+  } else {
+    kwForm.elements.geprueft.value = toDateInput(new Date());
+  }
+  kwDialog.showModal();
+}
+kwForm.addEventListener("submit", e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  const f = kwForm.elements;
+  const obj = {
+    keyword: f.keyword.value.trim(), sku: f.sku.value,
+    sv: Math.max(0, Math.round(Number(f.sv.value) || 0)),
+    rang: f.rang.value ? Math.max(1, Math.round(Number(f.rang.value))) : null,
+    ziel: f.ziel.value ? Math.max(1, Math.round(Number(f.ziel.value))) : null,
+    indexiert: f.indexiert.value, prio: f.prio.value,
+    geprueft: f.geprueft.value, notiz: f.notiz.value.trim()
+  };
+  if (editKwId) {
+    const k = DATA.keywords.find(x => x.id === editKwId);
+    Object.assign(k, obj); delete k.demo;
+  } else {
+    DATA.keywords.push(Object.assign({ id: uid() }, obj));
+  }
+  saveData(); renderAll();
+});
+function deleteKw(id) {
+  const k = DATA.keywords.find(x => x.id === id);
+  if (!confirm("Keyword „" + k.keyword + "“ wirklich löschen?")) return;
+  DATA.keywords = DATA.keywords.filter(x => x.id !== id);
+  saveData(); renderAll();
+}
+
+/* ---------- Reviews ---------- */
+function renderRevKpis() {
+  const row = $("#rev-kpis");
+  row.replaceChildren();
+  const skus = DATA.skus;
+  const totalReviews = skus.reduce((a, s) => a + (Number(s.reviewCount) || 0), 0);
+  const rated = skus.filter(s => (Number(s.reviewCount) || 0) > 0 && (Number(s.reviewRating) || 0) > 0);
+  const wAvg = rated.length
+    ? rated.reduce((a, s) => a + s.reviewRating * s.reviewCount, 0) / rated.reduce((a, s) => a + s.reviewCount, 0)
+    : null;
+  const vineActive = skus.filter(s => s.vine === "läuft" || s.vine === "beantragt").length;
+  const tiles = [
+    { label: "Bewertungen gesamt", value: fmt.format(totalReviews), note: fmt.format(skus.length) + " SKUs" },
+    { label: "Ø Sterne (gewichtet)", value: wAvg != null ? fmt1.format(wAvg) + " ★" : "–",
+      note: wAvg == null ? "noch keine Bewertungen" : (wAvg >= 4.3 ? "solide Basis" : "unter 4,3 – Ursachen prüfen"),
+      noteClass: wAvg == null ? "" : (wAvg >= 4.3 ? "good" : "bad") },
+    { label: "Vine aktiv/beantragt", value: fmt.format(vineActive), note: "Enrollment je SKU an der SKU pflegen" }
+  ];
+  for (const t of tiles) {
+    row.append(el("div", { class: "tile" },
+      el("div", { class: "label" }, t.label),
+      el("div", { class: "value" }, t.value),
+      el("div", { class: "note " + (t.noteClass || "") }, t.note)));
+  }
+}
+function renderRevTable() {
+  const table = $("#rev-table");
+  table.replaceChildren();
+  if (DATA.skus.length === 0) {
+    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine SKUs angelegt – Reviews werden je SKU getrackt.")));
+    return;
+  }
+  table.append(el("tr", {},
+    el("th", {}, "SKU / Produkt"),
+    el("th", { class: "num" }, "Bewertungen"),
+    el("th", { class: "num" }, "Sterne"),
+    el("th", {}, "Nächster Meilenstein"),
+    el("th", {}, "Vine"),
+    el("th", {}, "")));
+  for (const s of DATA.skus) {
+    const count = Number(s.reviewCount) || 0;
+    const rating = Number(s.reviewRating) || 0;
+    const ms = nextMilestone(count);
+    const prev = ms ? (REVIEW_MEILENSTEINE[REVIEW_MEILENSTEINE.indexOf(ms) - 1] || 0) : null;
+    const frac = ms ? Math.min(1, (count - prev) / (ms - prev)) : 1;
+    table.append(el("tr", {},
+      el("td", {},
+        el("div", {}, s.sku),
+        el("div", { class: "mono" }, s.name)),
+      el("td", { class: "num" }, fmt.format(count)),
+      el("td", { class: "num" }, rating > 0 ? el("span", {}, fmt1.format(rating) + " ", el("span", { class: "star" }, "★")) : "–"),
+      el("td", {},
+        ms
+          ? el("div", { style: "display:flex;align-items:center;gap:8px" },
+              el("div", { class: "progress-track" }, el("div", { class: "progress-fill", style: "width:" + Math.round(frac * 100) + "%" })),
+              el("span", { class: "muted", style: "font-size:12px;white-space:nowrap" }, count + " / " + ms))
+          : el("span", { class: "good-ink" }, "1000+ 🎉")),
+      el("td", {}, s.vine ? el("span", { class: "chip" }, "Vine: " + s.vine) : el("span", { class: "muted" }, "–")),
+      el("td", {},
+        el("div", { class: "row-actions" },
+          el("button", { class: "btn small", onclick: () => openSkuDialog(s.id) }, "Bearbeiten")))));
+  }
+}
+
+/* ---------- Skill-Hub ---------- */
+const SKILL_HUB = [
+  { kategorie: "Werbung & Traffic", skills: [
+    { name: "PPC-Profi", slug: "amazon-ppc-profi",
+      desc: "Sponsored Products/Brands/Display nach der Low-Bid-Strategie: Kampagnen aufsetzen, Bulk-Optimierung, Wasted Spend reduzieren.",
+      prompts: [
+        "Nutze den Skill amazon-ppc-profi: Analysiere meinen Suchbegriffsbericht (hänge ich an) und schlage Negativ-Keywords und Gebotsänderungen nach der Low-Bid-Strategie vor.",
+        "Nutze den Skill amazon-ppc-profi: Erstelle mir eine komplette Launch-Kampagnenstruktur (Auto + Broad + Exact) inkl. Budgets und Startgeboten." ] },
+    { name: "Promo- & Deals-Profi", slug: "amazon-promo-deals-profi",
+      desc: "Coupons, Preisnachlässe, Blitzangebote & Co. – Gebühren, Produktauswahl, Fehlerbehebung, Kostenkontrolle.",
+      prompts: [
+        "Nutze den Skill amazon-promo-deals-profi: Plane mir eine Coupon-Aktion für meinen Steckdosenwürfel – Rabatthöhe, Laufzeit, erwartete Kosten.",
+        "Nutze den Skill amazon-promo-deals-profi: Lohnt sich ein Blitzangebot für mein Produkt? Rechne Gebühren gegen erwarteten Effekt." ] },
+    { name: "External-Traffic-Profi", slug: "amazon-external-traffic-profi",
+      desc: "Externer Traffic (Meta, TikTok, Google, Influencer) mit Amazon Attribution und Brand Referral Bonus.",
+      prompts: [
+        "Nutze den Skill amazon-external-traffic-profi: Erstelle mir einen Plan für externen Traffic auf mein Listing inkl. Attribution-Setup und Messung." ] }
+  ]},
+  { kategorie: "Sichtbarkeit & Content", skills: [
+    { name: "SEO-Profi", slug: "amazon-seo-profi",
+      desc: "4-Phasen-SEO: Master Keyword List, Indexierung, Striking Distance, Market Share – Rankings systematisch aufbauen.",
+      prompts: [
+        "Nutze den Skill amazon-seo-profi: Hier sind meine aktuellen Keyword-Rankings (aus dem Dashboard) – erstelle mir einen Striking-Distance-Plan für die nächsten 4 Wochen.",
+        "Nutze den Skill amazon-seo-profi: Prüfe mit mir, ob meine wichtigsten Keywords indexiert sind, und baue eine MKL auf." ] },
+    { name: "Listing-Profi", slug: "amazon-listing-profi",
+      desc: "Listings erstellen und optimieren: Title, Bullets, Beschreibung, Backend-Keywords – A9/COSMO- und Rufus-optimiert.",
+      prompts: [
+        "Nutze den Skill amazon-listing-profi: Optimiere Title und Bullet Points meines Listings für diese Keywords: …",
+        "Nutze den Skill amazon-listing-profi: Prüfe mein Listing auf Compliance und Conversion-Schwächen." ] },
+    { name: "Bild-Profi", slug: "amazon-bild-profi",
+      desc: "Hauptbild (CTR), Bild-Stack (CVR), A+ Content und Brand Store – datenbasiert nach PickFu-Tests.",
+      prompts: [
+        "Nutze den Skill amazon-bild-profi: Bewerte meinen aktuellen Bild-Stack und schlage eine bessere Reihenfolge/Struktur vor.",
+        "Nutze den Skill amazon-bild-profi: Entwirf mir eine A+ Content-Struktur für mein Produkt." ] },
+    { name: "Marketing-Meister", slug: "marketing-meister",
+      desc: "Direct-Response-Copywriting nach Eugene Schwartz: Awareness, Sophistication, Mass Desire – für Listings und Angebote.",
+      prompts: [
+        "Nutze den Skill marketing-meister: Analysiere die Awareness-Stufe meiner Zielgruppe und schärfe meine Produkt-Positionierung." ] }
+  ]},
+  { kategorie: "Zahlen, Lager & Reviews", skills: [
+    { name: "Review- & Logistik-Profi", slug: "amazon-review-logistik-profi",
+      desc: "Bewertungsaufbau (inkl. Vine), Lager-/Bestandsplanung, Gebührenoptimierung und wöchentliches Profit-Reporting.",
+      prompts: [
+        "Nutze den Skill amazon-review-logistik-profi: Erstelle mein wöchentliches KPI-Reporting – hier die Zahlen aus dem Dashboard-Export: …",
+        "Nutze den Skill amazon-review-logistik-profi: Wie baue ich für meine SKU schneller Bewertungen auf? Vine, Follow-Up, Beileger – was ist erlaubt und sinnvoll?" ] },
+    { name: "FBA-Versand-Profi", slug: "amazon-fba-versand-profi",
+      desc: "Operative FBA-Logistik: Lieferung anlegen (Send to Amazon), Etiketten, Paletten, Kapazität, Entnahmen.",
+      prompts: [
+        "Nutze den Skill amazon-fba-versand-profi: Führe mich durch das Anlegen einer FBA-Lieferung für X Kartons mit je Y Einheiten.",
+        "Nutze den Skill amazon-fba-versand-profi: Rechne meinen Nachbestellbericht – hier die Bestände aus dem Dashboard: …" ] },
+    { name: "Pricing- & Buy-Box-Profi", slug: "amazon-pricing-buybox-profi",
+      desc: "Preisstatus, Buy Box, automatische Preisfestsetzung und der richtige Seller-Central-Bericht für jede Frage.",
+      prompts: [
+        "Nutze den Skill amazon-pricing-buybox-profi: Mein Angebot wurde wegen eines Preisfehlers deaktiviert – wie reaktiviere ich es?",
+        "Nutze den Skill amazon-pricing-buybox-profi: Welchen Bericht brauche ich für …?" ] }
+  ]},
+  { kategorie: "Katalog & Marke", skills: [
+    { name: "Katalog-Profi", slug: "amazon-katalog-profi",
+      desc: "Listings anlegen, Flat Files, Kategorie-Freischaltung, inaktive/unterdrückte Listings reparieren.",
+      prompts: [
+        "Nutze den Skill amazon-katalog-profi: Mein Listing ist inaktiv/unterdrückt – hilf mir bei der Diagnose und Reparatur." ] },
+    { name: "Brand-Registry-Profi", slug: "amazon-brand-registry-profi",
+      desc: "Brand-Registry-Cases, Store-Probleme, Byline, A+-Verknüpfung, Markenname im Backend.",
+      prompts: [
+        "Nutze den Skill amazon-brand-registry-profi: Formuliere mir einen Brand-Registry-Case für folgendes Problem: …" ] },
+    { name: "KUBOLT Brand", slug: "kubolt-brand",
+      desc: "Die KUBOLT-Markenbibel: KUBI, Farben, Voice, Story, Packaging, Beipackkarten, Klub der Kubis.",
+      prompts: [
+        "Nutze den Skill kubolt-brand: Entwirf mir eine Beipackkarte im KUBOLT-Stil mit KUBI und Rubbel-Element.",
+        "Nutze den Skill kubolt-brand: Schreibe Listing-Copy in der KUBOLT Brand Voice für …" ] }
+  ]},
+  { kategorie: "Produkt & Sourcing", skills: [
+    { name: "Produktscout", slug: "amazon-produktscout",
+      desc: "Autonome Produktrecherche in Helium 10 (Black Box → Magnet → Xray) mit belegter Nischen-Shortlist.",
+      prompts: [
+        "Nutze den Skill amazon-produktscout: Geh auf Produktsuche und bring mir eine Shortlist von 3 Nischen mit echten Zahlen mit." ] },
+    { name: "Nischen-Radar", slug: "amazon-nischen-radar",
+      desc: "Automatischer Nischen-Scan mit rotierenden Presets – neue Kandidaten landen in der Notion-Datenbank.",
+      prompts: [
+        "Nutze den Skill amazon-nischen-radar: Starte einen Radar-Lauf und trage neue Nischen-Kandidaten in Notion ein." ] },
+    { name: "Produkt-Profi", slug: "amazon-produkt-profi",
+      desc: "Produkt- und Nischenbewertung: Chance-Risiko, Margen-/ROI-Kalkulation, Preissegmente, Positionierung.",
+      prompts: [
+        "Nutze den Skill amazon-produkt-profi: Bewerte diese Produktidee und rechne mir Marge und ROI durch: …" ] },
+    { name: "Sourcing-Profi", slug: "amazon-sourcing-profi",
+      desc: "Lieferantenauswahl, Verhandlung, Samples, CE/WEEE/LUCID/GPSR-Compliance, Zoll und FBA-Verpackung.",
+      prompts: [
+        "Nutze den Skill amazon-sourcing-profi: Schreibe mir eine RFQ an einen Hersteller für … (MOQ, Preisstaffeln, Zertifikate).",
+        "Nutze den Skill amazon-sourcing-profi: Welche Compliance-Dokumente brauche ich für den Import von …?" ] }
+  ]}
+];
+function renderSkillHub() {
+  const wrap = $("#skill-hub");
+  wrap.replaceChildren();
+  for (const cat of SKILL_HUB) {
+    wrap.append(el("div", { class: "skill-cat-title" }, cat.kategorie));
+    const grid = el("div", { class: "skill-grid" });
+    for (const s of cat.skills) {
+      const card = el("div", { class: "skill-card" },
+        el("div", { class: "s-name" }, s.name),
+        el("div", { class: "s-slug" }, s.slug),
+        el("div", { class: "s-desc" }, s.desc));
+      for (const p of s.prompts) {
+        card.append(el("div", { class: "prompt-row" },
+          el("div", { class: "p-text" }, p),
+          el("button", { class: "btn small", title: "Prompt kopieren", onclick: ev => copyText(p, ev.currentTarget) }, "⧉ Kopieren")));
+      }
+      grid.append(card);
+    }
+    wrap.append(grid);
+  }
+}
+async function copyText(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const old = btn.textContent;
+    btn.textContent = "✓ Kopiert";
+    setTimeout(() => { btn.textContent = old; }, 1400);
+  } catch {
+    alert("Kopieren nicht möglich – bitte manuell markieren.");
+  }
+}
+
 /* ---------- Firma & Dokumente ---------- */
 const FIRMA_FIELDS = [
   ["firma", "Firmenname"], ["rechtsform", "Rechtsform (z. B. Einzelunternehmen)"],
@@ -848,7 +2337,7 @@ function renderFirma() {
 }
 function renderFirmaSub() {
   const f = DATA.firma;
-  $("#firma-sub").textContent = f.firma ? f.firma + (f.ustIdNr ? " · " + f.ustIdNr : "") : "Dein Amazon-Business im Überblick";
+  $("#firma-sub").textContent = f.firma ? f.firma + (f.ustIdNr ? " · " + f.ustIdNr : "") : "Dein Amazon-Business";
 }
 
 function renderDocs() {
@@ -871,10 +2360,10 @@ function renderDocs() {
     table.append(el("tr", {},
       el("td", {}, el("div", {}, d.name), d.notiz ? el("div", { class: "mono" }, d.notiz) : null),
       el("td", {}, d.kategorie || "–"),
-      el("td", {}, d.datum ? new Date(d.datum + "T00:00").toLocaleDateString("de-DE") : "–"),
+      el("td", {}, d.datum ? fmtDay(d.datum) : "–"),
       el("td", {}, linkCell),
       el("td", {},
-        el("div", { style: "display:flex;gap:6px" },
+        el("div", { class: "row-actions" },
           el("button", { class: "btn small", onclick: () => openDocDialog(d.id) }, "Bearbeiten"),
           el("button", { class: "btn small danger", onclick: () => deleteDoc(d.id) }, "Löschen")))));
   }
@@ -914,7 +2403,65 @@ function deleteDoc(id) {
   saveData(); renderDocs();
 }
 
-/* ---------- Export / Import / Theme / Tabs ---------- */
+/* ---------- Links ---------- */
+function renderLinks() {
+  const table = $("#link-table");
+  table.replaceChildren();
+  if (DATA.links.length === 0) {
+    table.append(el("tr", {}, el("td", { class: "empty" }, "Noch keine Links angelegt.")));
+    return;
+  }
+  table.append(el("tr", {},
+    el("th", {}, "Name"), el("th", {}, "Kategorie"), el("th", {}, "URL"), el("th", {}, "")));
+  for (const l of DATA.links) {
+    const isUrl = /^https?:\/\//i.test(l.url || "");
+    table.append(el("tr", {},
+      el("td", {}, l.name),
+      el("td", {}, el("span", { class: "chip" }, l.kategorie || "–")),
+      el("td", {}, isUrl
+        ? el("a", { class: "doc-link", href: l.url, target: "_blank", rel: "noopener noreferrer" }, l.url)
+        : el("span", { class: "muted" }, l.url || "–")),
+      el("td", {},
+        el("div", { class: "row-actions" },
+          el("button", { class: "btn small", onclick: () => openLinkDialog(l.id) }, "Bearbeiten"),
+          el("button", { class: "btn small danger", onclick: () => deleteLink(l.id) }, "Löschen")))));
+  }
+}
+const linkDialog = $("#link-dialog");
+const linkForm = $("#link-form");
+let editLinkId = null;
+function openLinkDialog(id) {
+  editLinkId = id || null;
+  $("#link-dialog-title").textContent = id ? "Link bearbeiten" : "Link anlegen";
+  linkForm.reset();
+  if (id) {
+    const l = DATA.links.find(x => x.id === id);
+    for (const key of ["name", "kategorie", "url"]) {
+      if (linkForm.elements[key]) linkForm.elements[key].value = l[key] ?? "";
+    }
+  }
+  linkDialog.showModal();
+}
+linkForm.addEventListener("submit", e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  const f = linkForm.elements;
+  const obj = { name: f.name.value.trim(), kategorie: f.kategorie.value, url: f.url.value.trim() };
+  if (editLinkId) {
+    const l = DATA.links.find(x => x.id === editLinkId);
+    Object.assign(l, obj);
+  } else {
+    DATA.links.push(Object.assign({ id: uid() }, obj));
+  }
+  saveData(); renderLinks();
+});
+function deleteLink(id) {
+  const l = DATA.links.find(x => x.id === id);
+  if (!confirm("Link „" + l.name + "“ wirklich löschen?")) return;
+  DATA.links = DATA.links.filter(x => x.id !== id);
+  saveData(); renderLinks();
+}
+
+/* ---------- Export / Import / Theme / Einstellungen ---------- */
 $("#btn-export").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: "application/json" });
   const a = el("a", { href: URL.createObjectURL(blob),
@@ -929,7 +2476,7 @@ $("#import-file").addEventListener("change", async e => {
     const parsed = JSON.parse(await file.text());
     if (!parsed || !Array.isArray(parsed.skus)) throw new Error("Format unbekannt");
     if (!confirm("Aktuelle Daten mit dem Backup überschreiben?")) return;
-    DATA = Object.assign(structuredClone(DEFAULT_DATA), parsed);
+    DATA = parsed.version === 2 ? normalize(parsed) : migrateV1(parsed);
     saveData(); renderAll();
   } catch (err) {
     alert("Import fehlgeschlagen: " + err.message);
@@ -948,28 +2495,58 @@ $("#btn-theme").addEventListener("click", () => {
   localStorage.setItem(THEME_KEY, next);
 });
 
-$("#tabs").addEventListener("click", e => {
-  const btn = e.target.closest("button[data-tab]");
-  if (!btn) return;
-  for (const b of document.querySelectorAll("#tabs button")) b.classList.toggle("active", b === btn);
-  for (const s of document.querySelectorAll("section.tab")) s.classList.toggle("active", s.id === "tab-" + btn.dataset.tab);
+$("#set-tacos").addEventListener("change", e => {
+  DATA.einstellungen.tacosZiel = Math.min(99, Math.max(1, Number(e.target.value) || 15));
+  saveData(); renderAll();
+});
+$("#set-acos").addEventListener("change", e => {
+  DATA.einstellungen.acosZiel = Math.min(99, Math.max(1, Number(e.target.value) || 25));
+  saveData(); renderAll();
 });
 
 $("#btn-add-sku").addEventListener("click", () => openSkuDialog(null));
 $("#btn-add-doc").addEventListener("click", () => openDocDialog(null));
+$("#btn-add-week").addEventListener("click", () => openWeekDialog(null));
+$("#btn-add-camp").addEventListener("click", () => openCampDialog(null));
+$("#btn-add-kw").addEventListener("click", () => openKwDialog(null));
+$("#btn-add-task").addEventListener("click", () => openTaskDialog(null));
+$("#btn-add-link").addEventListener("click", () => openLinkDialog(null));
 
+/* ---------- Render ---------- */
 function renderAll() {
+  renderNav();
+  renderFirmaSub();
+  renderDemoNotice();
   renderKpis();
   renderChart();
   renderUebersichtAlerts();
   renderJournal();
+  renderUmsatzKpis();
+  renderUmsatzChart();
+  renderTacosChart();
+  renderWeekTable();
+  renderRoutine();
+  renderTaskBoard();
   renderSkuTable();
   renderNachschub();
+  renderPpcKpis();
+  renderPpcRules();
+  renderPpcChart();
+  renderCampTable();
+  renderKwKpis();
+  renderKwTable();
+  renderRevKpis();
+  renderRevTable();
+  renderSkillHub();
   renderFirma();
-  renderFirmaSub();
   renderDocs();
+  renderLinks();
+  $("#set-tacos").value = DATA.einstellungen.tacosZiel;
+  $("#set-acos").value = DATA.einstellungen.acosZiel;
 }
 renderAll();
+const initialMod = location.hash.replace("#", "");
+showModule(initialMod || "uebersicht");
 </script>
 </body>
 </html>
