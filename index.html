@@ -24,6 +24,7 @@
     --status-serious: #ec835a;
     --status-crit:    #d03b3b;
     --good-text:      #006300;
+    --crit-text:      #d03b3b;
     --ghost:          rgba(11,11,11,0.04);
   }
   @media (prefers-color-scheme: dark) {
@@ -42,6 +43,7 @@
       --series-2:       #d95926;
       --series-3:       #199e70;
       --good-text:      #0ca30c;
+      --crit-text:      #ef6f6f;
       --ghost:          rgba(255,255,255,0.06);
     }
   }
@@ -60,6 +62,7 @@
     --series-2:       #d95926;
     --series-3:       #199e70;
     --good-text:      #0ca30c;
+    --crit-text:      #ef6f6f;
     --ghost:          rgba(255,255,255,0.06);
   }
 
@@ -120,12 +123,12 @@
   .btn:hover { border-color: var(--baseline); }
   .btn.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
   .btn.small { padding: 3px 8px; font-size: 12px; }
-  .btn.danger { color: var(--status-crit); }
+  .btn.danger { color: var(--crit-text); }
   .btn:focus-visible, .nav-item:focus-visible { outline: 2px solid var(--series-1); outline-offset: 1px; }
 
   section.mod { display: none; }
   section.mod.active { display: block; }
-  .mod-hint { color: var(--text-muted); font-size: 13px; margin: -6px 0 14px; max-width: 72ch; }
+  .mod-hint { color: var(--text-secondary); font-size: 13px; margin: -6px 0 14px; max-width: 72ch; }
 
   .card {
     background: var(--surface-1);
@@ -135,10 +138,10 @@
     margin-bottom: 16px;
   }
   .card h2 { font-size: 15px; margin: 0 0 4px; }
-  .card .hint { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; max-width: 80ch; }
+  .card .hint { color: var(--text-secondary); font-size: 13px; margin: 0 0 12px; max-width: 80ch; }
   .card-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .card-head .spacer { flex: 1; }
-  .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+  .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; align-items: start; }
   .two-col .card { margin-bottom: 0; }
   .two-col { margin-bottom: 16px; }
 
@@ -154,7 +157,7 @@
   .tile .value { font-size: 28px; font-weight: 600; line-height: 1.25; }
   .tile .note  { font-size: 12px; color: var(--text-muted); }
   .tile .note.good { color: var(--good-text); }
-  .tile .note.bad  { color: var(--status-crit); }
+  .tile .note.bad  { color: var(--crit-text); }
 
   .badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -185,9 +188,9 @@
   .chart { position: relative; padding: 8px 0 4px; }
   .bar-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 10px; min-height: 26px; }
   .bar-row .bar-label { font-size: 13px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bar-track { position: relative; height: 26px; display: flex; align-items: center; }
-  .bar { height: 16px; background: var(--series-1); border-radius: 0 4px 4px 0; min-width: 2px; }
-  .bar-value { font-size: 12px; color: var(--text-secondary); margin-left: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar-track { position: relative; height: 26px; display: flex; align-items: center; min-width: 0; }
+  .bar { height: 16px; background: var(--series-1); border-radius: 0 4px 4px 0; min-width: 2px; flex: 0 0 auto; }
+  .bar-value { font-size: 12px; color: var(--text-secondary); margin-left: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .threshold { position: absolute; top: 0; bottom: 18px; width: 1px; background: var(--baseline); }
   .threshold-label { position: absolute; bottom: 0; transform: translateX(-50%); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
   .chart-footer { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
@@ -256,7 +259,7 @@
   .doc-link:hover { text-decoration: underline; }
   .muted { color: var(--text-muted); }
   .good-ink { color: var(--good-text); }
-  .bad-ink { color: var(--status-crit); }
+  .bad-ink { color: var(--crit-text); }
 
   /* Aufgaben-Board */
   .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
@@ -266,7 +269,7 @@
   .task-card .t-title { font-size: 14px; font-weight: 600; }
   .task-card .t-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 5px 0 7px; font-size: 12px; color: var(--text-muted); }
   .task-card.done .t-title { text-decoration: line-through; color: var(--text-muted); font-weight: 500; }
-  .due-over { color: var(--status-crit); font-weight: 600; }
+  .due-over { color: var(--crit-text); font-weight: 600; }
 
   /* Wochenroutine */
   .routine-item { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--grid); }
@@ -277,7 +280,7 @@
   .routine-item .r-mod { font-size: 12px; color: var(--text-muted); }
 
   /* Skill-Hub */
-  .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
   .skill-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
   .skill-card .s-name { font-weight: 700; font-size: 14px; }
   .skill-card .s-slug { font-size: 11px; color: var(--text-muted); font-family: ui-monospace, monospace; }
@@ -434,12 +437,12 @@
       </div>
       <div class="card">
         <h2>Beim Lieferanten bestellen</h2>
-        <p class="hint">Nachbestellpunkt = Ø Verkäufe/Tag × Lieferzeit + 14 Tage Sicherheitspuffer. Fällt der Gesamtbestand (FBA + unterwegs + zuhause) darunter, sofort bestellen. Bestellmenge = Ziel-Reichweite × Tagesabsatz, mindestens die MOQ.</p>
+        <p class="hint">Nachbestellpunkt = Ø Verkäufe/Tag × (Lieferzeit + 14 Tage Sicherheitspuffer). Fällt der Gesamtbestand (FBA + unterwegs + zuhause) darunter, sofort bestellen. Bestellmenge = Ziel-Reichweite × Tagesabsatz, mindestens die MOQ.</p>
         <div id="alerts-bestellen"></div>
       </div>
       <div class="card">
         <h2>Überbestand / Aged Inventory</h2>
-        <p class="hint">Bestand mit mehr als 120 Tagen Reichweite bindet Kapital und riskiert ab 90 Tagen Lagerdauer die Aged-Inventory-Fee. Gegenmittel: Sales pushen, Preis oder Coupon anpassen.</p>
+        <p class="hint">Bestand mit mehr als 120 Tagen Reichweite bindet Kapital – und ab 271 Tagen Lagerdauer greift zusätzlich die Langzeitlagergebühr (Aged Inventory Surcharge). Gegenmittel: Sales pushen, Preis oder Coupon anpassen.</p>
         <div id="alerts-aged"></div>
       </div>
     </section>
@@ -565,7 +568,7 @@
       </select>
     </label>
     <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn" type="button" data-cancel>Abbrechen</button>
       <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
@@ -586,7 +589,7 @@
     <label class="field">Menge / neuer Bestand *<input name="menge" type="number" min="0" step="1" required></label>
     <label class="field">Notiz<input name="notiz" placeholder="optional, z. B. Shipment-ID"></label>
     <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn" type="button" data-cancel>Abbrechen</button>
       <button class="btn primary" value="ok">Buchen</button>
     </div>
   </form>
@@ -611,7 +614,7 @@
     <label class="field" style="grid-column:1/-1">Link / Ablageort<input name="link" placeholder="https://… oder z. B. Ordner „Steuern 2026“"></label>
     <label class="field" style="grid-column:1/-1">Notiz<input name="notiz"></label>
     <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn" type="button" data-cancel>Abbrechen</button>
       <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
@@ -630,7 +633,7 @@
     <label class="field">Retouren (Einheiten)<input name="retouren" type="number" min="0" step="1" value="0"></label>
     <label class="field" style="grid-column:1/-1">Notiz<input name="notiz" placeholder="z. B. Coupon-Woche, OOS ab Donnerstag …"></label>
     <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn" type="button" data-cancel>Abbrechen</button>
       <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
@@ -666,7 +669,7 @@
     <label class="field">Daten-Stand<input name="stand" type="date"></label>
     <label class="field" style="grid-column:1/-1">Notiz<input name="notiz" placeholder="z. B. Zeitraum 30 Tage, Gebot 0,25 €"></label>
     <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn" type="button" data-cancel>Abbrechen</button>
       <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
@@ -697,7 +700,7 @@
     <label class="field">Zuletzt geprüft<input name="geprueft" type="date"></label>
     <label class="field" style="grid-column:1/-1">Notiz<input name="notiz"></label>
     <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn" type="button" data-cancel>Abbrechen</button>
       <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
@@ -730,7 +733,7 @@
     <label class="field">Fällig am<input name="faellig" type="date"></label>
     <label class="field" style="grid-column:1/-1">Notiz<input name="notiz"></label>
     <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn" type="button" data-cancel>Abbrechen</button>
       <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
@@ -750,7 +753,7 @@
     </label>
     <label class="field" style="grid-column:1/-1">URL *<input name="url" required placeholder="https://…"></label>
     <div class="form-actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn" type="button" data-cancel>Abbrechen</button>
       <button class="btn primary" value="ok">Speichern</button>
     </div>
   </form>
@@ -801,6 +804,9 @@ function normalize(d) {
   out.routine = Object.assign({ woche: "", done: {} }, d && d.routine);
   for (const k of ["skus", "wochen", "kampagnen", "keywords", "aufgaben", "links", "dokumente", "journal"]) {
     if (!Array.isArray(out[k])) out[k] = [];
+    if (k !== "journal") { // ohne id wären Einträge weder editier- noch einzeln löschbar
+      for (const item of out[k]) { if (item && typeof item === "object" && !item.id) item.id = uid(); }
+    }
   }
   out.skus = out.skus.map(s => Object.assign({}, SKU_DEFAULTS, s));
   return out;
@@ -859,14 +865,20 @@ function migrateV1(v1) {
   return d;
 }
 
+function lsGet(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function lsSet(key, value) {
+  try { localStorage.setItem(key, value); return true; } catch { return false; }
+}
 function loadData() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = lsGet(STORAGE_KEY);
     if (raw) return normalize(JSON.parse(raw));
-    const legacyRaw = localStorage.getItem(LEGACY_KEY);
+    const legacyRaw = lsGet(LEGACY_KEY);
     if (legacyRaw) {
       const migrated = migrateV1(JSON.parse(legacyRaw));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+      lsSet(STORAGE_KEY, JSON.stringify(migrated));
       return migrated;
     }
     const fresh = seedDemo(normalize({}));
@@ -874,12 +886,21 @@ function loadData() {
     return fresh;
   } catch (e) {
     console.error("Konnte Daten nicht laden:", e);
+    // Defekten Stand sichern, statt ihn beim nächsten saveData zu überschreiben
+    const raw = lsGet(STORAGE_KEY);
+    if (raw) lsSet(STORAGE_KEY + "-defekt-backup", raw);
     return normalize({});
   }
 }
+let saveWarned = false;
 function saveData() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }
-  catch (e) { console.error("Speichern fehlgeschlagen:", e); }
+  if (!lsSet(STORAGE_KEY, JSON.stringify(DATA))) {
+    console.error("Speichern fehlgeschlagen");
+    if (!saveWarned) {
+      saveWarned = true;
+      alert("Achtung: Speichern im Browser ist fehlgeschlagen (Speicher voll oder blockiert). Änderungen gehen beim Neuladen verloren – bitte sofort über „Export (JSON)“ sichern.");
+    }
+  }
 }
 
 /* ---------- Helfer ---------- */
@@ -1091,6 +1112,7 @@ function showModule(id) {
   $("#mod-sub").textContent = meta.sub;
   if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
   renderNav();
+  renderCharts(); // erst jetzt hat der sichtbare Container seine echte Breite
   window.scrollTo({ top: 0 });
 }
 window.addEventListener("hashchange", () => {
@@ -1125,7 +1147,7 @@ function renderKpis() {
   for (const s of DATA.skus) {
     const c = calc(s);
     fba += c.fba; home += c.home; inbound += c.inbound;
-    if (c.status !== "good" || c.bestellen) alarme++;
+    if (c.status !== "good" || c.bestellen || c.aged) alarme++;
   }
   const offene = DATA.aufgaben.filter(t => t.status !== "erledigt");
   const heute = toDateInput(new Date());
@@ -1149,7 +1171,7 @@ function renderKpis() {
     tiles.push({
       label: "TACoS " + kwLabel(last.start),
       value: fmtPct(cl.tacos),
-      note: cl.tacos == null ? "Werbekosten fehlen" : (cl.tacos <= ziel ? "im Ziel (≤ " + fmtPct(ziel, 1) + ")" : "über Ziel (" + fmtPct(ziel, 1) + ")"),
+      note: cl.tacos == null ? "Umsatz fehlt" : (cl.tacos <= ziel ? "im Ziel (≤ " + fmtPct(ziel, 1) + ")" : "über Ziel (" + fmtPct(ziel, 1) + ")"),
       noteClass: cl.tacos == null ? "" : (cl.tacos <= ziel ? "good" : "bad")
     });
   } else {
@@ -1189,21 +1211,27 @@ function renderDemoNotice() {
 }
 
 function buildAlerts() {
-  const senden = [], bestellen = [], aged = [];
+  const senden = [], sendenLeer = [], bestellen = [], aged = [];
   for (const s of DATA.skus) {
     const c = calc(s);
     if (c.sendMenge > 0) senden.push({ s, c });
+    // Amazon-Reichweite knapp, aber nichts zuhause zum Einsenden
+    else if (c.sales > 0 && c.reichweiteAmazon < WARN_TAGE && c.home <= 0) sendenLeer.push({ s, c });
     if (c.bestellen) bestellen.push({ s, c });
     if (c.aged) aged.push({ s, c });
   }
-  return { senden, bestellen, aged };
+  return { senden, sendenLeer, bestellen, aged };
 }
 
 function renderUebersichtAlerts() {
   const wrap = $("#uebersicht-alerts");
   wrap.replaceChildren();
-  const { senden, bestellen, aged } = buildAlerts();
+  const { senden, sendenLeer, bestellen, aged } = buildAlerts();
   const items = [];
+  for (const { s, c } of sendenLeer) {
+    items.push({ icon: "🚨", title: "Amazon-Reichweite knapp, nichts zum Einsenden: " + s.sku,
+      detail: "Nur noch " + fmtTage(c.reichweiteAmazon) + " Reichweite bei Amazon und 0 zuhause – Lieferantenbestellung prüfen (Modul Nachschub)." });
+  }
   for (const { s, c } of bestellen) {
     items.push({ icon: "🚨", title: "Beim Lieferanten bestellen: " + s.sku,
       detail: "Gesamtbestand " + fmt.format(c.total) + " liegt unter dem Nachbestellpunkt von " + fmt.format(c.nachbestellpunkt) + " Einheiten. Empfohlene Bestellmenge: " + fmt.format(c.bestellmenge) + " Stück." });
@@ -1234,7 +1262,7 @@ function renderUebersichtAlerts() {
   }
   for (const { s, c } of aged) {
     items.push({ icon: "🧊", title: "Überbestand: " + s.sku,
-      detail: "Reichweite " + fmtTage(c.reichweiteFba) + " – Aged-Inventory-Fee droht ab 90 Tagen Lagerdauer. Sales pushen oder Preis/Coupon prüfen." });
+      detail: "Reichweite " + fmtTage(c.reichweiteFba) + " – hohe Kapitalbindung; ab 271 Tagen Lagerdauer greift die Langzeitlagergebühr. Sales pushen oder Preis/Coupon prüfen." });
   }
   if (items.length === 0) {
     wrap.append(el("div", { class: "empty" }, "✅ Kein Handlungsbedarf – Bestände, Aufgaben und Kampagnen im Zielbereich."));
@@ -1275,7 +1303,10 @@ function renderChart() {
     }, el("div", { class: "bar-label", title: s.name }, s.sku), track);
     wrap.append(rowEl);
   }
-  const LABEL_W = 190; // 180px Label + 10px Lücke
+  // Tatsächliche Labelbreite messen – die Media Query verengt die Spalte auf schmalen Viewports
+  const firstLabel = wrap.querySelector(".bar-label");
+  const measured = firstLabel ? firstLabel.getBoundingClientRect().width : 0;
+  const LABEL_W = (measured > 0 ? Math.round(measured) : 180) + 10;
   const frac = KRITISCH_TAGE / maxVal;
   const leftCalc = "calc(" + LABEL_W + "px + (100% - " + LABEL_W + "px) * " + frac + ")";
   wrap.append(el("div", { class: "threshold", style: "left:" + leftCalc }));
@@ -1346,7 +1377,7 @@ function deltaNote(cur, prevVal, invert) {
   return (up ? "▲ " : "▼ ") + fmtPct(Math.abs(delta), 0) + " vs. Vorwoche";
 }
 function tacosNote(tacos) {
-  if (tacos == null) return "Werbekosten fehlen";
+  if (tacos == null) return "Umsatz fehlt";
   const ziel = (Number(DATA.einstellungen.tacosZiel) || 15) / 100;
   return tacos <= ziel ? "im Ziel (≤ " + fmtPct(ziel) + ")" : "über Ziel (" + fmtPct(ziel) + ")";
 }
@@ -1359,19 +1390,27 @@ function tacosClass(tacos) {
 const CHART_W = 720, CHART_H = 240;
 const M = { l: 46, r: 12, t: 16, b: 28 };
 
-function chartFrame(yMax, fmtTick) {
-  const plotW = CHART_W - M.l - M.r, plotH = CHART_H - M.t - M.b;
+// Charts in Container-Breite zeichnen (viewBox = echte Pixel), damit die
+// 11px-Beschriftung auch auf schmalen Viewports lesbar bleibt.
+function chartWidth(wrap) {
+  const w = wrap.clientWidth || 0;
+  return w > 0 ? Math.max(260, Math.min(1200, Math.round(w))) : CHART_W;
+}
+function chartFrame(W, yMax, fmtTick) {
+  const plotW = W - M.l - M.r, plotH = CHART_H - M.t - M.b;
   const g = svg("g", {});
   const steps = 4;
   for (let i = 0; i <= steps; i++) {
     const v = yMax * i / steps;
     const y = M.t + plotH - plotH * i / steps;
-    if (i > 0) g.append(svg("line", { class: "gridline", x1: M.l, y1: y, x2: CHART_W - M.r, y2: y }));
+    if (i > 0) g.append(svg("line", { class: "gridline", x1: M.l, y1: y, x2: W - M.r, y2: y }));
     g.append(svg("text", { class: "ticktext", x: M.l - 6, y: y + 4, "text-anchor": "end" }, fmtTick(v)));
   }
-  g.append(svg("line", { class: "axisline", x1: M.l, y1: M.t + plotH, x2: CHART_W - M.r, y2: M.t + plotH }));
+  g.append(svg("line", { class: "axisline", x1: M.l, y1: M.t + plotH, x2: W - M.r, y2: M.t + plotH }));
   return { g, plotW, plotH };
 }
+// Bei engen Slots nur jedes n-te KW-Label zeichnen (Kollisionsvermeidung)
+function xLabelEvery(slot) { return Math.max(1, Math.ceil(34 / slot)); }
 function roundedTopRect(x, y, w, h, r) {
   if (h <= r) r = Math.max(0, h - 0.5);
   return "M" + x + "," + (y + h) +
@@ -1392,18 +1431,21 @@ function renderUmsatzChart() {
   }
   const vals = ws.map(w => calcWeek(w));
   const yMax = niceCeil(Math.max(...vals.map(v => v.umsatz), 1));
-  const root = svg("svg", { class: "svg-chart", viewBox: "0 0 " + CHART_W + " " + CHART_H, role: "img", "aria-label": "Umsatz je Woche" });
-  const { g, plotW, plotH } = chartFrame(yMax, fmtAxis);
+  const W = chartWidth(wrap);
+  const root = svg("svg", { class: "svg-chart", viewBox: "0 0 " + W + " " + CHART_H, role: "img", "aria-label": "Umsatz je Woche" });
+  const { g, plotW, plotH } = chartFrame(W, yMax, fmtAxis);
   root.append(g);
   const slot = plotW / ws.length;
   const barW = Math.min(46, slot * 0.62);
+  const every = xLabelEvery(slot);
   ws.forEach((w, i) => {
     const v = vals[i];
     const h = yMax > 0 ? (v.umsatz / yMax) * plotH : 0;
     const x = M.l + slot * i + (slot - barW) / 2;
     const y = M.t + plotH - h;
     g.append(svg("path", { class: "col", d: roundedTopRect(x, y, barW, h, 4) }));
-    g.append(svg("text", { class: "ticktext", x: M.l + slot * i + slot / 2, y: CHART_H - 8, "text-anchor": "middle" }, kwLabel(w.start)));
+    if (i % every === 0 || i === ws.length - 1)
+      g.append(svg("text", { class: "ticktext", x: M.l + slot * i + slot / 2, y: CHART_H - 8, "text-anchor": "middle" }, kwLabel(w.start)));
     if (i === ws.length - 1 && h > 0) {
       g.append(svg("text", { class: "valtext", x: x + barW / 2, y: Math.max(y - 5, 11), "text-anchor": "middle" }, fmtEuro0.format(v.umsatz)));
     }
@@ -1428,24 +1470,28 @@ function renderTacosChart() {
   }
   const ziel = (Number(DATA.einstellungen.tacosZiel) || 15) / 100;
   const yMax = Math.max(niceCeil(Math.max(...pts.map(p => p.c.tacos), ziel) * 100), 5) / 100;
-  const root = svg("svg", { class: "svg-chart", viewBox: "0 0 " + CHART_W + " " + CHART_H, role: "img", "aria-label": "TACoS je Woche" });
-  const { g, plotW, plotH } = chartFrame(yMax, v => fmt1.format(v * 100) + " %");
+  const W = chartWidth(wrap);
+  const root = svg("svg", { class: "svg-chart", viewBox: "0 0 " + W + " " + CHART_H, role: "img", "aria-label": "TACoS je Woche" });
+  const { g, plotW, plotH } = chartFrame(W, yMax, v => fmt1.format(v * 100) + " %");
   root.append(g);
   const slot = plotW / pts.length;
   const xOf = i => M.l + slot * i + slot / 2;
   const yOf = v => M.t + plotH - (v / yMax) * plotH;
 
   const zy = yOf(ziel);
-  g.append(svg("line", { class: "target", x1: M.l, y1: zy, x2: CHART_W - M.r, y2: zy }));
-  g.append(svg("text", { class: "ticktext", x: CHART_W - M.r, y: zy - 5, "text-anchor": "end" }, "Ziel " + fmt1.format(ziel * 100) + " %"));
+  g.append(svg("line", { class: "target", x1: M.l, y1: zy, x2: W - M.r, y2: zy }));
+  // Ziel-Label links, damit es nicht mit dem Wertelabel des letzten Punkts kollidiert
+  g.append(svg("text", { class: "ticktext", x: M.l + 4, y: zy - 5, "text-anchor": "start" }, "Ziel " + fmt1.format(ziel * 100) + " %"));
 
   let d = "";
   pts.forEach((p, i) => { d += (i === 0 ? "M" : " L") + xOf(i) + "," + yOf(p.c.tacos); });
   g.append(svg("path", { class: "line", d }));
+  const every = xLabelEvery(slot);
   pts.forEach((p, i) => {
     const last = i === pts.length - 1;
     g.append(svg("circle", { class: "pt", cx: xOf(i), cy: yOf(p.c.tacos), r: last ? 4.5 : 3.5 }));
-    g.append(svg("text", { class: "ticktext", x: xOf(i), y: CHART_H - 8, "text-anchor": "middle" }, kwLabel(p.w.start)));
+    if (i % every === 0 || last)
+      g.append(svg("text", { class: "ticktext", x: xOf(i), y: CHART_H - 8, "text-anchor": "middle" }, kwLabel(p.w.start)));
     if (last) {
       g.append(svg("text", { class: "valtext", x: xOf(i), y: yOf(p.c.tacos) - 9, "text-anchor": "middle" }, fmtPct(p.c.tacos)));
     }
@@ -1521,7 +1567,11 @@ weekForm.addEventListener("submit", e => {
   const f = weekForm.elements;
   const start = toDateInput(mondayOf(new Date(f.start.value + "T00:00")));
   const dupe = DATA.wochen.find(w => w.start === start && w.id !== editWeekId);
-  if (dupe) { alert("Für die Woche ab " + fmtDay(start) + " gibt es schon einen Eintrag – bitte diesen bearbeiten."); return; }
+  if (dupe) {
+    e.preventDefault(); // Dialog offen lassen, sonst sind alle Eingaben weg
+    alert("Für die Woche ab " + fmtDay(start) + " gibt es schon einen Eintrag – bitte diesen bearbeiten.");
+    return;
+  }
   const obj = {
     start,
     umsatz: Math.max(0, Number(f.umsatz.value) || 0),
@@ -1749,7 +1799,11 @@ skuForm.addEventListener("submit", e => {
   };
   if (editSkuId) {
     const s = DATA.skus.find(x => x.id === editSkuId);
+    const altCode = s.sku;
     Object.assign(s, obj); delete s.demo;
+    if (altCode && altCode !== obj.sku) { // Keyword-Zuordnungen mitziehen
+      for (const k of DATA.keywords) { if (k.sku === altCode) k.sku = obj.sku; }
+    }
   } else {
     DATA.skus.push(Object.assign({ id: uid() }, obj));
   }
@@ -1757,7 +1811,10 @@ skuForm.addEventListener("submit", e => {
 });
 function deleteSku(id) {
   const s = DATA.skus.find(x => x.id === id);
-  if (!confirm("SKU „" + s.sku + "“ wirklich löschen?")) return;
+  const linked = DATA.keywords.filter(k => k.sku === s.sku).length;
+  const frage = "SKU „" + s.sku + "“ wirklich löschen?" +
+    (linked ? " " + fmt.format(linked) + " Keyword(s) verweisen darauf und behalten den Verweis." : "");
+  if (!confirm(frage)) return;
   DATA.skus = DATA.skus.filter(x => x.id !== id);
   saveData(); renderAll();
 }
@@ -1786,41 +1843,51 @@ moveForm.addEventListener("submit", e => {
   if (!s) return;
   const typ = moveForm.elements.typ.value;
   const menge = Math.max(0, Math.round(Number(moveForm.elements.menge.value) || 0));
-  const notiz = moveForm.elements.notiz.value.trim();
+  let notiz = moveForm.elements.notiz.value.trim();
+  let bewegt = menge; // ins Journal wandert die tatsächlich gebuchte Menge
   if (typ === "wareneingang") s.home = (s.home || 0) + menge;
   else if (typ === "sendung") {
-    const m = Math.min(menge, s.home || 0);
-    s.home -= m; s.inbound = (s.inbound || 0) + m;
+    bewegt = Math.min(menge, s.home || 0);
+    s.home -= bewegt; s.inbound = (s.inbound || 0) + bewegt;
   }
   else if (typ === "eingelagert") {
-    const m = Math.min(menge, s.inbound || 0);
-    s.inbound -= m; s.fba = (s.fba || 0) + m;
+    bewegt = Math.min(menge, s.inbound || 0);
+    s.inbound -= bewegt; s.fba = (s.fba || 0) + bewegt;
   }
   else if (typ === "inventur_fba") s.fba = menge;
   else if (typ === "inventur_home") s.home = menge;
+  if (bewegt !== menge) notiz = (notiz ? notiz + " · " : "") + "auf verfügbare " + fmt.format(bewegt) + " begrenzt";
   delete s.demo;
-  DATA.journal.unshift({ ts: nowIso(), sku: s.sku, typ, text: MOVE_TEXT[typ], menge, notiz });
+  DATA.journal.unshift({ ts: nowIso(), sku: s.sku, typ, text: MOVE_TEXT[typ], menge: bewegt, notiz });
   DATA.journal = DATA.journal.slice(0, 200);
   saveData(); renderAll();
 });
 
 /* ---------- Nachschub ---------- */
 function renderNachschub() {
-  const { senden, bestellen, aged } = buildAlerts();
+  const { senden, sendenLeer, bestellen, aged } = buildAlerts();
   const fill = (elId, list, build, emptyText) => {
     const wrap = $(elId);
     wrap.replaceChildren();
     if (list.length === 0) { wrap.append(el("div", { class: "empty" }, emptyText)); return; }
     for (const x of list) wrap.append(build(x));
   };
-  fill("#alerts-senden", senden, ({ s, c }) => el("div", { class: "alert-item" },
-    el("div", { class: "icon" }, "📦"),
+  const sendenAlle = [
+    ...senden.map(x => Object.assign({ leer: false }, x)),
+    ...sendenLeer.map(x => Object.assign({ leer: true }, x))
+  ];
+  fill("#alerts-senden", sendenAlle, ({ s, c, leer }) => el("div", { class: "alert-item" },
+    el("div", { class: "icon" }, leer ? "🚨" : "📦"),
     el("div", { class: "body" },
-      el("div", { class: "title" }, s.sku + " – " + fmt.format(c.sendMenge) + " Einheiten einsenden"),
-      el("div", { class: "detail" },
-        "Reichweite bei Amazon (FBA + unterwegs): " + fmtTage(c.reichweiteAmazon) +
-        ". Zuhause verfügbar: " + fmt.format(c.home) + ". Ziel: " + fmt.format(s.targetDays || 60) + " Tage Reichweite."))),
-    "✅ Kein Shipment nötig – Amazon-Bestand reicht überall über " + WARN_TAGE + " Tage.");
+      el("div", { class: "title" }, leer
+        ? s.sku + " – Reichweite knapp, aber kein Bestand zuhause"
+        : s.sku + " – " + fmt.format(c.sendMenge) + " Einheiten einsenden"),
+      el("div", { class: "detail" }, leer
+        ? "Reichweite bei Amazon (FBA + unterwegs): " + fmtTage(c.reichweiteAmazon) +
+          ". Zuhause: 0 – Nachschub muss aus einer Lieferantenbestellung kommen (siehe unten)."
+        : "Reichweite bei Amazon (FBA + unterwegs): " + fmtTage(c.reichweiteAmazon) +
+          ". Zuhause verfügbar: " + fmt.format(c.home) + ". Ziel: " + fmt.format(s.targetDays || 60) + " Tage Reichweite."))),
+    "✅ Kein Shipment nötig – Amazon-Reichweite überall über " + WARN_TAGE + " Tage.");
   fill("#alerts-bestellen", bestellen, ({ s, c }) => el("div", { class: "alert-item" },
     el("div", { class: "icon" }, "🛒"),
     el("div", { class: "body" },
@@ -2085,6 +2152,9 @@ function openKwDialog(id) {
   for (const s of DATA.skus) skuSel.append(el("option", { value: s.sku }, s.sku));
   if (id) {
     const k = DATA.keywords.find(x => x.id === id);
+    if (k.sku && !Array.from(skuSel.options).some(o => o.value === k.sku)) {
+      skuSel.append(el("option", { value: k.sku }, k.sku + " (SKU gelöscht)"));
+    }
     for (const key of ["keyword", "sku", "sv", "rang", "ziel", "indexiert", "prio", "geprueft", "notiz"]) {
       if (kwForm.elements[key]) kwForm.elements[key].value = k[key] ?? "";
     }
@@ -2476,7 +2546,11 @@ $("#import-file").addEventListener("change", async e => {
     const parsed = JSON.parse(await file.text());
     if (!parsed || !Array.isArray(parsed.skus)) throw new Error("Format unbekannt");
     if (!confirm("Aktuelle Daten mit dem Backup überschreiben?")) return;
-    DATA = parsed.version === 2 ? normalize(parsed) : migrateV1(parsed);
+    // v2 auch dann erkennen, wenn das version-Feld fehlt/abweicht, aber
+    // v2-Collections vorhanden sind – sonst gingen Wochen/Kampagnen/… verloren.
+    const isV2 = Number(parsed.version) >= 2 ||
+      ["wochen", "kampagnen", "keywords", "aufgaben"].some(k => Array.isArray(parsed[k]));
+    DATA = isV2 ? normalize(parsed) : migrateV1(parsed);
     saveData(); renderAll();
   } catch (err) {
     alert("Import fehlgeschlagen: " + err.message);
@@ -2485,14 +2559,14 @@ $("#import-file").addEventListener("change", async e => {
   }
 });
 
-const savedTheme = localStorage.getItem(THEME_KEY);
+const savedTheme = lsGet(THEME_KEY);
 if (savedTheme) document.documentElement.dataset.theme = savedTheme;
 $("#btn-theme").addEventListener("click", () => {
   const cur = document.documentElement.dataset.theme ||
     (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   const next = cur === "dark" ? "light" : "dark";
   document.documentElement.dataset.theme = next;
-  localStorage.setItem(THEME_KEY, next);
+  lsSet(THEME_KEY, next);
 });
 
 $("#set-tacos").addEventListener("change", e => {
@@ -2504,6 +2578,10 @@ $("#set-acos").addEventListener("change", e => {
   saveData(); renderAll();
 });
 
+for (const b of document.querySelectorAll("dialog button[data-cancel]")) {
+  b.addEventListener("click", () => b.closest("dialog").close());
+}
+
 $("#btn-add-sku").addEventListener("click", () => openSkuDialog(null));
 $("#btn-add-doc").addEventListener("click", () => openDocDialog(null));
 $("#btn-add-week").addEventListener("click", () => openWeekDialog(null));
@@ -2513,6 +2591,18 @@ $("#btn-add-task").addEventListener("click", () => openTaskDialog(null));
 $("#btn-add-link").addEventListener("click", () => openLinkDialog(null));
 
 /* ---------- Render ---------- */
+function renderCharts() {
+  renderChart();
+  renderUmsatzChart();
+  renderTacosChart();
+  renderPpcChart();
+}
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderCharts, 150);
+});
+
 function renderAll() {
   renderNav();
   renderFirmaSub();
