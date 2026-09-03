@@ -117,3 +117,73 @@ footer {
   main { padding: 0.75rem; }
   .kpi-value { font-size: 1.4rem; }
 }
+
+/* ---------- Navigation zwischen Dashboard und Verlauf ---------- */
+
+.nav { display: flex; gap: 0.25rem; margin-right: auto; margin-left: 1.5rem; }
+
+.nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.nav a:hover { color: var(--text); }
+.nav a.active { color: var(--accent); border-color: var(--border); background: var(--card); }
+
+/* ---------- Verlaufsseite ---------- */
+
+.btn-link {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.btn-link:hover { border-color: var(--accent); color: var(--accent); }
+
+.legend-hint { font-size: 0.72rem; color: var(--muted); font-weight: 400; }
+
+/* Volle Breite über beide Spalten des Chart-Grids */
+.card.wide { grid-column: 1 / -1; margin-bottom: 1.5rem; }
+.cards.charts .card.wide { margin-bottom: 0; }
+.card.wide canvas { max-height: 320px; }
+
+.table-card { padding-bottom: 0.75rem; }
+
+/* Tabelle scrollt für sich — die Seite selbst bleibt schmal genug fürs Handy */
+.table-scroll { overflow-x: auto; }
+
+#history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+#history-table th,
+#history-table td {
+  padding: 0.45rem 0.6rem;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+
+#history-table th {
+  color: var(--muted);
+  font-weight: 600;
+  text-align: right;
+  position: sticky;
+  top: 0;
+  background: var(--card);
+}
+
+#history-table th:first-child,
+#history-table td.date-cell { text-align: left; }
+#history-table tbody tr:hover { background: rgba(78, 205, 196, 0.06); }
+#history-table tbody tr:last-child td { border-bottom: none; }

@@ -129,6 +129,25 @@ Läuft automatisch mit: **https://health.erenstower.de**
   Schlafdauer / HRV / Schritte über den gewählten Zeitraum
 - Oben rechts: Verbindungsstatus und ein **⟳ Sync**-Knopf, um sofort neu abzurufen
 
+### Verlaufsseite
+
+Über **Verlauf** oben im Menü (`health.erenstower.de/verlauf.html`) gibt es die
+Langzeit-Ansicht:
+
+- **Zeitraum**: 30 Tage / 90 Tage / 6 Monate / 1 Jahr / **Alles**
+- **Durchschnitte** über den Zeitraum: Schlaf, HRV (mit Spanne), Schritte (mit Bestwert),
+  Body Battery, Stress, Schlaf-Score
+- **Trend-Graphen** mit 7-Tage-Durchschnitt als dicker Linie — so sieht man die Richtung
+  statt der täglichen Ausschläge: HRV, Schlaf-Score, Schritte, Body Battery, Stress, Ruhepuls
+- **Schlafphasen über die Zeit** als gestapelte Balken (Tief/Leicht/REM)
+- **Nach Wochentag**: Ø Schlaf und Ø Schritte je Wochentag — zeigt Muster, die im
+  Tagesverlauf untergehen (z. B. kurze Nächte unter der Woche)
+- **Tabelle aller Tage** mit sämtlichen Werten, neueste zuerst
+- **CSV-Export** des gewählten Zeitraums (Semikolon-getrennt, öffnet direkt in Excel)
+
+Tage ohne Messung werden übersprungen statt als Null gezählt — ein Durchschnitt bleibt
+also aussagekräftig, auch wenn die Uhr mal nicht getragen wurde.
+
 ### In die Vergangenheit schauen
 
 Nichts wird je überschrieben oder gelöscht — jeder Tag bleibt dauerhaft in der Datenbank.
@@ -193,6 +212,7 @@ docker exec garmin-health /opt/venv/bin/python3 /app/poller/sync.py --days 1 --d
 | `GET /api/range?days=30&end=2026-08-01` | Tageswerte-Reihe (1–365 Tage), `end` optional zum Zurückblättern |
 | `GET /api/series/today` | Body-Battery- & Stress-Zeitreihe eines Tages |
 | `GET /api/available` | Welcher Zeitraum ist gespeichert (erster/letzter Tag, Anzahl) |
+| `GET /api/export.csv?days=365` | Alle Tageswerte als CSV (Excel-tauglich) |
 | `POST /api/sync?days=2` | Abruf sofort anstoßen (macht der ⟳-Knopf) |
 | `GET /auth/status` | Anmelde- und Abrufstatus |
 | `GET /api/health` | Healthcheck |

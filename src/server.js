@@ -192,7 +192,8 @@ app.get('/api/day/:date', (req, res) => {
 });
 
 app.get('/api/range', (req, res) => {
-  const days = Math.min(Math.max(Number(req.query.days) || 7, 1), 365);
+  // Obergrenze großzügig: die Verlaufsseite lädt damit auch "alles" am Stück
+  const days = Math.min(Math.max(Number(req.query.days) || 7, 1), 3650);
   // Optionales Enddatum, um in die Vergangenheit zu blättern (Standard: heute)
   const end = req.query.end ? resolveDate(req.query.end) : localDate(0);
   if (!end) return res.status(400).json({ error: 'end muss YYYY-MM-DD sein.' });
@@ -221,6 +222,49 @@ app.get('/api/available', (req, res) => {
   });
 });
 
+/** Alle Tageswerte als CSV — für Excel, Backup oder eigene Auswertungen. */
+app.get('/api/export.csv', (req, res) => {
+  const days = Math.min(Math.max(Number(req.query.days) || 365, 1), 3650);
+  const end = req.query.end ? resolveDate(req.query.end) : localDate(0);
+  if (!end) return res.status(400).json({ error: 'end muss YYYY-MM-DD sein.' });
+
+  const columns = [
+    ['Datum', (d) => d.date],
+    ['Schlafdauer_h', (d) => d.sleep && d.sleep.durationHours],
+    ['Tiefschlaf_min', (d) => d.sleep && d.sleep.deepMin],
+    ['Leichtschlaf_min', (d) => d.sleep && d.sleep.lightMin],
+    ['REM_min', (d) => d.sleep && d.sleep.remMin],
+    ['Wach_min', (d) => d.sleep && d.sleep.awakeMin],
+    ['Schlaf_Score', (d) => d.sleep && d.sleep.score],
+    ['HRV_ms', (d) => d.hrv && d.hrv.lastNightAvg],
+    ['BodyBattery_Morgen', (d) => d.bodyBatteryMorning],
+    ['Stress_Durchschnitt', (d) => d.avgStress],
+    ['Stress_Max', (d) => d.maxStress],
+    ['Schritte', (d) => d.steps],
+    ['Ruhepuls', (d) => d.restingHr],
+    ['VO2Max', (d) => d.vo2max],
+  ];
+
+  // Semikolon als Trenner und Komma als Dezimalzeichen — so öffnet Excel (DE) sauber
+  const lines = [columns.map((c) => c[0]).join(';')];
+  for (let i = days - 1; i >= 0; i--) {
+    const day = dayData(addDays(end, -i));
+    lines.push(
+      columns
+        .map(([, get]) => {
+          const value = get(day);
+          if (value === null || value === undefined) return '';
+          return typeof value === 'number' ? String(value).replace('.', ',') : String(value);
+        })
+        .join(';')
+    );
+  }
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="health-export-${end}.csv"`);
+  res.send('\uFEFF' + lines.join('\n')); // BOM, damit Excel Umlaute richtig liest
+});
+
 app.get('/api/series/:date', (req, res) => {
   const date = resolveDate(req.params.date);
   if (!date) return res.status(400).json({ error: 'Datum als YYYY-MM-DD, "today" oder "yesterday".' });
@@ -236,6 +280,10 @@ app.get('/api/series/:date', (req, res) => {
 });
 
 // ---------- Frontend ----------
+
+// Chart.js lokal ausliefern statt vom CDN — das Dashboard funktioniert damit
+// auch ohne Internetzugang und ohne externe Abhängigkeit im Browser.
+app.use('/vendor', express.static(path.join(__dirname, '..', 'node_modules', 'chart.js', 'dist')));
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 

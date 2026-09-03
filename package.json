@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "better-sqlite3": "^11.5.0",
+    "chart.js": "^4.4.4",
     "express": "^4.21.0"
   }
 }

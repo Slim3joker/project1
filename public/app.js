@@ -12,9 +12,13 @@ const COLORS = {
   muted: '#8b93a5',
 };
 
-Chart.defaults.color = COLORS.muted;
-Chart.defaults.borderColor = COLORS.grid;
-Chart.defaults.font.family = 'system-ui, sans-serif';
+const hasCharts = typeof Chart !== 'undefined';
+
+if (hasCharts) {
+  Chart.defaults.color = COLORS.muted;
+  Chart.defaults.borderColor = COLORS.grid;
+  Chart.defaults.font.family = 'system-ui, sans-serif';
+}
 
 // Zustand der Ansicht: welcher Tag, welcher Verlaufszeitraum
 const view = { date: null, days: 7, available: null };
@@ -23,6 +27,7 @@ const view = { date: null, days: 7, available: null };
 const charts = {};
 
 function drawChart(id, config) {
+  if (!hasCharts) return;
   if (charts[id]) charts[id].destroy();
   charts[id] = new Chart(document.getElementById(id), config);
 }
