@@ -1,0 +1,11 @@
+node_modules
+data
+.env
+.git
+*.md
+docs
+n8n
+unraid
+index.html
+poller/__pycache__
+poller/test_mapping.py

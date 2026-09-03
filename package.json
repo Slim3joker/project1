@@ -1,0 +1,19 @@
+{
+  "name": "garmin-health",
+  "version": "1.0.0",
+  "description": "Garmin Health Webhook-Empfänger + Dashboard für health.erenstower.de",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "cd poller && python3 test_mapping.py"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.5.0",
+    "chart.js": "^4.4.4",
+    "express": "^4.21.0"
+  }
+}

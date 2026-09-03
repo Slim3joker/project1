@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verlauf · Health · Erens Tower</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="/vendor/chart.umd.js"></script>
+</head>
+<body>
+  <header>
+    <h1>📈 Verlauf</h1>
+    <nav class="nav">
+      <a href="/">Dashboard</a>
+      <a href="/verlauf.html" class="active">Verlauf</a>
+    </nav>
+    <div class="header-right">
+      <div id="status" class="status">…</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar">
+      <div class="toolbar-group" id="range-buttons">
+        <span class="toolbar-label">Zeitraum:</span>
+        <button type="button" data-days="30" class="active">30 Tage</button>
+        <button type="button" data-days="90">90 Tage</button>
+        <button type="button" data-days="180">6 Monate</button>
+        <button type="button" data-days="365">1 Jahr</button>
+        <button type="button" data-days="all">Alles</button>
+      </div>
+      <div class="toolbar-group">
+        <a id="export-csv" class="btn-link" href="/api/export.csv?days=365">⇩ CSV-Export</a>
+      </div>
+    </section>
+
+    <div id="period-label" class="day-label"></div>
+
+    <!-- Durchschnitte über den gewählten Zeitraum -->
+    <section class="cards" id="summary-cards">
+      <div class="card kpi"><div class="kpi-label">😴 Ø Schlaf</div><div class="kpi-value" id="avg-sleep">–</div><div class="kpi-sub" id="avg-sleep-sub"></div></div>
+      <div class="card kpi"><div class="kpi-label">💓 Ø HRV</div><div class="kpi-value" id="avg-hrv">–</div><div class="kpi-sub" id="avg-hrv-sub"></div></div>
+      <div class="card kpi"><div class="kpi-label">👣 Ø Schritte</div><div class="kpi-value" id="avg-steps">–</div><div class="kpi-sub" id="avg-steps-sub"></div></div>
+      <div class="card kpi"><div class="kpi-label">🔋 Ø Body Battery</div><div class="kpi-value" id="avg-bb">–</div><div class="kpi-sub">morgens</div></div>
+      <div class="card kpi"><div class="kpi-label">😰 Ø Stress</div><div class="kpi-value" id="avg-stress">–</div><div class="kpi-sub" id="avg-stress-sub"></div></div>
+      <div class="card kpi"><div class="kpi-label">🛌 Ø Schlaf-Score</div><div class="kpi-value" id="avg-score">–</div><div class="kpi-sub" id="avg-score-sub"></div></div>
+    </section>
+
+    <section class="cards charts">
+      <div class="card wide"><h2>Schlafphasen über die Zeit</h2><canvas id="chart-sleep"></canvas></div>
+      <div class="card"><h2>HRV <span class="legend-hint">· dünn = Tageswert, dick = 7-Tage-Schnitt</span></h2><canvas id="chart-hrv"></canvas></div>
+      <div class="card"><h2>Schlaf-Score</h2><canvas id="chart-score"></canvas></div>
+      <div class="card"><h2>Schritte <span class="legend-hint">· dick = 7-Tage-Schnitt</span></h2><canvas id="chart-steps"></canvas></div>
+      <div class="card"><h2>Body Battery morgens</h2><canvas id="chart-bb"></canvas></div>
+      <div class="card"><h2>Stress Ø pro Tag</h2><canvas id="chart-stress"></canvas></div>
+      <div class="card"><h2>Ruhepuls</h2><canvas id="chart-rhr"></canvas></div>
+    </section>
+
+    <section class="card wide">
+      <h2>Nach Wochentag</h2>
+      <p class="legend-hint">Durchschnitt je Wochentag über den gewählten Zeitraum — zeigt Muster, die im Tagesverlauf untergehen.</p>
+      <canvas id="chart-weekday"></canvas>
+    </section>
+
+    <section class="card wide table-card">
+      <h2>Alle Tage</h2>
+      <div class="table-scroll">
+        <table id="history-table">
+          <thead>
+            <tr>
+              <th>Datum</th><th>Schlaf</th><th>Tief</th><th>Leicht</th><th>REM</th>
+              <th>Score</th><th>HRV</th><th>Body Batt.</th><th>Stress Ø</th>
+              <th>Schritte</th><th>Ruhepuls</th><th>VO2</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="table-note" class="history-note"></p>
+    </section>
+  </main>
+
+  <footer>Garmin Vivoactive 5 · health.erenstower.de · aktualisiert <span id="updated"></span></footer>
+  <script src="verlauf.js"></script>
+</body>
+</html>

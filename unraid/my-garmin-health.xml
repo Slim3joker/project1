@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>garmin-health</Name>
+  <Repository>garmin-health</Repository>
+  <Registry/>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support/>
+  <Project/>
+  <Overview>Garmin Health Dashboard fuer health.erenstower.de. Holt Schlaf, Schritte, Body Battery, HRV, Stress und VO2 Max automatisch aus Garmin Connect und speichert sie in SQLite. Image wird lokal gebaut (docker build -t garmin-health .), nicht aus einer Registry gezogen. Nach dem ersten Start einmalig anmelden: docker exec -it garmin-health /opt/venv/bin/python3 /app/poller/login.py</Overview>
+  <Category>Tools:</Category>
+  <WebUI>http://[IP]:[PORT:8100]/</WebUI>
+  <Icon>https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/garmin.png</Icon>
+  <ExtraParams>--restart unless-stopped</ExtraParams>
+  <Config Name="Port" Target="3000" Default="8100" Mode="tcp" Description="Web/API Port" Type="Port" Display="always" Required="true" Mask="false">8100</Config>
+  <Config Name="Daten (SQLite + Garmin-Anmeldung)" Target="/data" Default="/mnt/user/appdata/garmin-health/data" Mode="rw" Description="Persistente Datenbank und gespeicherte Anmeldung" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/garmin-health/data</Config>
+  <Config Name="TZ" Target="TZ" Default="Europe/Berlin" Mode="" Description="Zeitzone" Type="Variable" Display="always" Required="true" Mask="false">Europe/Berlin</Config>
+  <Config Name="POLL_INTERVAL_MIN" Target="POLL_INTERVAL_MIN" Default="180" Mode="" Description="Wie oft die Daten aus Garmin Connect geholt werden (Minuten)" Type="Variable" Display="always" Required="false" Mask="false">180</Config>
+  <Config Name="POLL_DAYS" Target="POLL_DAYS" Default="2" Mode="" Description="Wie viele Tage rueckwirkend bei jedem Abruf nachgezogen werden" Type="Variable" Display="always" Required="false" Mask="false">2</Config>
+  <Config Name="POLL_ENABLED" Target="POLL_ENABLED" Default="true" Mode="" Description="Automatischen Abruf aktivieren (true/false)" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="WEBHOOK_SECRET" Target="WEBHOOK_SECRET" Default="" Mode="" Description="Optional — nur fuer den offiziellen Health-API-Webhook" Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+  <Config Name="GARMIN_CLIENT_ID" Target="GARMIN_CLIENT_ID" Default="" Mode="" Description="Optional — nur mit offiziellem Health-API-Zugang" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="GARMIN_CLIENT_SECRET" Target="GARMIN_CLIENT_SECRET" Default="" Mode="" Description="Optional — nur mit offiziellem Health-API-Zugang" Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+</Container>

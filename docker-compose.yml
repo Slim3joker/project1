@@ -1,0 +1,17 @@
+services:
+  garmin-health:
+    build: .
+    image: garmin-health
+    container_name: garmin-health
+    restart: unless-stopped
+    ports:
+      - "8100:3000"
+    volumes:
+      - /mnt/user/appdata/garmin-health/data:/data
+    environment:
+      TZ: Europe/Berlin
+      # Automatischer Abruf aus Garmin Connect
+      POLL_INTERVAL_MIN: "180"   # alle 3 Stunden
+      POLL_DAYS: "2"             # immer die letzten 2 Tage nachziehen
+      # Nur nötig, falls zusätzlich der offizielle Health-API-Webhook genutzt wird
+      WEBHOOK_SECRET: "${WEBHOOK_SECRET:-}"
