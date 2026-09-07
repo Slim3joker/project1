@@ -89,3 +89,25 @@ manuelle Eingabe:
 
 Beim ersten Start ist eine Beispiel-SKU (Kuvio Steckdosenwürfel) angelegt,
 damit man sieht, wie alles funktioniert – einfach bearbeiten oder löschen.
+
+## Claude-Code-Skills im Projekt
+
+Unter `.claude/skills/` liegen Skills, die Claude Code in diesem Repo
+automatisch lädt.
+
+### prompt-master (v1.8.0)
+
+Schreibt fertige, tool-spezifische Prompts für beliebige KI-Werkzeuge
+(Claude, ChatGPT, Cursor, Claude Code, Midjourney, Stable Diffusion, Sora,
+ElevenLabs, n8n …). Erkennt das Ziel-Tool, stellt maximal 3 Rückfragen,
+wählt still das passende Prompt-Template und liefert einen kopierfertigen
+Prompt-Block.
+
+- **Quelle:** <https://github.com/nidhinjs/prompt-master> (MIT-Lizenz,
+  Stand 2026-08-24, Upstream-Commit `2bd9251`)
+- **Aufruf:** `/prompt-master` oder natürlich formuliert, z. B.
+  *„Schreib mir einen Prompt für Cursor, der mein Auth-Modul refactored"*
+- **Aktualisieren:** Upstream-Repo klonen und die Dateien (ohne `.git`)
+  nach `.claude/skills/prompt-master/` kopieren.
+- **Für alle Projekte und Chats:** den Ordner als ZIP in
+  claude.ai → Customize → Skills → „Upload a Skill" hochladen.
