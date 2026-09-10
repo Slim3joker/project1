@@ -709,6 +709,9 @@ const FERTILE_BEFORE = 4;
 const FERTILE_AFTER = 2;
 function ovulationDayFor(cycleLen) { return cycleLen - LUTEAL_DAYS + 1; }
 
+const ONGOING_PERIOD_MIN_DAYS = 3;
+const ONGOING_PERIOD_MAX_DAYS = 14;
+
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -809,14 +812,22 @@ function isInActivePeriod() {
 
 function getDayPhase(dateStr) {
   const periods = appData.periods;
+  const today = todayStr();
+  const last = getLastPeriod();
   for (const p of periods) {
-    const end = p.endDate || addDays(p.startDate, getAvgPeriodLength() - 1);
+    let end = p.endDate;
+    if (!end && p === last) {
+      const minEnd = addDays(p.startDate, ONGOING_PERIOD_MIN_DAYS - 1);
+      const maxEnd = addDays(p.startDate, ONGOING_PERIOD_MAX_DAYS - 1);
+      end = today > minEnd ? (today < maxEnd ? today : maxEnd) : minEnd;
+    } else if (!end) {
+      end = addDays(p.startDate, getAvgPeriodLength() - 1);
+    }
     if (dateStr >= p.startDate && dateStr <= end) {
-      return { phase: 'period', predicted: false };
+      return { phase: 'period', predicted: dateStr > today };
     }
   }
 
-  const last = getLastPeriod();
   if (!last) return { phase: 'none', predicted: false };
 
   const avgCycle = getAvgCycleLength();

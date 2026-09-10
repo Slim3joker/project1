@@ -102,8 +102,10 @@ Die App speichert Daten als JSON im Browser-localStorage:
 ## Zyklusberechnung
 
 - **Zykluslänge** = Tage zwischen aufeinanderfolgenden Periodenstarttagen
-- **Eisprung** = Zykluslänge − 14 Tage (Lutealphase ist relativ konstant)
-- **Fruchtbares Fenster** = 5 Tage vor Eisprung bis 1 Tag nach Eisprung
+- **Laufende Periode** (ohne Ende): mindestens 3 Tage angezeigt, Tage nach heute
+  als Vorhersage, höchstens 14 Tage falls das Beenden vergessen wird
+- **Eisprung** = Zykluslänge − 13 + 1 Tage (Tag 16 bei 28 Tagen, wie Flo)
+- **Fruchtbares Fenster** = 4 Tage vor Eisprung bis 2 Tage nach Eisprung
 - **Phasen**: Menstruation → Follikelphase → Eisprung → Lutealphase
 
 ## Privatsphäre
