@@ -704,6 +704,11 @@ function uid() {
   return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
 }
 
+const LUTEAL_DAYS = 13;
+const FERTILE_BEFORE = 4;
+const FERTILE_AFTER = 2;
+function ovulationDayFor(cycleLen) { return cycleLen - LUTEAL_DAYS + 1; }
+
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -820,9 +825,9 @@ function getDayPhase(dateStr) {
   const dayInCycle = getDayInCycleForDate(dateStr);
   if (dayInCycle === null) return { phase: 'none', predicted: false };
 
-  const ovulationDay = avgCycle - 14;
-  const fertileStart = ovulationDay - 5;
-  const fertileEnd = ovulationDay + 1;
+  const ovDay = ovulationDayFor(avgCycle);
+  const fertileStart = ovDay - FERTILE_BEFORE;
+  const fertileEnd = ovDay + FERTILE_AFTER;
 
   if (dayInCycle >= 1 && dayInCycle <= avgPeriod) {
     const isActual = periods.some(p => {
@@ -837,7 +842,7 @@ function getDayPhase(dateStr) {
   }
 
   if (dayInCycle >= fertileStart && dayInCycle <= fertileEnd) {
-    if (dayInCycle === ovulationDay) return { phase: 'ovulation', predicted: dateStr > todayStr() };
+    if (dayInCycle === ovDay) return { phase: 'ovulation', predicted: dateStr > todayStr() };
     return { phase: 'fertile', predicted: dateStr > todayStr() };
   }
 
@@ -893,16 +898,16 @@ function getCurrentPhaseInfo() {
 
   const avgCycle = getAvgCycleLength();
   const avgPeriod = getAvgPeriodLength();
-  const ovulationDay = avgCycle - 14;
-  const fertileStart = ovulationDay - 5;
-  const fertileEnd = ovulationDay + 1;
+  const ovDay = ovulationDayFor(avgCycle);
+  const fertileStart = ovDay - FERTILE_BEFORE;
+  const fertileEnd = ovDay + FERTILE_AFTER;
   const adjustedDay = ((cycleDay - 1) % avgCycle) + 1;
 
   if (isInActivePeriod() || adjustedDay <= avgPeriod) {
     return { phase: 'period', name: 'Menstruation', color: '--period', desc: 'Periode aktiv' };
   }
   if (adjustedDay >= fertileStart && adjustedDay <= fertileEnd) {
-    if (adjustedDay === ovulationDay) {
+    if (adjustedDay === ovDay) {
       return { phase: 'ovulation', name: 'Eisprung', color: '--ovulation', desc: 'Hohe Fruchtbarkeit' };
     }
     return { phase: 'fertile', name: 'Fruchtbare Tage', color: '--fertile', desc: 'Erhöhte Fruchtbarkeit' };
@@ -1026,15 +1031,13 @@ function renderDashboard() {
         <div>Nächste Periode: <strong>${formatDateLong(nextPeriod)}</strong></div>
         <div>Geschätzte Dauer: <strong>${getAvgPeriodLength()} Tage</strong></div>
         ${(() => {
-          const ovDay = avgCycle - 14;
-          const ovDate = addDays(last.startDate, Math.floor(diffDays(last.startDate, todayStr()) / avgCycle + 1) * avgCycle - 14 + (diffDays(last.startDate, todayStr()) >= avgCycle ? 0 : 0));
+          const ovDay = ovulationDayFor(avgCycle);
           const lastForCalc = last.startDate;
           const cyclesSince = Math.max(1, Math.ceil(diffDays(lastForCalc, todayStr()) / avgCycle));
-          const nextCycleStart = addDays(lastForCalc, avgCycle * (cyclesSince - (diffDays(lastForCalc, todayStr()) < avgCycle ? 0 : 0)));
           const actualCycleStart = diffDays(lastForCalc, todayStr()) < avgCycle ? lastForCalc : addDays(lastForCalc, avgCycle * (cyclesSince - 1));
           const ovulationDate = addDays(actualCycleStart, ovDay - 1);
-          const fertileFrom = addDays(ovulationDate, -5);
-          const fertileTo = addDays(ovulationDate, 1);
+          const fertileFrom = addDays(ovulationDate, -FERTILE_BEFORE);
+          const fertileTo = addDays(ovulationDate, FERTILE_AFTER);
           return `<div>Eisprung ca.: <strong>${formatDate(ovulationDate)}</strong></div>
                   <div>Fruchtbar: <strong>${formatDate(fertileFrom)} – ${formatDate(fertileTo)}</strong></div>`;
         })()}
@@ -1375,7 +1378,7 @@ function svgCycleTimeline(cycles) {
   shown.forEach((c, i) => {
     const y = padT + i * rowH + (rowH - barH) / 2;
     const yMid = y + barH / 2;
-    const ovDay = c.len - 14;
+    const ovDay = ovulationDayFor(c.len);
     const tipParts = [`${formatDate(c.start)} – ${formatDate(c.nextStart)}`, `Zyklus ${c.len} Tage`];
     if (c.periodLen) tipParts.push(`Periode ${c.periodLen} Tage`);
     if (ovDay >= 1) tipParts.push(`Eisprung ca. Tag ${ovDay}`);
@@ -1393,7 +1396,7 @@ function svgCycleTimeline(cycles) {
     s += `<path d="M ${x(1)} ${y} H ${x(pl + 1) - 1} Q ${x(pl + 1) + 3} ${y}, ${x(pl + 1) + 3} ${y + 4} V ${y + barH - 4} Q ${x(pl + 1) + 3} ${y + barH}, ${x(pl + 1) - 1} ${y + barH} H ${x(1)} Z" fill="var(--period)"/>`;
 
     if (ovDay >= 2) {
-      const fs = Math.max(pl + 1, ovDay - 5), fe = Math.min(c.len, ovDay + 1);
+      const fs = Math.max(pl + 1, ovDay - FERTILE_BEFORE), fe = Math.min(c.len, ovDay + FERTILE_AFTER);
       if (fe > fs) {
         s += `<rect x="${x(fs) + 1}" y="${y}" width="${x(fe + 1) - x(fs) - 2}" height="${barH}" rx="4" fill="var(--fertile)" opacity="0.30"/>`;
       }
