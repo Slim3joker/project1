@@ -868,12 +868,28 @@ function getDayPhase(dateStr) {
   return { phase: 'none', predicted: false };
 }
 
+function getCycleAnchor() {
+  const periods = appData.periods;
+  if (periods.length < 2) return periods.length ? periods[0].startDate : null;
+  const last = periods[periods.length - 1];
+  const prev = periods[periods.length - 2];
+  const gap = diffDays(prev.startDate, last.startDate);
+  if (gap >= 60) {
+    const avgCycle = getAvgCycleLength();
+    const n = Math.round(gap / avgCycle);
+    return addDays(prev.startDate, n * avgCycle);
+  }
+  return last.startDate;
+}
+
 function getDayInCycleForDate(dateStr) {
   const periods = appData.periods;
   if (!periods.length) return null;
+  const anchor = getCycleAnchor();
 
   for (let i = periods.length - 1; i >= 0; i--) {
-    const d = diffDays(periods[i].startDate, dateStr);
+    const ref = (i === periods.length - 1) ? anchor : periods[i].startDate;
+    const d = diffDays(ref, dateStr);
     if (d >= 0) {
       const avgCycle = getAvgCycleLength();
       return (d % avgCycle) + 1;
@@ -895,10 +911,11 @@ function getPredictedNextPeriod() {
   const last = getLastPeriod();
   if (!last) return null;
   const avgCycle = getAvgCycleLength();
-  const nextStart = addDays(last.startDate, avgCycle);
+  const anchor = getCycleAnchor();
+  const nextStart = addDays(anchor, avgCycle);
   if (nextStart <= todayStr() && !isInActivePeriod()) {
-    const cyclesSince = Math.ceil(diffDays(last.startDate, todayStr()) / avgCycle);
-    return addDays(last.startDate, avgCycle * cyclesSince);
+    const cyclesSince = Math.ceil(diffDays(anchor, todayStr()) / avgCycle);
+    return addDays(anchor, avgCycle * cyclesSince);
   }
   return nextStart;
 }
@@ -1043,10 +1060,10 @@ function renderDashboard() {
         <div>Geschätzte Dauer: <strong>${getAvgPeriodLength()} Tage</strong></div>
         ${(() => {
           const ovDay = ovulationDayFor(avgCycle);
-          const lastForCalc = last.startDate;
-          const cyclesSince = Math.max(1, Math.ceil(diffDays(lastForCalc, todayStr()) / avgCycle));
-          const actualCycleStart = diffDays(lastForCalc, todayStr()) < avgCycle ? lastForCalc : addDays(lastForCalc, avgCycle * (cyclesSince - 1));
-          const ovulationDate = addDays(actualCycleStart, ovDay - 1);
+          const anchor = getCycleAnchor();
+          const cyclesSince = Math.max(1, Math.ceil(diffDays(anchor, todayStr()) / avgCycle));
+          const cycleStart = diffDays(anchor, todayStr()) < avgCycle ? anchor : addDays(anchor, avgCycle * (cyclesSince - 1));
+          const ovulationDate = addDays(cycleStart, ovDay - 1);
           const fertileFrom = addDays(ovulationDate, -FERTILE_BEFORE);
           const fertileTo = addDays(ovulationDate, FERTILE_AFTER);
           return `<div>Eisprung ca.: <strong>${formatDate(ovulationDate)}</strong></div>
