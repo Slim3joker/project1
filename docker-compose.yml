@@ -1,4 +1,3 @@
-version: "3"
 services:
   meinzyklus:
     build: .
@@ -6,6 +5,7 @@ services:
     ports:
       - "8087:80"
     volumes:
-      # Optionale Startdaten – liegt nur auf dem Server, nie in Git (.gitignore)
-      - ./seed.json:/usr/share/nginx/html/seed.json:ro
+      # Zentraler Datenspeicher – bleibt auf dem Server, nie in Git (.gitignore).
+      # Hier liegen data.json (die gemeinsamen Daten) und optional seed.json (Startdaten).
+      - ./data:/data
     restart: unless-stopped

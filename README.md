@@ -16,8 +16,11 @@ Keine Cloud, keine Abo-Kosten – alle Daten bleiben lokal im Browser.
 
 ## Tech-Stack
 
-Eine einzige Datei (`index.html`), kein Server, kein Build-Tool.
-Daten werden im `localStorage` des Browsers gespeichert.
+Die App ist eine einzige Datei (`index.html`), kein Build-Tool.
+Ein winziger Node-Server (`server.js`, ohne Abhängigkeiten) liefert die App aus
+und speichert die Daten **zentral** in `data/data.json` auf dem Server.
+So sehen **alle Geräte dieselben Daten** (Handy, PC, Tablet). Der Browser
+behält zusätzlich eine lokale Kopie, damit die App auch offline weiterläuft.
 
 ## Deployment auf Unraid
 
@@ -29,21 +32,29 @@ docker-compose up -d --build
 
 Die App läuft dann auf `http://<unraid-ip>:8087`.
 
-### Startdaten (seed.json)
+### Zentraler Datenspeicher (data/)
 
-Optional kann neben der `docker-compose.yml` eine `seed.json` liegen
-(gleiches Format wie der Export). Browser ohne eigene Daten übernehmen
-sie beim ersten Öffnen automatisch – kein manueller Import nötig.
-Lokale Einträge und Importe haben immer Vorrang und werden nie überschrieben.
+Die gemeinsamen Daten liegen in `data/data.json` (Docker-Volume `./data`).
+Jede Änderung auf irgendeinem Gerät wird sofort dorthin gespeichert; alle
+anderen Geräte übernehmen sie beim nächsten Öffnen bzw. Aktualisieren.
 
-**Wichtig:** `seed.json` steht in der `.gitignore` und darf nie ins Repo
-committet werden – sie enthält private Gesundheitsdaten.
+Der Ordner `data/` steht in der `.gitignore` und darf **nie** ins Repo
+committet werden – er enthält private Gesundheitsdaten.
+
+### Startdaten (data/seed.json)
+
+Optional kann im `data/`-Ordner eine `seed.json` liegen (gleiches Format wie
+der Export). Existiert noch keine `data.json`, werden diese Startdaten beim
+ersten Zugriff übernommen. Sobald echte Daten gespeichert sind, wird die
+`seed.json` nicht mehr verwendet.
 
 ### Manuell mit Docker
 
 ```bash
 docker build -t meinzyklus .
-docker run -d --name meinzyklus -p 8087:80 --restart unless-stopped meinzyklus
+docker run -d --name meinzyklus -p 8087:80 \
+  -v /mnt/user/appdata/meinzyklus/data:/data \
+  --restart unless-stopped meinzyklus
 ```
 
 ### Unraid Community Applications
@@ -66,19 +77,22 @@ Um die App unter einer eigenen Domain erreichbar zu machen:
    - **URL**: `<unraid-ip>:8087` (z.B. `192.168.1.100:8087`)
 4. Speichern – die App ist sofort unter der Domain erreichbar
 
-### Cloudflare Access (optional, empfohlen!)
+### Cloudflare Access (DRINGEND empfohlen!)
 
-Da es private Gesundheitsdaten sind, solltet ihr den Zugriff schützen:
+Seit die Daten zentral auf dem Server liegen, ist der Endpunkt
+`zyklus.deinedomain.de/api/data` öffentlich erreichbar – **ohne Schutz kann
+jeder mit der URL die Gesundheitsdaten lesen oder überschreiben.** Deshalb
+solltet ihr den Zugriff unbedingt per Cloudflare Access absichern:
 
 1. Cloudflare Dashboard → Zero Trust → Access → Applications
 2. **Add an Application** → Self-hosted
-3. Application domain: `zyklus.deinedomain.de`
+3. Application domain: `zyklus.deinedomain.de` (die **ganze** Domain, nicht nur ein Pfad)
 4. Policy erstellen: z.B. nur eure E-Mail-Adressen erlauben
-5. So müsst ihr euch erst einloggen, bevor die App geladen wird
+5. So müsst ihr euch erst einloggen, bevor App **und** `/api/data` geladen werden
 
 ## Datenformat
 
-Die App speichert Daten als JSON im Browser-localStorage:
+Die App speichert Daten als JSON (zentral in `data/data.json`, plus lokale Kopie):
 
 ```json
 {
@@ -110,5 +124,10 @@ Die App speichert Daten als JSON im Browser-localStorage:
 
 ## Privatsphäre
 
-Alle Daten werden ausschließlich im `localStorage` des Browsers gespeichert.
-Es werden keine Daten an Server gesendet. Die App funktioniert komplett offline.
+Die Daten liegen zentral auf **eurem eigenen Server** (`data/data.json`) –
+keine Cloud, kein fremder Anbieter. Der Browser hält zusätzlich eine lokale
+Kopie, damit die App auch offline funktioniert.
+
+Weil der Server unter einer öffentlichen Domain läuft, schützt **Cloudflare
+Access** (siehe oben) den Zugriff auf App und Daten. Ohne diesen Schutz wäre
+`/api/data` für jeden mit der URL erreichbar.

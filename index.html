@@ -688,12 +688,28 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); o
    DATA LAYER
    ───────────────────────────────────────── */
 const STORAGE_KEY = 'meinzyklus_data';
+const API_URL = 'api/data';
+let serverOnline = false;
 
 const defaultData = () => ({
   periods: [],
   notes: {},
   settings: { defaultCycleLength: 28, defaultPeriodLength: 5 }
 });
+
+/* Rohdaten (Server, Import, localStorage) in ein sauberes appData-Objekt bringen. */
+function normalizeData(raw) {
+  const d = raw && typeof raw === 'object' ? raw : {};
+  const periods = Array.isArray(d.periods) ? d.periods : [];
+  return {
+    periods: periods
+      .filter(p => p && p.startDate)
+      .map(p => ({ id: p.id || uid(), startDate: p.startDate, endDate: p.endDate || null }))
+      .sort((a, b) => a.startDate.localeCompare(b.startDate)),
+    notes: d.notes && typeof d.notes === 'object' ? d.notes : {},
+    settings: { ...defaultData().settings, ...(d.settings || {}) }
+  };
+}
 
 /* crypto.randomUUID gibt es nur in sicheren Kontexten (HTTPS/localhost).
    Über http://<lokale-ip>:8087 fehlt es – daher eigener Fallback. */
@@ -716,21 +732,29 @@ function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultData();
-    const d = JSON.parse(raw);
-    d.periods = (d.periods || []).map(p => ({
-      id: p.id || uid(),
-      startDate: p.startDate,
-      endDate: p.endDate || null
-    }));
-    d.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
-    d.notes = d.notes || {};
-    d.settings = { ...defaultData().settings, ...(d.settings || {}) };
-    return d;
+    return normalizeData(JSON.parse(raw));
   } catch { return defaultData(); }
 }
 
+/* Nur in den Browser-Cache schreiben (ohne Server-Push). */
+function saveLocal(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+}
+
+/* Zum Server hochladen, damit alle Geräte dieselben Daten sehen. */
+function pushToServer(data) {
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(res => { serverOnline = res.ok; return res.ok; })
+    .catch(() => { serverOnline = false; return false; });
+}
+
+/* Speichern = lokaler Cache + Server (Quelle der Wahrheit für alle Geräte). */
 function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  saveLocal(data);
+  pushToServer(data);
 }
 
 let appData = loadData();
@@ -1809,29 +1833,45 @@ const today = new Date();
 document.getElementById('periodStart').max = toStr(today);
 document.getElementById('periodEnd').max = toStr(today);
 
-/* Erststart: Daten automatisch von seed.json des Servers übernehmen.
-   Läuft nur, wenn dieser Browser noch keine eigenen Daten hat –
-   lokale Einträge und Importe werden nie überschrieben. */
-(async function trySeedFromServer() {
-  if (localStorage.getItem(STORAGE_KEY)) return;
+/* Server-Sync beim Start: der Server ist die gemeinsame Quelle der Wahrheit,
+   damit alle Geräte (Handy Frau, PC, Handy Mann) dieselben Daten sehen.
+   - Hat der Server Daten -> die gelten, lokal wird überschrieben.
+   - Server leer, aber dieses Gerät hat Daten -> hochladen (Migration).
+   - Beide leer -> einmalig seed.json übernehmen und hochladen.
+   Fällt der Server aus, läuft die App mit den lokalen Daten weiter. */
+(async function syncWithServer() {
   try {
-    const res = await fetch('seed.json', { cache: 'no-store' });
-    if (!res.ok) return;
-    const seed = await res.json();
-    if (!Array.isArray(seed.periods) || !seed.periods.length) return;
-    appData = {
-      periods: seed.periods
-        .filter(p => p.startDate)
-        .map(p => ({ id: p.id || uid(), startDate: p.startDate, endDate: p.endDate || null })),
-      notes: seed.notes || {},
-      settings: { ...defaultData().settings, ...(seed.settings || {}) }
-    };
-    appData.periods.sort((a, b) => a.startDate.localeCompare(b.startDate));
-    saveData(appData);
-    loadSettings();
-    renderAll();
+    const res = await fetch(API_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Server antwortet nicht (' + res.status + ')');
+    serverOnline = true;
+    const server = normalizeData(await res.json());
+
+    if (server.periods.length) {
+      appData = server;
+      saveLocal(appData);
+      loadSettings();
+      renderAll();
+      return;
+    }
+
+    if (appData.periods.length) {
+      await pushToServer(appData);
+      return;
+    }
+
+    const seedRes = await fetch('seed.json', { cache: 'no-store' });
+    if (seedRes.ok) {
+      const seed = normalizeData(await seedRes.json());
+      if (seed.periods.length) {
+        appData = seed;
+        saveLocal(appData);
+        await pushToServer(appData);
+        loadSettings();
+        renderAll();
+      }
+    }
   } catch (err) {
-    console.warn('Startdaten (seed.json) konnten nicht geladen werden:', err);
+    console.warn('Server-Sync nicht möglich – App läuft mit lokalen Daten:', err);
   }
 })();
 </script>
