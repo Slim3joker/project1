@@ -1,0 +1,5 @@
+# Private Zyklusdaten – niemals ins (öffentliche) Repo committen!
+seed.json
+data/
+
+node_modules/
