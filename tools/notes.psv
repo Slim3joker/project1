@@ -1,0 +1,38 @@
+# Umgangssprache- und Feinheiten-Notizen für einzelne Wörter
+# Format: lemma|notiz   (lemma wie in translations.psv, Notiz auf Deutsch)
+# Wird von build_data.py als Feld "n" in js/data.js eingebaut und in der App mit 💡 angezeigt.
+bura|Im Alltag sagt fast jeder „burda". Unterschied im Trio: burada = hier (wo ich bin), şurada = da (drüben, mit Zeigen), orada = dort (weiter weg oder schon bekannt).
+ora|Im Alltag meist „orda" gesprochen.
+şura|Im Alltag meist „şurda". şurada nimmt man beim Zeigen: „şurda!" = genau da drüben!
+nere|Gesprochen meist „nerde": „Nerdesin?" = Wo steckst du?
+birşey|Gesprochen oft „bişey" oder sogar „bişi".
+değil|In der Nachfrage oft nur „di mi?" (= değil mi? = nicht wahr?, oder?).
+yapmak|„Ne yapıyorsun?" verschmilzt gesprochen zu „Napıyorsun?" (Was machst du?).
+gelmek|Gesprochen wird -iyor oft zu -iyo: „geliyo" statt „geliyor". Regional (Anatolien) auch „geliyom" = geliyorum.
+istemek|Locker gesprochen fällt das r: „istiyo" statt „istiyor"; regional „istiyon" = istiyorsun.
+teşekkür|Locker: „sağ ol". Unter Kumpels auch „eyvallah" (danke / passt schon).
+tamam|Im Chat oft „tmm". Doppelt „tamam tamam" = ja ja, schon gut.
+evet|Ugs. auch „he" oder „hı hı". In höflicher Runde besser evet.
+hayır|Im Alltag sagt man meist „yok" oder „yo" statt hayır – hayır klingt schon fast förmlich.
+yok|Auch als Ausruf: „Yok artık!" = Das gibt's doch nicht! / Nicht dein Ernst!
+var|Besitz baut man damit: „Bende para var" = Ich habe Geld (wörtlich: bei mir gibt es Geld).
+efendi|„Efendim?" ist auch das „Ja, bitte?" beim Abnehmen des Telefons – oder wenn man seinen Namen gerufen hört.
+ağabey|Wird immer „abi" gesprochen – die Schreibweise ağabey liest man fast nur.
+hanım|Nach dem Vornamen = höfliche Anrede: „Ayşe Hanım" (Frau Ayşe).
+bay|Im echten Leben sagt man eher „Bey" nach dem Vornamen: „Mehmet Bey". „Bay" steht eher auf Formularen.
+şey|Universal-Füllwort wie „Dings" oder „ähm": „Şey… bir dakika."
+can|„canım" = mein Schatz/Liebling – aber „yok canım!" heißt „ach was!, echt jetzt?".
+kolay|„Kolay gelsin!" sagt man jedem, der gerade arbeitet – quasi „frohes Schaffen". Extrem häufig!
+geçmek|„Geçmiş olsun!" = Gute Besserung (nach Krankheit, Schreck oder Stress).
+allah|Ständige Ausrufe: „Allah Allah!" (na sowas!), „Allah'a şükür" (Gott sei Dank), „Allah korusun" (Gott bewahre).
+insan|Auch generisch „man": „İnsan merak ediyor" = Man fragt sich schon.
+hadi|Auch als Verabschiedung: „Hadi görüşürüz" = Na dann, bis später. Gedehnt „hadiii" = jetzt komm schon!
+bakmak|„Baksana!" = Guck mal! / Hör mal! – lockerer Gesprächsöffner.
+olmak|„Olur" = geht klar. „Oldu" = alles klar, erledigt. „Olsun" = macht nichts / passt schon.
+gerekmek|Im Alltag oft mit lazım statt gerek: „Gitmem lazım" = Ich muss los.
+ile|Verschmilzt meist zur Endung -(y)le/-(y)la: „arabayla" = mit dem Auto, „benimle" = mit mir.
+ne|„Naber?" (= ne haber?) = Was geht? – die Standard-Begrüßung unter Freunden.
+sen|Höflich/distanziert siezt man mit siz – in der Familie und unter Freunden immer sen.
+abi|Auch zu Fremden im Alltag: „Abi, pardon…" (etwa: Chef/Bruder, Entschuldigung…). Weiblich: abla.
+değmek|„Değer mi?" = Lohnt sich das? „Değmez" = nicht der Rede wert (auch als Antwort auf Danke).
+buyurmak|„Buyurun" hört man überall: bitte sehr, treten Sie ein, was darf's sein, greifen Sie zu.

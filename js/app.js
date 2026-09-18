@@ -11,6 +11,8 @@ const NEW_PER_SESSION = 8;
 const GOLD_MC = 10;
 const GOLD_TYPE = 15;
 const GOLD_BLITZ = 5;
+const GOLD_CONJ = 12;
+const GOLD_ORDER = 12;
 
 const LEVELS = [
   [0, "Çaylak", "Frischling"],
@@ -35,6 +37,8 @@ const ACHIEVEMENTS = [
   { id: "master25", ico: "⭐", name: "25 gemeistert", desc: "25 Wörter in Box 5+", gold: 50, test: (s) => countMastered(s) >= 25 },
   { id: "master100", ico: "🌟", name: "100 gemeistert", desc: "100 Wörter in Box 5+", gold: 150, test: (s) => countMastered(s) >= 100 },
   { id: "shaky10", ico: "🧠", name: "Langzeitgedächtnis", desc: "10 Wackelkandidaten gefestigt", gold: 100, test: (s) => (s.stats.shakyMastered || 0) >= 10 },
+  { id: "conj50", ico: "📐", name: "Konjugations-Fuchs", desc: "50 Verbformen richtig gebildet", gold: 100, test: (s) => (s.stats.conjCorrect || 0) >= 50 },
+  { id: "order20", ico: "🧩", name: "Satzbaumeister", desc: "20 Sätze richtig gebaut", gold: 75, test: (s) => (s.stats.orderCorrect || 0) >= 20 },
   { id: "combo10", ico: "🔥", name: "10er-Combo", desc: "10 richtige am Stück", gold: 30, test: (s) => s.stats.bestCombo >= 10 },
   { id: "combo25", ico: "☄️", name: "25er-Combo", desc: "25 richtige am Stück", gold: 75, test: (s) => s.stats.bestCombo >= 25 },
   { id: "streak3", ico: "🗓️", name: "3 Tage", desc: "3 Tage in Folge gelernt", gold: 30, test: (s) => s.streak.days >= 3 },
@@ -58,7 +62,7 @@ function defaultState() {
     words: {}, // tr -> {box, due, c, w, known}
     settings: { lang: "de", tts: true },
     ach: [],
-    stats: { answered: 0, correctTotal: 0, bestCombo: 0, sessions: 0, shakyMastered: 0 },
+    stats: { answered: 0, correctTotal: 0, bestCombo: 0, sessions: 0, shakyMastered: 0, conjCorrect: 0, orderCorrect: 0 },
   };
 }
 
@@ -338,6 +342,10 @@ function viewHome() {
         <span class="ico">⌨️</span>
         <span>Schreib-Modus<span class="sub">Deutsch → Türkisch tippen (+${GOLD_TYPE} 🪙)</span></span>
       </button>
+      <button class="mbtn" id="btn-grammar">
+        <span class="ico">📐</span>
+        <span>Grammatik<span class="sub">Konjugieren, Satzbau, Umgangssprache</span></span>
+      </button>
       <button class="mbtn" id="btn-dict">
         <span class="ico">📖</span>
         <span>Wörterliste<span class="sub">${WORDS.length} Wörter · „kenne ich schon" markieren</span></span>
@@ -362,6 +370,7 @@ function viewHome() {
   $("#btn-new").onclick = () => startSession("new");
   $("#btn-blitz").onclick = () => startSession("blitz");
   $("#btn-type").onclick = () => startSession("type");
+  $("#btn-grammar").onclick = () => viewGrammar();
   $("#btn-dict").onclick = () => viewDict();
   $("#btn-ach").onclick = () => viewAchievements();
   $("#btn-settings").onclick = () => viewSettings();
@@ -398,6 +407,19 @@ function startSession(mode) {
       return { w, kind: typable && idx % 3 === 2 ? "type" : "mc" };
     });
     shuffle(queue);
+  } else if (mode === "conj") {
+    const verbs = conjVerbPool();
+    for (let i = 0; i < SESSION_SIZE; i++) {
+      const verb = verbs[Math.floor(Math.random() * verbs.length)];
+      const tenseKeys = Object.keys(TENSES);
+      const tense = tenseKeys[Math.floor(Math.random() * tenseKeys.length)];
+      const person = Math.floor(Math.random() * 6);
+      const neg = Math.random() < 0.3;
+      queue.push({ kind: "conj", w: verb, person, tense, neg });
+    }
+  } else if (mode === "order") {
+    const pool = shuffle(SENTENCES.slice()).slice(0, 8);
+    queue = pool.map((s) => ({ kind: "order", s }));
   } else if (mode === "type") {
     const pool = WORDS.filter((w) => {
       const r = rec(w.tr);
@@ -417,6 +439,8 @@ function stepSession(session) {
   const item = session.queue[session.pos];
   if (item.kind === "intro") viewIntro(session, item);
   else if (item.kind === "type") viewType(session, item);
+  else if (item.kind === "conj") viewConj(session, item);
+  else if (item.kind === "order") viewOrder(session, item);
   else viewMC(session, item);
 }
 
@@ -451,6 +475,7 @@ function viewIntro(session, item) {
       <button class="speak" id="s-speak">🔊</button>
       <div class="meaning">${esc(trans(w))}</div>
       ${w.ex ? `<div class="qhint">Häufige Form im Alltag: <b>${esc(w.ex)}</b></div>` : ""}
+      ${w.n ? `<div class="notetip">💡 ${esc(w.n)}</div>` : ""}
       <div class="rankinfo">deckt ${w.cov.toFixed(2).replace(".", ",")} % aller gesprochenen Wörter ab</div>
     </div>
     <div class="introbtns">
@@ -558,6 +583,7 @@ function viewMC(session, item) {
         <div class="wordinfo">
           <b>${esc(w.tr)}</b> – ${esc(w.de)}<br>
           <span class="sec">🇬🇧 ${esc(w.en)}${w.ex ? ` · häufige Form: ${esc(w.ex)}` : ""}</span>
+          ${w.n ? `<div class="notetip">💡 ${esc(w.n)}</div>` : ""}
         </div>
         <button class="bigbtn" id="s-next" style="margin-top:12px">Weiter</button>`;
       $("#nextrow").innerHTML = info;
@@ -656,6 +682,204 @@ function viewType(session, item) {
       } else check();
     }
   });
+}
+
+// ---------------------------------------------------------------- Grammatik
+function conjVerbPool() {
+  const skip = new Set(["gerekmek", "sağ olmak", "boş vermek"]);
+  return WORDS.filter(
+    (w) =>
+      /^[a-zçğıiöşü]+m[ae]k$/.test(w.tr) &&
+      !skip.has(w.tr) &&
+      conjugate(w.tr, 0, "pres", false)
+  );
+}
+
+function viewGrammar() {
+  render(`
+    <button class="backbtn" id="back">← Zurück</button>
+    <h2 class="pagetitle">📐 Grammatik</h2>
+    <div class="menu">
+      <button class="mbtn primary" id="g-conj">
+        <span class="ico">⚙️</span>
+        <span>Konjugations-Trainer<span class="sub">Verbformen bilden – aus deinen Vokabeln (+${GOLD_CONJ} 🪙)</span></span>
+      </button>
+      <button class="mbtn primary" id="g-order">
+        <span class="ico">🧩</span>
+        <span>Satz-Puzzle<span class="sub">Wörter in die richtige Reihenfolge (+${GOLD_ORDER} 🪙)</span></span>
+      </button>
+    </div>
+    <h2 class="pagetitle" style="margin-top:18px">📚 Lektionen</h2>
+    <div class="menu">
+      ${GRAMMAR_LESSONS.map(
+        (l, i) =>
+          `<button class="mbtn lesson-btn" data-l="${i}"><span class="ico">${l.ico}</span><span>${l.title}</span></button>`
+      ).join("")}
+    </div>
+    <div class="footer">Statistik: ${S.stats.conjCorrect || 0} Verbformen · ${S.stats.orderCorrect || 0} Sätze richtig</div>
+  `);
+  $("#back").onclick = viewHome;
+  $("#g-conj").onclick = () => startSession("conj");
+  $("#g-order").onclick = () => startSession("order");
+  app.querySelectorAll(".lesson-btn").forEach((b) => {
+    b.onclick = () => viewLesson(Number(b.dataset.l));
+  });
+}
+
+function viewLesson(idx) {
+  const l = GRAMMAR_LESSONS[idx];
+  const next = GRAMMAR_LESSONS[idx + 1];
+  render(`
+    <button class="backbtn" id="back">← Grammatik</button>
+    <h2 class="pagetitle">${l.ico} ${l.title}</h2>
+    <div class="lesson">${l.html}</div>
+    <div class="nextrow" style="margin-top:18px">
+      ${next ? `<button class="bigbtn secondary" id="l-next">Nächste Lektion: ${next.title} →</button>` : ""}
+      <button class="bigbtn" id="l-drill" style="margin-top:10px">⚙️ Jetzt üben</button>
+    </div>
+  `);
+  $("#back").onclick = viewGrammar;
+  if (next) $("#l-next").onclick = () => viewLesson(idx + 1);
+  $("#l-drill").onclick = () => startSession(idx === 8 ? "order" : "conj");
+}
+
+function viewConj(session, item) {
+  const inf = item.w.tr;
+  const correct = conjugate(inf, item.person, item.tense, item.neg);
+  // Distraktoren: gleiche Verbform mit anderer Person / Polarität / Zeit
+  const opts = new Set([correct]);
+  const variants = [];
+  for (let p = 0; p < 6; p++) variants.push(conjugate(inf, p, item.tense, item.neg));
+  variants.push(conjugate(inf, item.person, item.tense, !item.neg));
+  for (const t of Object.keys(TENSES)) variants.push(conjugate(inf, item.person, t, item.neg));
+  shuffle(variants);
+  for (const v of variants) {
+    if (opts.size >= 4) break;
+    if (v && !opts.has(v)) opts.add(v);
+  }
+  const options = shuffle([...opts]);
+  const tenseInfo = TENSES[item.tense];
+  render(`
+    ${sessionBar(session)}
+    <div class="qcard">
+      <div class="qtype">Bilde die Form:</div>
+      <div class="qword">${esc(inf)}</div>
+      <div class="qhint"><b>${PERSONS[item.person]}</b> · ${tenseInfo.de}${item.neg ? " · <b>verneint</b>" : ""}</div>
+      <div class="rankinfo">${esc(item.w.de.split("(")[0].trim())} · ${tenseInfo.name}</div>
+    </div>
+    <div class="answers" id="answers">
+      ${options.map((o, i) => `<button class="abtn" data-i="${i}">${esc(o)}</button>`).join("")}
+    </div>
+    <div class="nextrow" id="nextrow"></div>
+  `);
+  bindClose();
+  let done = false;
+  $("#answers").querySelectorAll(".abtn").forEach((btn) => {
+    btn.onclick = () => {
+      if (done) return;
+      done = true;
+      const chosen = options[Number(btn.dataset.i)];
+      const ok = chosen === correct;
+      $("#answers").querySelectorAll(".abtn").forEach((b, i) => {
+        if (options[i] === correct) b.classList.add("correct");
+        else if (b === btn) b.classList.add("wrong");
+        else b.classList.add("dim");
+      });
+      registerAnswer(ok, session);
+      if (ok) {
+        S.stats.conjCorrect = (S.stats.conjCorrect || 0) + 1;
+        const g = GOLD_CONJ + Math.floor(session.combo / 3) * 2;
+        session.gold += g;
+        earnGold(g, $(".qcard"));
+      }
+      speak(correct);
+      save();
+      $("#nextrow").innerHTML = `
+        <div class="wordinfo"><b>${esc(correct)}</b> = ${esc(deConj(item))}</div>
+        <button class="bigbtn" id="s-next" style="margin-top:12px">Weiter</button>`;
+      $("#s-next").onclick = () => {
+        session.pos++;
+        stepSession(session);
+      };
+      if (ok)
+        setTimeout(() => {
+          const el = $("#s-next");
+          if (el) el.click();
+        }, 1500);
+    };
+  });
+}
+
+function deConj(item) {
+  const persDe = ["ich", "du", "er/sie", "wir", "ihr/Sie", "sie (Mehrzahl)"][item.person];
+  const verb = item.w.de.split(/[,;(]/)[0].trim();
+  const t = { pres: "gerade", past: "(Vergangenheit)", fut: "(Zukunft)", aor: "(generell)" }[item.tense];
+  return `${persDe} ${item.neg ? "NICHT " : ""}${verb} ${t}`;
+}
+
+function viewOrder(session, item) {
+  const words = item.s.tr.split(" ");
+  const chips = shuffle(words.map((w, i) => ({ w, i })));
+  let picked = [];
+  render(`
+    ${sessionBar(session)}
+    <div class="qcard">
+      <div class="qtype">Baue den Satz:</div>
+      <div class="qword" style="font-size:1.25rem">${esc(item.s.de)}</div>
+    </div>
+    <div class="orderline" id="orderline"></div>
+    <div class="chips" id="chips"></div>
+    <div class="nextrow"><button class="bigbtn" id="s-check">Prüfen</button></div>
+    <div id="result"></div>
+  `);
+  bindClose();
+  const renderChips = () => {
+    $("#orderline").innerHTML = picked.length
+      ? picked.map((c, idx) => `<button class="chip picked" data-p="${idx}">${esc(c.w)}</button>`).join("")
+      : `<span class="chip-placeholder">Tippe die Wörter unten in der richtigen Reihenfolge an …</span>`;
+    $("#chips").innerHTML = chips
+      .filter((c) => !picked.includes(c))
+      .map((c) => `<button class="chip" data-c="${c.i}">${esc(c.w)}</button>`)
+      .join("");
+    $("#chips").querySelectorAll(".chip").forEach((b) => {
+      b.onclick = () => {
+        picked.push(chips.find((c) => c.i === Number(b.dataset.c)));
+        renderChips();
+      };
+    });
+    $("#orderline").querySelectorAll(".chip").forEach((b) => {
+      b.onclick = () => {
+        picked.splice(Number(b.dataset.p), 1);
+        renderChips();
+      };
+    });
+  };
+  renderChips();
+  let done = false;
+  $("#s-check").onclick = () => {
+    if (done || picked.length !== words.length) return;
+    done = true;
+    const given = picked.map((c) => c.w).join(" ");
+    const ok = given === item.s.tr;
+    registerAnswer(ok, session);
+    if (ok) {
+      S.stats.orderCorrect = (S.stats.orderCorrect || 0) + 1;
+      const g = GOLD_ORDER + Math.floor(session.combo / 3) * 2;
+      session.gold += g;
+      earnGold(g, $(".qcard"));
+    }
+    speak(item.s.tr);
+    save();
+    $("#result").innerHTML = `
+      <div class="wordinfo">${ok ? "✅ Richtig!" : "❌ Richtig wäre:"} <b>${esc(item.s.tr)}</b><br>
+      <span class="sec">${esc(item.s.de)}</span></div>
+      <button class="bigbtn" id="s-next" style="margin-top:12px">Weiter</button>`;
+    $("#s-check").style.display = "none";
+    $("#s-next").onclick = () => {
+      session.pos++;
+      stepSession(session);
+    };
+  };
 }
 
 // --- Zusammenfassung

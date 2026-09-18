@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 css = (ROOT / "css" / "style.css").read_text(encoding="utf-8")
 data = (ROOT / "js" / "data.js").read_text(encoding="utf-8")
+grammar = (ROOT / "js" / "grammar.js").read_text(encoding="utf-8")
 app = (ROOT / "js" / "app.js").read_text(encoding="utf-8")
 
 html = f"""<!DOCTYPE html>
@@ -30,6 +31,7 @@ html = f"""<!DOCTYPE html>
   <div id="toasts" class="toasts"></div>
   <script>
 {data}
+{grammar}
 {app}
   </script>
 </body>

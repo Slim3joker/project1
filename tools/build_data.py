@@ -19,7 +19,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "data" / "tuerkisch_frequenzliste_lemmatisiert.csv"
 TRANS_PATH = ROOT / "tools" / "translations.psv"
+NOTES_PATH = ROOT / "tools" / "notes.psv"
 OUT_PATH = ROOT / "js" / "data.js"
+
+
+def load_notes() -> dict:
+    notes = {}
+    if not NOTES_PATH.exists():
+        return notes
+    with NOTES_PATH.open(encoding="utf-8") as f:
+        for lineno, raw in enumerate(f, 1):
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split("|", 1)
+            if len(parts) != 2:
+                print(f"WARNUNG notes.psv Zeile {lineno}: erwartet 2 Felder")
+                continue
+            notes[parts[0].strip()] = parts[1].strip()
+    return notes
 
 
 def main() -> int:
@@ -41,6 +59,8 @@ def main() -> int:
     # Gesamtzahl der Tokens aus Rang 1 rückrechnen (frequency / cumulative_pct)
     total_tokens = int(first_row["frequency"]) / (float(first_row["cumulative_pct"]) / 100.0)
 
+    notes = load_notes()
+    used_notes = set()
     entries = []
     missing = []
     seen = set()
@@ -73,6 +93,9 @@ def main() -> int:
             ex = info["ex"]
             if ex and ex != word and ex != lemma:
                 entry["ex"] = ex
+            if lemma in notes:
+                entry["n"] = notes[lemma]
+                used_notes.add(lemma)
             entries.append(entry)
 
     entries.sort(key=lambda e: e["r"])
@@ -83,6 +106,9 @@ def main() -> int:
         print(f"FEHLER: {len(missing)} Lemmata nicht in der CSV gefunden:")
         for m in missing:
             print(f"  - {m}")
+    unused_notes = set(notes) - used_notes
+    if unused_notes:
+        print(f"WARNUNG: {len(unused_notes)} Notizen ohne passendes Wort: {sorted(unused_notes)}")
 
     js = (
         "// Automatisch generiert von tools/build_data.py – nicht von Hand bearbeiten.\n"

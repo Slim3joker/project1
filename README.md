@@ -25,6 +25,14 @@ türkischen Alltagssprache du schon verstehst.
   separat markieren; eigener „Auffrischen"-Modus mit aktivem Abruf
   (überwiegend Deutsch→Türkisch). Erreicht ein Wackelkandidat Box 5,
   gilt er als im Langzeitgedächtnis verankert (Bonus-Gold + Abzeichen)
+- **Grammatik-Modul 📐**: 10 kompakte Lektionen (Vokalharmonie, -iyor/-di/-ecek/
+  Aorist, Fragen, Fälle, Satzbau, Umgangssprache), ein **Konjugations-Trainer**
+  mit echter Konjugations-Engine (Vokalharmonie + Konsonantenerweichung,
+  generiert unbegrenzt Aufgaben aus den Vokabeln) und ein **Satz-Puzzle**
+  (Wörter in die richtige Reihenfolge tippen)
+- **Umgangssprache-Notizen 💡**: kuratierte Hinweise an einzelnen Wörtern
+  (burada→„burda", ne haber→„naber", di mi?, kolay gelsin …), gepflegt in
+  `tools/notes.psv`
 - **Aussprache**: Vorlesen per Browser-Sprachausgabe (tr-TR)
 - Fortschritt wird lokal gespeichert (localStorage), Export/Import als JSON
 - Kein Build, keine Abhängigkeiten – reines HTML/CSS/JS, läuft auch am Handy
