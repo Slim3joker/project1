@@ -1077,6 +1077,17 @@ function viewSettings() {
       <input type="file" id="set-file" accept=".json" style="display:none">
     </div>
     <div class="setrow">
+      <div class="lbl"><b>Backup als Text</b><span>Kopieren/Einfügen – falls der Datei-Download blockiert ist</span></div>
+      <button class="bigbtn secondary" style="padding:9px 14px" id="set-text">Öffnen</button>
+    </div>
+    <div id="textbackup" style="display:none">
+      <textarea id="backup-area" class="typebox" style="text-align:left;font-size:0.75rem;height:120px" spellcheck="false"></textarea>
+      <div class="introbtns" style="margin-top:8px">
+        <button class="bigbtn secondary" id="backup-copy">📋 Kopieren</button>
+        <button class="bigbtn secondary" id="backup-load">↩️ Text importieren</button>
+      </div>
+    </div>
+    <div class="setrow">
       <div class="lbl"><b>Zurücksetzen</b><span>Löscht den gesamten Fortschritt</span></div>
       <button class="dangerbtn" id="set-reset">Alles löschen</button>
     </div>
@@ -1122,6 +1133,35 @@ function viewSettings() {
       }
     };
     reader.readAsText(file);
+  };
+  $("#set-text").onclick = () => {
+    const box = $("#textbackup");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+    $("#backup-area").value = JSON.stringify(S);
+  };
+  $("#backup-copy").onclick = async () => {
+    const area = $("#backup-area");
+    area.value = JSON.stringify(S);
+    area.select();
+    try {
+      await navigator.clipboard.writeText(area.value);
+      toast("📋 Backup in die Zwischenablage kopiert");
+    } catch (e) {
+      document.execCommand("copy");
+      toast("📋 Markiert – jetzt manuell kopieren");
+    }
+  };
+  $("#backup-load").onclick = () => {
+    try {
+      const data = JSON.parse($("#backup-area").value);
+      if (!data.words || !data.settings) throw new Error("kein Goldwörter-Backup");
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      S = load();
+      toast("✅ Backup importiert");
+      viewHome();
+    } catch (e) {
+      toast("❌ Das ist kein gültiges Goldwörter-Backup");
+    }
   };
   $("#set-reset").onclick = () => {
     if (confirm("Wirklich den GESAMTEN Fortschritt löschen?")) {
