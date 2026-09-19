@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "scarlett": {
+      "type": "http",
+      "url": "https://api.scarlett.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${SCARLETT_API_TOKEN}"
+      }
+    }
+  }
+}

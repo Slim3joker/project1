@@ -89,3 +89,79 @@ manuelle Eingabe:
 
 Beim ersten Start ist eine Beispiel-SKU (Kuvio Steckdosenwürfel) angelegt,
 damit man sieht, wie alles funktioniert – einfach bearbeiten oder löschen.
+
+## Scarlett-MCP-Anbindung (Claude Code)
+
+[Scarlett](https://scarlett.ai) stellt einen MCP-Server unter
+`https://api.scarlett.ai/mcp` bereit. Dieses Repo bringt die passende
+Claude-Code-Konfiguration mit (`.mcp.json` im Repo-Root), sodass die
+Scarlett-Tools in jeder Claude-Code-Sitzung in diesem Ordner verfügbar sind.
+Der API-Key liegt **nicht** im Repo: Er wird beim Start aus der
+Umgebungsvariable `SCARLETT_API_TOKEN` gelesen.
+
+> Diese Anbindung ist unabhängig von der oben beschriebenen Amazon-MCP-
+> Roadmap – sie ändert nichts am Dashboard oder am Datenschema.
+
+### 1. API-Key hinterlegen
+
+Den Key aus deinem Scarlett-Konto als Umgebungsvariable setzen – dauerhaft
+in `~/.zshrc` bzw. `~/.bashrc`:
+
+```bash
+export SCARLETT_API_TOKEN='YOUR_SCARLETT_API_KEY'
+```
+
+Danach das Terminal neu öffnen (oder `source ~/.zshrc`) und Claude Code neu
+starten – die Variable wird nur beim Start gelesen.
+
+### 2. Server registrieren
+
+**Variante A – Projekt-Scope (im Repo, bereits erledigt):** `.mcp.json`
+liegt im Repo. Beim ersten Start in diesem Ordner fragt Claude Code einmalig,
+ob die Server aus `.mcp.json` genutzt werden dürfen – bestätigen, fertig.
+
+```json
+{
+  "mcpServers": {
+    "scarlett": {
+      "type": "http",
+      "url": "https://api.scarlett.ai/mcp",
+      "headers": { "Authorization": "Bearer ${SCARLETT_API_TOKEN}" }
+    }
+  }
+}
+```
+
+**Variante B – User-Scope (in allen Projekten):** Soll Scarlett überall
+verfügbar sein, den Server einmalig im User-Scope anlegen (landet in
+`~/.claude.json`, nicht im Repo):
+
+```bash
+claude mcp add-json --scope user scarlett '{"type":"http","url":"https://api.scarlett.ai/mcp","headers":{"Authorization":"Bearer ${SCARLETT_API_TOKEN}"}}'
+```
+
+Die einfachen Anführungszeichen sind wichtig: So ersetzt nicht die Shell
+`${SCARLETT_API_TOKEN}`, sondern Claude Code beim Start – der Key steht
+damit nie im Klartext in einer Konfigurationsdatei.
+
+### 3. Prüfen
+
+In Claude Code `/mcp` eingeben: `scarlett` sollte als verbunden erscheinen
+und seine Tools auflisten. Im Terminal:
+
+```bash
+claude mcp get scarlett   # Konfiguration und Status
+claude mcp list           # alle Server mit Health-Check
+```
+
+### Fehlersuche
+
+| Symptom | Ursache / Lösung |
+|---|---|
+| `scarlett` fehlt in `/mcp` | Freigabe der `.mcp.json` abgelehnt → `claude mcp reset-project-choices` ausführen, Claude Code neu starten und die Freigabe bestätigen |
+| Status „failed“ / nicht verbunden, oder `claude mcp list` warnt vor einer fehlenden Variable | `SCARLETT_API_TOKEN` fehlt oder ist ungültig → `echo $SCARLETT_API_TOKEN` prüfen, nach dem `export` Claude Code neu starten |
+| Server doppelt (Projekt und User) | Eine Variante reicht → `claude mcp remove scarlett -s user` |
+
+**Sicherheit:** Den Key nie in `.mcp.json`, README, Commits oder Logs
+eintragen. `.env`-Dateien und `.claude/settings.local.json` sind per
+`.gitignore` ausgeschlossen.
