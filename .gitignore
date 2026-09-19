@@ -1,0 +1,7 @@
+# Lokale Secrets – der Scarlett-API-Key kommt aus der Umgebungsvariable
+# SCARLETT_API_TOKEN und darf nie im Repo landen.
+.env
+.env.*
+
+# Persönliche Claude-Code-Einstellungen (nicht geteilt)
+.claude/settings.local.json
