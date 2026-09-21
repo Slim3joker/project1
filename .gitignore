@@ -1,3 +1,9 @@
+# Private Zyklusdaten – niemals ins (öffentliche) Repo committen!
+seed.json
+data/
+
+node_modules/
+
 # Lokale Secrets – der Scarlett-API-Key kommt aus der Umgebungsvariable
 # SCARLETT_API_TOKEN und darf nie im Repo landen.
 .env
