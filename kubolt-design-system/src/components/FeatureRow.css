@@ -1,0 +1,38 @@
+/* FeatureRow — spec/benefit row: quiet round icon well + title + description. */
+
+.kb-feature-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--kb-space-4);
+}
+
+/* The icon is the cobalt moment; its container stays quiet (sunken pastel). */
+.kb-feature-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--kb-radius-full);
+  background: var(--kb-surface-sunken);
+  color: var(--kb-accent);
+}
+
+.kb-feature-row__content {
+  min-width: 0;
+}
+
+.kb-feature-row__title {
+  font-size: var(--kb-text-lg);
+  line-height: var(--kb-leading-lg);
+  font-weight: var(--kb-font-weight-medium);
+  color: var(--kb-text-primary);
+}
+
+.kb-feature-row__description {
+  margin-top: var(--kb-space-1);
+  font-size: var(--kb-text-base);
+  line-height: var(--kb-leading-base);
+  color: var(--kb-text-secondary);
+}

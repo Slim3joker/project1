@@ -1,0 +1,107 @@
+/* Button — KUBOLT CTA. Cobalt glow appears ONLY on primary hover/focus. */
+
+.kb-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kb-space-2);
+  /* Transparent border keeps primary/ghost the same box size as secondary. */
+  border: 1.5px solid transparent;
+  border-radius: var(--kb-radius-md);
+  font-family: var(--kb-font-sans);
+  font-weight: var(--kb-font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--kb-transition),
+    border-color var(--kb-transition),
+    color var(--kb-transition),
+    box-shadow var(--kb-transition);
+}
+
+/* ------------------------------------------------------------------ */
+/* Sizes                                                              */
+/* ------------------------------------------------------------------ */
+
+.kb-button--sm {
+  font-size: var(--kb-text-sm);
+  padding: var(--kb-space-2) var(--kb-space-4);
+}
+
+.kb-button--md {
+  font-size: var(--kb-text-base);
+  padding: var(--kb-space-3) var(--kb-space-5);
+}
+
+.kb-button--lg {
+  font-size: var(--kb-text-lg);
+  padding: var(--kb-space-4) var(--kb-space-8);
+}
+
+/* ------------------------------------------------------------------ */
+/* Variants                                                           */
+/* ------------------------------------------------------------------ */
+
+.kb-button--primary {
+  background: var(--kb-accent);
+  color: var(--kb-color-white);
+}
+
+/* THE signature glow moment — cobalt deepens and lights up. */
+.kb-button--primary:hover:not(:disabled) {
+  background: var(--kb-accent-hover);
+  box-shadow: var(--kb-glow-cobalt);
+}
+
+.kb-button--secondary {
+  background: transparent;
+  border-color: var(--kb-text-primary);
+  color: var(--kb-text-primary);
+}
+
+.kb-button--secondary:hover:not(:disabled) {
+  background: var(--kb-surface-sunken);
+}
+
+.kb-button--ghost {
+  background: transparent;
+  color: var(--kb-text-primary);
+}
+
+.kb-button--ghost:hover:not(:disabled) {
+  background: var(--kb-surface-sunken);
+}
+
+/* ------------------------------------------------------------------ */
+/* States                                                             */
+/* ------------------------------------------------------------------ */
+
+.kb-button:focus-visible {
+  outline: 2px solid var(--kb-focus-ring);
+  outline-offset: 2px;
+  box-shadow: var(--kb-glow-cobalt);
+}
+
+.kb-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.kb-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout modifiers + elements                                        */
+/* ------------------------------------------------------------------ */
+
+.kb-button--full {
+  width: 100%;
+}
+
+.kb-button__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}

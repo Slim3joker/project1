@@ -1,0 +1,103 @@
+/* ColorwaySwatch — variant picker swatch. Colorway tokens only, never hex. */
+
+.kb-colorway-swatch {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--kb-space-2);
+  padding: var(--kb-space-1);
+  background: none;
+  border: none;
+  border-radius: var(--kb-radius-md);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.kb-colorway-swatch:focus-visible {
+  outline: 2px solid var(--kb-focus-ring);
+  outline-offset: 2px;
+  box-shadow: var(--kb-glow-cobalt);
+}
+
+/* Disc ------------------------------------------------------------------ */
+
+.kb-colorway-swatch__disc {
+  display: block;
+  flex: none;
+  border: 2px solid transparent;
+  transition:
+    transform var(--kb-transition),
+    box-shadow var(--kb-transition);
+}
+
+/* Shape: circle by default; square mirrors the cube's defined-soft edges. */
+.kb-colorway-swatch__disc--circle {
+  border-radius: var(--kb-radius-full);
+}
+
+.kb-colorway-swatch__disc--square {
+  border-radius: var(--kb-radius-sm);
+}
+
+/* Sizes */
+.kb-colorway-swatch__disc--sm {
+  width: 28px;
+  height: 28px;
+}
+
+.kb-colorway-swatch__disc--md {
+  width: 36px;
+  height: 36px;
+}
+
+.kb-colorway-swatch__disc--lg {
+  width: 48px;
+  height: 48px;
+}
+
+/* Colorway families: base fill + ink border. */
+.kb-colorway-swatch__disc--sage-green {
+  background: var(--kb-colorway-sage-green-base);
+  border-color: var(--kb-colorway-sage-green-ink);
+}
+
+.kb-colorway-swatch__disc--dusty-rose {
+  background: var(--kb-colorway-dusty-rose-base);
+  border-color: var(--kb-colorway-dusty-rose-ink);
+}
+
+.kb-colorway-swatch__disc--dove-blue {
+  background: var(--kb-colorway-dove-blue-base);
+  border-color: var(--kb-colorway-dove-blue-ink);
+}
+
+.kb-colorway-swatch__disc--sand-cream {
+  background: var(--kb-colorway-sand-cream-base);
+  border-color: var(--kb-colorway-sand-cream-ink);
+}
+
+/* Selected: the single cobalt accent marks the choice. */
+.kb-colorway-swatch--selected .kb-colorway-swatch__disc {
+  box-shadow:
+    0 0 0 2px var(--kb-surface),
+    0 0 0 4px var(--kb-focus-ring);
+}
+
+/* Hover (unselected only): quiet scale, no color change. */
+.kb-colorway-swatch:hover:not(.kb-colorway-swatch--selected)
+  .kb-colorway-swatch__disc {
+  transform: scale(1.06);
+}
+
+/* Label ------------------------------------------------------------------ */
+
+.kb-colorway-swatch__label {
+  font-size: var(--kb-text-xs);
+  line-height: var(--kb-leading-xs);
+  color: var(--kb-text-secondary);
+}
+
+.kb-colorway-swatch--selected .kb-colorway-swatch__label {
+  color: var(--kb-text-primary);
+  font-weight: var(--kb-font-weight-medium);
+}

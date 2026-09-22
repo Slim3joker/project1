@@ -1,0 +1,62 @@
+/* KUBOLT Header — site nav on the warm cream surface. */
+
+.kb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--kb-space-6);
+  padding: var(--kb-space-4) var(--kb-space-6);
+  background: var(--kb-background);
+}
+
+.kb-header--transparent {
+  background: transparent;
+}
+
+/* Sticky: hairline + forced cream background so content never shows through. */
+.kb-header--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--kb-border);
+  background: var(--kb-background);
+}
+
+.kb-header__logo {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+/* No JS mobile menu — links wrap on narrow screens. */
+.kb-header__nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--kb-space-1);
+}
+
+.kb-header__cta {
+  flex: none;
+}
+
+.kb-header__nav a {
+  font-size: var(--kb-text-sm);
+  line-height: var(--kb-leading-sm);
+  font-weight: var(--kb-font-weight-medium);
+  color: var(--kb-text-primary);
+  text-decoration: none;
+  padding: var(--kb-space-2) var(--kb-space-3);
+  border-radius: var(--kb-radius-sm);
+  transition: color var(--kb-transition);
+}
+
+.kb-header__nav a:hover {
+  color: var(--kb-accent-text);
+}
+
+.kb-header__nav a:focus-visible {
+  outline: 2px solid var(--kb-focus-ring);
+  outline-offset: 2px;
+  box-shadow: var(--kb-glow-cobalt);
+}
