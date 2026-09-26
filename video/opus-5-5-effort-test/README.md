@@ -7,6 +7,9 @@ https://claude.ai/artifact/PVafeaNX9xgT76d5SFxbZz
 Das Scoreboard zum Abfilmen gibt es auch online:
 https://claude.ai/artifact/4sVRUuMqzfVgF3FUhfT6YA
 
+Den Prompter für die Kamera-Teile ebenfalls:
+https://claude.ai/artifact/81UiRNxZaJpg2KWr1dnwbz
+
 Hier liegt alles, was du für die Testläufe und den Dreh brauchst:
 
 | Datei | Wofür |
@@ -15,6 +18,7 @@ Hier liegt alles, was du für die Testläufe und den Dreh brauchst:
 | `setup-laeufe.sh` | Legt die Testordner mit identischem Startzustand an – außerhalb dieses Repos |
 | `PRUEFLISTE-WEBSITE.md` | Bewertung für Test 2 (Homepage): DSGVO-Punkte, Formular-Logik, typische Fehlbilder |
 | `scoreboard.html` | Mess-Tabelle zum Abfilmen: im Browser öffnen, Werte eintragen (E), Spalten aufdecken (Leertaste), Balken-Ansicht (B) |
+| `prompter.html` | Teleprompter für die Kamera-Teile: Skript für Video 1 ist geladen, hält an jeder Freestyle-Stelle an, eigener Text mit E |
 
 Die Analyse des Originalvideos steht zusätzlich in `knowledge/swipe.md`.
 
@@ -55,3 +59,23 @@ Wichtig: Die Läufe nie in diesem Repo starten. Claude würde sonst Prompts und 
 | H | Steuerleiste für die Aufnahme ausblenden |
 
 Die Tafel startet mit markierten Beispielwerten. Sobald du einen Wert einträgst, verschwindet das Etikett „Beispielwerte“. Die Daten bleiben nur in deinem Browser. Über „Daten kopieren“ und „Eingefügte Daten übernehmen“ nimmst du sie auf ein anderes Gerät mit.
+
+## Prompter
+
+Browserfenster schmal machen (etwa ein Drittel der Bildschirmbreite) und direkt unter die Webcam schieben. Gelesen wird an den gelben Pfeilen im oberen Drittel. Je näher die Pfeile an der Linse sind, desto mehr wirkt es wie Blickkontakt. OBS nimmt den Prompter nicht auf, solange du das Fenster nicht als Quelle hinzufügst.
+
+Im Skript für Video 1 sind Platzhalter wie `[BETRAG]` gelb markiert. Trag die Werte nach den Testläufen mit E ein. An gelb umrandeten Freestyle-Stellen hält der Text an, du redest frei und machst mit der Leertaste weiter.
+
+| Taste | Aktion |
+|---|---|
+| Leertaste, →, Bild ab | Start mit 3-2-1, Pause, nach einer Freestyle-Stelle weiter (Presenter-Klicker gehen auch) |
+| ←, Bild auf | Einen Absatz zurück |
+| ↑ / ↓ | Schneller / langsamer, in Wörtern pro Minute |
+| + / − | Schrift größer / kleiner |
+| 1–9 | Zu einem Abschnitt springen, zum Beispiel für eine neue Aufnahme |
+| R, Pos1 | Zurück an den Anfang |
+| M | Spiegeln für Prompter mit Glasscheibe |
+| E | Text bearbeiten oder eigenes Skript einfügen |
+| F / H | Vollbild / Steuerleiste ausblenden |
+
+Syntax im Skript: Eine Leerzeile trennt Absätze, `# Titel` beginnt einen Abschnitt, `[FREI] Stichworte` ist eine Freestyle-Stelle. Text, Tempo und Schriftgröße bleiben in deinem Browser gespeichert.
