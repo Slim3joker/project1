@@ -13,22 +13,32 @@ Hier liegt alles, was du für die Testläufe und den Dreh brauchst:
 |---|---|
 | `PROMPTS.md` | Die Test-Prompts zum Kopieren, Standardantwort auf Rückfragen, Ablauf pro Lauf |
 | `setup-laeufe.sh` | Legt die Testordner mit identischem Startzustand an – außerhalb dieses Repos |
-| `testdaten/suchbegriffe.csv` | Beispiel-Suchbegriffbericht für Test 2A, mit eingebauten Fallen |
-| `testdaten/LOESUNG.md` | Lösungsblatt zu Test 2A: richtige Summen, typische Fehlbilder, erwartete Empfehlungen |
+| `PRUEFLISTE-WEBSITE.md` | Bewertung für Test 2 (Homepage): DSGVO-Punkte, Formular-Logik, typische Fehlbilder |
 | `scoreboard.html` | Mess-Tabelle zum Abfilmen: im Browser öffnen, Werte eintragen (E), Spalten aufdecken (Leertaste) |
 
 Die Analyse des Originalvideos steht zusätzlich in `knowledge/swipe.md`.
 
+## Thumbnail-Hintergründe (Idee „Der Regler“, Higgsfield, 2688 × 1520)
+
+Links bleibt Platz für dein freigestelltes Foto, Text setzt du erst nach den Testläufen.
+
+- [Schieberegler auf MAX](https://d8j0ntlcm91z4.cloudfront.net/user_3BI1zTL6lFRuy3VBbUMVFjlwA6V/hf_20260926_074331_31801d6d-f667-46a4-8b64-2f90071b2ab1.png)
+- [Schieberegler auf MEDIUM](https://d8j0ntlcm91z4.cloudfront.net/user_3BI1zTL6lFRuy3VBbUMVFjlwA6V/hf_20260926_074332_5a246b17-0250-4e3e-9167-746e46ce83ae.png)
+- [Drehregler auf ULTRACODE](https://d8j0ntlcm91z4.cloudfront.net/user_3BI1zTL6lFRuy3VBbUMVFjlwA6V/hf_20260926_074331_23e83920-d9a4-465d-a8e6-b86544603938.png)
+- [Schieberegler ohne Beschriftung](https://d8j0ntlcm91z4.cloudfront.net/user_3BI1zTL6lFRuy3VBbUMVFjlwA6V/hf_20260926_074331_dc5664d1-da50-4b21-8e71-dd3b36463dd1.png)
+
+Beschriftungen vor der Verwendung auf Rechtschreibung prüfen.
+
 ## Schnellstart
 
 ```bash
-./setup-laeufe.sh            # Test 1 + Test 2A (PPC-Tab) in ~/opus55-effort-test
-./setup-laeufe.sh ~/tests b  # Variante B (Handwerker-Website) in ~/tests
+./setup-laeufe.sh           # Test 1 (3D-Altstadt) + Test 2 (Homepage) in ~/opus55-effort-test
+./setup-laeufe.sh ~/tests   # oder in einen eigenen Ordner
 ```
 
 Dann pro Ordner `claude` starten und nach `PROMPTS.md` vorgehen.
 
-Wichtig: Die Läufe nie in diesem Repo starten. Claude würde sonst `LOESUNG.md` und die Prompts sehen.
+Wichtig: Die Läufe nie in diesem Repo starten. Claude würde sonst Prompts und Prüfliste sehen.
 
 ## Scoreboard-Tasten
 
