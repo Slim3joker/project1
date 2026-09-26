@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Effort-Scoreboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+  /* Anzeigetafel zum Abfilmen: bewusst ein festes Aussehen (dunkle Tafel),
+     damit jede Aufnahme gleich aussieht. "T" schaltet auf die helle Tafel. */
+  :root {
+    color-scheme: dark;
+    --board: #0e1115;
+    --panel: #151a20;
+    --panel-edge: #252c35;
+    --flap-top: #242a33;
+    --flap-bottom: #1e232b;
+    --flap-split: #07090c;
+    --ink: #efe9dd;
+    --ink-dim: #9ba3b0;
+    --ink-faint: #5f6875;
+    --accent: #f2b43f;
+    --accent-soft: rgba(242, 180, 63, 0.13);
+    --accent-deep: #d69526;
+    --bar-top: #6f7886;
+    --bar-bottom: #626b78;
+    --worst: #e27a64;
+    --chip: #2c333d;
+    --control-bg: #12161b;
+    --control-edge: #272e37;
+    --shadow: rgba(0, 0, 0, 0.55);
+    --font-display: "Barlow Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+    --font-ui: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  :root[data-look="light"] {
+    color-scheme: light;
+    --board: #e8e5de;
+    --panel: #f6f4ef;
+    --panel-edge: #d5cfc3;
+    --flap-top: #ffffff;
+    --flap-bottom: #f3f1eb;
+    --flap-split: #cdc6b8;
+    --ink: #1a1e24;
+    --ink-dim: #525a66;
+    --ink-faint: #979ca5;
+    --accent: #a8680a;
+    --accent-soft: rgba(168, 104, 10, 0.12);
+    --accent-deep: #8c5607;
+    --bar-top: #a3aab5;
+    --bar-bottom: #949ca8;
+    --worst: #b0412d;
+    --chip: #e2ddd3;
+    --control-bg: #f6f4ef;
+    --control-edge: #d5cfc3;
+    --shadow: rgba(60, 50, 30, 0.25);
+  }
+
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--board);
+    color: var(--ink);
+    font: 400 14px/1.4 var(--font-ui);
+  }
+  .app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-inline: 16px;
+    box-sizing: border-box;
+  }
+
+  /* Steuerleiste – liegt außerhalb der Tafel und kommt nicht ins Bild */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 20px;
+    padding-block: 10px;
+    border-bottom: 1px solid var(--control-edge);
+  }
+  .group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .btn {
+    font: 500 13px/1 var(--font-ui);
+    color: var(--ink-dim);
+    background: var(--control-bg);
+    border: 1px solid var(--control-edge);
+    border-radius: 6px;
+    padding: 7px 10px;
+    cursor: pointer;
+  }
+  .btn:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .btn[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+  .btn.primary { color: var(--ink); border-color: var(--accent); }
+  .btn:focus-visible, .field input:focus-visible, .field select:focus-visible,
+  .field textarea:focus-visible, .cell-input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  kbd {
+    font: 600 11px/1 var(--font-ui);
+    color: var(--ink-faint);
+    border: 1px solid var(--control-edge);
+    border-radius: 4px;
+    padding: 2px 5px;
+    margin-left: 4px;
+  }
+  .hint { color: var(--ink-faint); font-size: 12px; }
+
+  /* Bühne: 16:9, so groß wie möglich */
+  .viewport {
+    flex: 1;
+    min-height: 0;
+    container-type: size;
+    display: grid;
+    place-items: center;
+  }
+  .stage {
+    width: min(100cqw, calc((100cqh - 28px) * 16 / 9));
+    aspect-ratio: 16 / 9;
+    container-type: inline-size;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 14px;
+    box-shadow: 0 40px 90px -50px var(--shadow);
+  }
+  .sheet {
+    height: 100%;
+    box-sizing: border-box;
+    padding: 2.6cqw 3cqw 2.2cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 1.7cqw;
+  }
+  .sheet-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 3cqw; }
+  .title {
+    margin: 0;
+    font: 700 3.3cqw/1 var(--font-display);
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+  }
+  .title .lead { color: var(--accent); }
+  .subtitle {
+    margin: 0.7cqw 0 0;
+    font: 600 1.25cqw/1.2 var(--font-ui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .badge {
+    flex: none;
+    font: 700 1.05cqw/1 var(--font-ui);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px dashed var(--accent);
+    border-radius: 0.4cqw;
+    padding: 0.55cqw 0.8cqw;
+  }
+
+  .board {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) repeat(var(--n, 6), minmax(0, 1fr));
+    grid-template-rows: auto;
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 0.65cqw;
+  }
+  .row { display: contents; }
+  .lab {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25cqw;
+    padding-inline: 0.2cqw 0.6cqw;
+  }
+  .lab b { font: 600 1.8cqw/1.05 var(--font-display); letter-spacing: 0.02em; }
+  .lab span {
+    font: 500 0.98cqw/1.2 var(--font-ui);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .lvl {
+    text-align: center;
+    padding-bottom: 0.7cqw;
+    border-bottom: 0.25cqw solid var(--panel-edge);
+    transition: border-color 0.3s;
+  }
+  .lvl.on { border-bottom-color: var(--accent); }
+  .lvl .name {
+    font: 700 1.95cqw/1 var(--font-display);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .lvl.dim .name { color: var(--ink-dim); }
+  .lvl .api {
+    margin-top: 0.5cqw;
+    font: 500 0.98cqw/1 var(--font-ui);
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5cqw;
+    min-height: 1.5cqw;
+    white-space: nowrap;
+  }
+  .lvl .blind {
+    font: 700 1cqw/1 var(--font-ui);
+    color: var(--ink);
+    background: var(--chip);
+    border-radius: 0.3cqw;
+    padding: 0.25cqw 0.45cqw;
+  }
+
+  .tile {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    border-radius: 0.45cqw;
+    background: linear-gradient(to bottom, var(--flap-top) 0 50%, var(--flap-bottom) 50% 100%);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+  }
+  .tile::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: calc(50% - 0.05cqw);
+    height: 0.1cqw;
+    background: var(--flap-split);
+    opacity: 0.7;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .tile .v {
+    font: 600 2.55cqw/1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 92%;
+  }
+  .tile .v.md { font-size: 2.15cqw; }
+  .tile .v.sm { font-size: 1.8cqw; }
+  .tile.off .v { visibility: hidden; }
+  .tile.calc .v { color: var(--ink-dim); }
+  .tile.best { box-shadow: inset 0 0 0 0.16cqw var(--accent); }
+  .tile.best .v { color: var(--accent); }
+  .tile.best::before {
+    content: "▲";
+    position: absolute;
+    top: 0.4cqw;
+    right: 0.55cqw;
+    font-size: 0.85cqw;
+    color: var(--accent);
+    z-index: 3;
+  }
+  .tile.worst .v { color: var(--worst); }
+  .tile.best, .tile.worst { animation: mark 0.5s 0.55s both; }
+  .tile.flip {
+    animation: flap 0.46s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+    transform-origin: 50% 50%;
+  }
+  @keyframes flap {
+    from { transform: perspective(600px) rotateX(-92deg); filter: brightness(1.7); }
+    60% { filter: brightness(1.15); }
+    to { transform: none; filter: none; }
+  }
+  @keyframes mark { from { opacity: 0.35; } to { opacity: 1; } }
+
+  .cell-input {
+    width: 88%;
+    box-sizing: border-box;
+    text-align: center;
+    font: 600 2.2cqw/1.1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    background: transparent;
+    border: 1px dashed var(--ink-faint);
+    border-radius: 0.35cqw;
+    padding: 0.35cqw 0.3cqw;
+    position: relative;
+    z-index: 3;
+  }
+
+  .sheet-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2cqw;
+    min-height: 1.8cqw;
+    font: 500 1.15cqw/1.3 var(--font-ui);
+    color: var(--ink-dim);
+  }
+  .sheet-foot strong { color: var(--ink); font-weight: 600; }
+  .dots { display: flex; gap: 0.6cqw; align-items: center; }
+  .dot { width: 0.75cqw; height: 0.75cqw; border-radius: 50%; border: 0.12cqw solid var(--ink-faint); }
+  .dot.on { background: var(--accent); border-color: var(--accent); }
+  .legend { display: flex; gap: 1.6cqw; align-items: center; }
+  .legend .up { color: var(--accent); }
+  .legend .down { color: var(--worst); }
+
+  /* Bearbeiten-Leiste */
+  .drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(380px, 100%);
+    box-sizing: border-box;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    background: var(--control-bg);
+    border-left: 1px solid var(--control-edge);
+    box-shadow: -30px 0 60px -40px var(--shadow);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 10;
+  }
+  .drawer h2 { margin: 0; font: 700 20px/1.1 var(--font-display); letter-spacing: 0.02em; }
+  .drawer p { margin: 0; color: var(--ink-dim); font-size: 13px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font: 600 11px/1 var(--font-ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+  .field input, .field select, .field textarea {
+    font: 400 14px/1.3 var(--font-ui);
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--control-edge);
+    border-radius: 6px;
+    padding: 8px 9px;
+  }
+  .field textarea { font: 400 12px/1.35 ui-monospace, "SF Mono", Menlo, Consolas, monospace; min-height: 110px; resize: vertical; }
+  .field small { color: var(--ink-faint); font-size: 12px; }
+  .drawer .group { gap: 8px; }
+
+  .toast {
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--control-bg);
+    color: var(--ink);
+    border: 1px solid var(--control-edge);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    z-index: 20;
+    box-shadow: 0 10px 30px -15px var(--shadow);
+  }
+
+  /* Balken-Ansicht: eine Messgröße pro Klick, Balken wachsen von links nach rechts */
+  .bars { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 1.4cqw; }
+  .bars-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 2cqw;
+    padding-bottom: 0.9cqw;
+    border-bottom: 0.25cqw solid var(--panel-edge);
+  }
+  .bars-title { margin: 0; font: 700 2.7cqw/1 var(--font-display); letter-spacing: 0.03em; text-transform: uppercase; }
+  .bars-title small {
+    margin-left: 1cqw;
+    font: 500 1.15cqw/1 var(--font-ui);
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+  }
+  .bars-hint {
+    flex: none;
+    font: 600 1.05cqw/1 var(--font-ui);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 0.4cqw;
+    padding: 0.5cqw 0.8cqw;
+  }
+  .bars-hint.neutral { color: var(--ink-dim); border-color: var(--ink-faint); }
+  .bars-list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.8cqw; }
+  .bar-row {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 13cqw minmax(0, 1fr);
+    align-items: center;
+    gap: 1.2cqw;
+  }
+  .bar-label { font: 700 1.85cqw/1 var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; }
+  .bar-label small {
+    display: block;
+    margin-top: 0.35cqw;
+    font: 500 0.95cqw/1 var(--font-ui);
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--ink-faint);
+  }
+  .bar-track {
+    height: 64%;
+    max-height: 4.6cqw;
+    box-sizing: border-box;
+    padding-right: 11cqw;
+    border-radius: 0.45cqw;
+    background: linear-gradient(to bottom, var(--flap-top) 0 50%, var(--flap-bottom) 50% 100%);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22);
+  }
+  .bar-scale { position: relative; height: 100%; }
+  .bar-fill {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: var(--w, 0%);
+    border-radius: 0.45cqw;
+    background: linear-gradient(to bottom, var(--bar-top) 0 50%, var(--bar-bottom) 50% 100%);
+  }
+  .bar-val {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--w, 0%) + 1cqw);
+    transform: translateY(-50%);
+    font: 600 2.2cqw/1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .bar-row.best .bar-fill { background: linear-gradient(to bottom, var(--accent) 0 50%, var(--accent-deep) 50% 100%); }
+  .bar-row.best .bar-val { color: var(--accent); }
+  .bar-row.best .bar-val::after { content: " ▲"; font-size: 0.55em; vertical-align: 0.35em; }
+
+  @media (max-width: 760px) {
+    .viewport { container-type: normal; display: block; overflow-x: auto; padding-block: 12px; }
+    .stage { width: 720px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tile.flip { animation: fade 0.2s both; }
+    .tile.best, .tile.worst { animation: none; }
+    .lvl { transition: none; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="controls" id="controls">
+    <div class="group" role="group" aria-label="Tafel wählen">
+      <button class="btn" id="tab-t1" type="button">Test 1<kbd>1</kbd></button>
+      <button class="btn" id="tab-t2" type="button">Test 2<kbd>2</kbd></button>
+    </div>
+    <div class="group" role="group" aria-label="Aufdecken">
+      <button class="btn primary" id="btn-next" type="button"><span class="lbl">Nächste Spalte aufdecken</span><kbd>Leertaste</kbd></button>
+      <button class="btn" id="btn-prev" type="button"><span class="lbl">Zurück</span><kbd>←</kbd></button>
+      <button class="btn" id="btn-all" type="button"><span class="lbl">Alle</span><kbd>A</kbd></button>
+      <button class="btn" id="btn-reset" type="button"><span class="lbl">Zudecken</span><kbd>R</kbd></button>
+    </div>
+    <div class="group" role="group" aria-label="Ansicht">
+      <button class="btn" id="btn-bars" type="button" aria-pressed="false">Balken<kbd>B</kbd></button>
+      <button class="btn" id="btn-edit" type="button" aria-pressed="false">Werte eintragen<kbd>E</kbd></button>
+      <button class="btn" id="btn-look" type="button">Hell/Dunkel<kbd>T</kbd></button>
+      <button class="btn" id="btn-full" type="button">Vollbild<kbd>F</kbd></button>
+      <button class="btn" id="btn-chrome" type="button">Leiste ausblenden<kbd>H</kbd></button>
+    </div>
+  </div>
+
+  <main class="viewport">
+    <section class="stage" aria-label="Scoreboard">
+      <div class="sheet">
+        <header class="sheet-head">
+          <div>
+            <h1 class="title" id="title"></h1>
+            <p class="subtitle" id="subtitle"></p>
+          </div>
+          <div class="badge" id="badge">Beispielwerte</div>
+        </header>
+        <div class="board" id="board" role="table" aria-label="Messwerte je Effort-Stufe"></div>
+        <div class="bars" id="bars" hidden>
+          <div class="bars-head">
+            <h2 class="bars-title" id="bars-title"></h2>
+            <span class="bars-hint" id="bars-hint"></span>
+          </div>
+          <div class="bars-list" id="bars-list"></div>
+        </div>
+        <footer class="sheet-foot">
+          <div class="dots" id="dots" aria-hidden="true"></div>
+          <div id="summary"></div>
+          <div class="legend" id="legend"><span><span class="up">▲</span> Bestwert der Zeile</span><span><span class="down">■</span> schwächster Wert</span></div>
+        </footer>
+      </div>
+    </section>
+  </main>
+</div>
+
+<aside class="drawer" id="drawer" hidden aria-label="Werte eintragen">
+  <h2>Werte eintragen</h2>
+  <p>Trag die Messwerte direkt in die Kacheln ein. Hier änderst du Titel, Stufen und Blind-Buchstaben der aktuellen Tafel.</p>
+  <div class="field">
+    <label for="f-title">Titel</label>
+    <input id="f-title" type="text" autocomplete="off">
+    <small>Der Teil vor „·“ wird hervorgehoben.</small>
+  </div>
+  <div class="field">
+    <label for="f-subtitle">Untertitel</label>
+    <input id="f-subtitle" type="text" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="f-levels">Stufen, mit Komma getrennt</label>
+    <input id="f-levels" type="text" autocomplete="off">
+    <small>Bekannte Namen: Low, Medium, High, Extra, Max, Ultracode.</small>
+  </div>
+  <div class="field">
+    <label for="f-blind">Blind-Buchstaben in derselben Reihenfolge</label>
+    <input id="f-blind" type="text" autocomplete="off" placeholder="z. B. C, F, A, D, B, E">
+  </div>
+  <div class="field">
+    <label for="f-currency">Währung der Kosten</label>
+    <select id="f-currency">
+      <option value="$">US-Dollar ($)</option>
+      <option value="€">Euro (€)</option>
+    </select>
+  </div>
+  <div class="group">
+    <button class="btn primary" id="btn-done" type="button">Fertig</button>
+    <button class="btn" id="btn-clear" type="button">Alle Werte leeren</button>
+  </div>
+  <div class="field">
+    <label for="f-json">Daten übertragen</label>
+    <textarea id="f-json" spellcheck="false"></textarea>
+    <small>Kopieren, auf dem anderen Gerät einfügen und übernehmen.</small>
+  </div>
+  <div class="group">
+    <button class="btn" id="btn-copy" type="button">Daten kopieren</button>
+    <button class="btn" id="btn-apply" type="button">Eingefügte Daten übernehmen</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+  const STORE = 'opus55-effort-scoreboard-v1';
+  const API = {
+    low: 'low', medium: 'medium', high: 'high', extra: 'xhigh', xhigh: 'xhigh',
+    max: 'max', ultracode: 'Workflows'
+  };
+  const METRICS = [
+    { key: 'laufzeit', label: () => 'Laufzeit', unit: () => 'Minuten', dir: -1 },
+    { key: 'kosten', label: () => 'API-Kosten', unit: b => b.currency === '€' ? 'Euro' : 'US-Dollar', dir: -1 },
+    { key: 'tokens', label: () => 'Tokens', unit: () => 'Input + Output', dir: -1, suffixes: true },
+    { key: 'checks', label: () => 'Checks', unit: () => 'Selbstprüfungen', dir: 0 },
+    { key: 'fragen', label: () => 'Rückfragen', unit: () => 'an mich', dir: 0 },
+    { key: 'note', label: () => 'Qualität', unit: () => 'Punkte von 10', dir: 1 },
+    { key: 'ppd', label: b => 'Punkte pro ' + b.currency, unit: () => 'berechnet', dir: 1, computed: true }
+  ];
+
+  function exampleBoards() {
+    return {
+      t1: {
+        title: 'Opus 5.5 · Gleicher Prompt, 6 Stufen',
+        subtitle: 'Test 1 · Begehbare 3D-Altstadt',
+        levels: ['Low', 'Medium', 'High', 'Extra', 'Max', 'Ultracode'],
+        blind: ['C', 'F', 'A', 'D', 'B', 'E'],
+        currency: '$', example: true, revealed: 0,
+        values: {
+          Low: { laufzeit: '6', kosten: '0,48', tokens: '0,4 Mio.', checks: '1', fragen: '0', note: '4' },
+          Medium: { laufzeit: '11', kosten: '0,95', tokens: '0,9 Mio.', checks: '3', fragen: '0', note: '7' },
+          High: { laufzeit: '17', kosten: '1,90', tokens: '1,6 Mio.', checks: '5', fragen: '1', note: '8' },
+          Extra: { laufzeit: '28', kosten: '3,80', tokens: '3,1 Mio.', checks: '8', fragen: '1', note: '8,5' },
+          Max: { laufzeit: '41', kosten: '6,20', tokens: '5,2 Mio.', checks: '12', fragen: '2', note: '8,5' },
+          Ultracode: { laufzeit: '35', kosten: '14,50', tokens: '11,8 Mio.', checks: '19', fragen: '0', note: '9' }
+        }
+      },
+      t2: {
+        title: 'Opus 5.5 · Echter Business-Auftrag',
+        subtitle: 'Test 2 · Homepage für ein Unternehmen',
+        levels: ['Low', 'Medium', 'Max'],
+        blind: ['', '', ''],
+        currency: '$', example: true, revealed: 0,
+        values: {
+          Low: { laufzeit: '4', kosten: '0,31', tokens: '0,3 Mio.', checks: '0', fragen: '0', note: '3' },
+          Medium: { laufzeit: '9', kosten: '0,74', tokens: '0,7 Mio.', checks: '2', fragen: '1', note: '6' },
+          Max: { laufzeit: '23', kosten: '3,40', tokens: '2,9 Mio.', checks: '6', fragen: '1', note: '9' }
+        }
+      }
+    };
+  }
+
+  function valid(s) {
+    return s && s.boards && ['t1', 't2'].every(k => {
+      const b = s.boards[k];
+      return b && Array.isArray(b.levels) && b.values && typeof b.values === 'object';
+    });
+  }
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (valid(s)) return s;
+    } catch (e) { /* kein Speicher verfügbar */ }
+    return { v: 1, active: 't1', look: 'dark', chrome: true, boards: exampleBoards() };
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* kein Speicher verfügbar */ }
+  }
+
+  let state = load();
+  let editing = false;
+  let flipFrom = -1, flipTo = -1;
+  const $ = id => document.getElementById(id);
+  const board = () => state.boards[state.active];
+
+  // Deutsche Zahlen lesen: "1.258,40", "12.880", "0,4 Mio.", "850k"
+  function num(raw, suffixes) {
+    let s = String(raw == null ? '' : raw).trim().toLowerCase().replace(/[\s$€%]/g, '');
+    if (!s) return NaN;
+    let mult = 1;
+    const suf = suffixes ? s.match(/(mio\.?|m|tsd\.?|k)$/) : null;
+    if (suf) {
+      mult = suf[1].charAt(0) === 'm' ? 1e6 : 1e3;
+      s = s.slice(0, -suf[1].length);
+    }
+    if (s.indexOf(',') !== -1) s = s.replace(/\./g, '').replace(',', '.');
+    else if (!suf && /^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n * mult : NaN;
+  }
+  function fmt(n) {
+    return n.toLocaleString('de-DE', { maximumFractionDigits: n < 10 ? 1 : 0 });
+  }
+  function valueOf(b, level, m) {
+    const v = b.values[level] || {};
+    if (m.computed) {
+      const note = num(v.note), cost = num(v.kosten);
+      return Number.isFinite(note) && cost > 0 ? note / cost : NaN;
+    }
+    return num(v[m.key], m.suffixes);
+  }
+  function textOf(b, level, m) {
+    if (m.computed) {
+      const n = valueOf(b, level, m);
+      return Number.isFinite(n) ? fmt(n) : '–';
+    }
+    const t = ((b.values[level] || {})[m.key] || '').trim();
+    return t || '–';
+  }
+  function extremes(b) {
+    const out = {};
+    METRICS.forEach(m => {
+      if (!m.dir) return;
+      const vals = b.levels.map(l => valueOf(b, l, m));
+      const finite = vals.filter(Number.isFinite);
+      if (finite.length < 2 || Math.min(...finite) === Math.max(...finite)) return;
+      const hi = Math.max(...finite), lo = Math.min(...finite);
+      out[m.key] = { best: m.dir > 0 ? hi : lo, worst: m.dir > 0 ? lo : hi, vals };
+    });
+    return out;
+  }
+  function apiName(level) {
+    return API[String(level).trim().toLowerCase()] || '';
+  }
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function renderHead(b) {
+    const title = $('title');
+    title.replaceChildren();
+    const parts = String(b.title || '').split(' · ');
+    if (parts.length > 1) {
+      title.append(el('span', 'lead', parts.shift()), document.createTextNode(' · ' + parts.join(' · ')));
+    } else {
+      title.textContent = b.title || '';
+    }
+    $('subtitle').textContent = b.subtitle || '';
+    $('badge').hidden = !b.example;
+  }
+
+  function renderBoard() {
+    const b = board();
+    const n = b.levels.length;
+    const all = b.revealed >= n;
+    const ext = all && !editing ? extremes(b) : {};
+    const grid = $('board');
+    grid.style.setProperty('--n', n);
+    grid.replaceChildren();
+
+    const head = el('div', 'row');
+    head.setAttribute('role', 'row');
+    const corner = el('div', 'lab');
+    corner.setAttribute('role', 'columnheader');
+    corner.append(el('span', null, 'Messgröße'));
+    head.append(corner);
+    b.levels.forEach((level, c) => {
+      const shown = editing || c < b.revealed;
+      const h = el('div', 'lvl' + (shown ? ' on' : ' dim'));
+      h.setAttribute('role', 'columnheader');
+      h.append(el('div', 'name', level));
+      const sub = el('div', 'api');
+      const api = apiName(level);
+      if (api) sub.append(el('span', null, api));
+      const letter = (b.blind[c] || '').trim();
+      if (letter && shown) sub.append(el('span', 'blind', 'Blind ' + letter));
+      h.append(sub);
+      head.append(h);
+    });
+    grid.append(head);
+
+    METRICS.forEach((m, r) => {
+      const row = el('div', 'row');
+      row.setAttribute('role', 'row');
+      const lab = el('div', 'lab');
+      lab.setAttribute('role', 'rowheader');
+      lab.append(el('b', null, m.label(b)), el('span', null, m.unit(b)));
+      row.append(lab);
+      b.levels.forEach((level, c) => {
+        const shown = editing || c < b.revealed;
+        const tile = el('div', 'tile');
+        tile.setAttribute('role', 'cell');
+        if (m.computed) tile.classList.add('calc');
+        if (editing && !m.computed) {
+          const input = el('input', 'cell-input');
+          input.type = 'text';
+          input.id = 'in-' + state.active + '-' + c + '-' + m.key;
+          input.setAttribute('aria-label', level + ', ' + m.label(b));
+          input.value = (b.values[level] || {})[m.key] || '';
+          input.addEventListener('input', () => {
+            b.values[level] = b.values[level] || {};
+            b.values[level][m.key] = input.value;
+            if (b.example) { b.example = false; $('badge').hidden = true; }
+            save();
+            refreshComputed();
+          });
+          tile.append(input);
+        } else {
+          const txt = textOf(b, level, m);
+          const v = el('span', 'v' + (txt.length > 7 ? ' sm' : txt.length > 5 ? ' md' : ''), txt);
+          v.dataset.level = String(c);
+          v.dataset.metric = m.key;
+          tile.append(v);
+          if (!shown) tile.classList.add('off');
+          const e = ext[m.key];
+          if (e && Number.isFinite(e.vals[c])) {
+            if (e.vals[c] === e.best) tile.classList.add('best');
+            else if (e.vals[c] === e.worst) tile.classList.add('worst');
+          }
+          if (c >= flipFrom && c < flipTo) {
+            tile.classList.add('flip');
+            tile.style.setProperty('--i', String(r + (c - flipFrom) * 2));
+          }
+        }
+        row.append(tile);
+      });
+      grid.append(row);
+    });
+    flipFrom = flipTo = -1;
+  }
+
+  function refreshComputed() {
+    const b = board();
+    const m = METRICS.find(x => x.computed);
+    document.querySelectorAll('.v[data-metric="ppd"]').forEach(v => {
+      v.textContent = textOf(b, b.levels[Number(v.dataset.level)], m);
+    });
+  }
+
+  function renderFoot() {
+    const b = board();
+    const n = b.levels.length;
+    const dots = $('dots');
+    dots.replaceChildren();
+    if (inBars()) {
+      METRICS.forEach((m, i) => dots.append(el('span', 'dot' + (i < barIdx || (i === barIdx && barPlayed) ? ' on' : ''))));
+      $('summary').replaceChildren();
+      $('legend').hidden = true;
+      return;
+    }
+    for (let i = 0; i < n; i++) dots.append(el('span', 'dot' + (i < b.revealed || editing ? ' on' : '')));
+    const summary = $('summary');
+    summary.replaceChildren();
+    const done = b.revealed >= n && !editing;
+    $('legend').hidden = !done;
+    if (!done) return;
+    const noteM = METRICS.find(m => m.key === 'note');
+    const costM = METRICS.find(m => m.key === 'kosten');
+    const parts = [];
+    const bestOf = m => {
+      const vals = b.levels.map(l => valueOf(b, l, m));
+      const finite = vals.filter(Number.isFinite);
+      if (!finite.length) return null;
+      const top = Math.max(...finite);
+      return { names: b.levels.filter((l, i) => vals[i] === top).join(' & '), top };
+    };
+    const q = bestOf(noteM);
+    if (q) parts.push(['Beste Qualität', q.names + ' (' + fmt(q.top) + ')']);
+    const good = b.levels
+      .map(l => ({ l, note: valueOf(b, l, noteM), cost: valueOf(b, l, costM) }))
+      .filter(x => x.note >= 7 && Number.isFinite(x.cost))
+      .sort((x, y) => x.cost - y.cost)[0];
+    if (good) parts.push(['Günstigste Stufe ab 7 Punkten', good.l + ' (' + fmt(good.cost) + ' ' + b.currency + ')']);
+    const costs = b.levels.map(l => valueOf(b, l, costM)).filter(v => v > 0);
+    if (costs.length > 1) parts.push(['Kosten-Spanne', 'Faktor ' + fmt(Math.max(...costs) / Math.min(...costs))]);
+    parts.forEach(([k, v], i) => {
+      if (i) summary.append(document.createTextNode(' · '));
+      summary.append(document.createTextNode(k + ': '), el('strong', null, v));
+    });
+  }
+
+  // Balken-Ansicht
+  let barIdx = 0, barPlayed = false, barAnim = 0;
+  const inBars = () => state.view === 'bars' && !editing;
+  const reduceMotion = () => {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  };
+  // Hochzählen im gleichen Format wie der eingetragene Wert ("0,4 Mio.", "14,50", "850k")
+  function countShape(raw) {
+    const t = String(raw || '').trim();
+    const d = t.match(/,(\d+)/);
+    const dec = d ? d[1].length : 0;
+    if (/mio/i.test(t)) return { unit: 1e6, suffix: ' Mio.', dec };
+    if (/tsd\.?$/i.test(t)) return { unit: 1e3, suffix: ' Tsd.', dec };
+    if (/k$/i.test(t)) return { unit: 1e3, suffix: 'k', dec };
+    return { unit: 1, suffix: '', dec };
+  }
+  function countText(row, v) {
+    const dec = Number(row.dataset.dec);
+    return (v / Number(row.dataset.unit)).toLocaleString('de-DE', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + row.dataset.suffix;
+  }
+  function finishRow(row) {
+    row.style.setProperty('--w', row.dataset.pct + '%');
+    row.querySelector('.bar-val').textContent = row.dataset.final;
+    if (row.dataset.best) row.classList.add('best');
+  }
+  function renderBars(play) {
+    cancelAnimationFrame(barAnim);
+    const b = board();
+    const m = METRICS[barIdx];
+    $('bars-title').replaceChildren(document.createTextNode(m.label(b)), el('small', null, m.unit(b)));
+    const hint = $('bars-hint');
+    hint.textContent = m.dir < 0 ? 'Weniger ist besser' : m.dir > 0 ? 'Mehr ist besser' : 'Nur zur Einordnung';
+    hint.classList.toggle('neutral', !m.dir);
+    const vals = b.levels.map(l => valueOf(b, l, m));
+    const finite = vals.filter(v => Number.isFinite(v) && v >= 0);
+    const max = finite.length ? Math.max(...finite) : 0;
+    let best = null;
+    if (m.dir && finite.length > 1 && Math.min(...finite) !== Math.max(...finite)) {
+      best = m.dir > 0 ? Math.max(...finite) : Math.min(...finite);
+    }
+    const list = $('bars-list');
+    list.replaceChildren();
+    b.levels.forEach((level, i) => {
+      const v = vals[i];
+      const raw = m.computed ? '' : ((b.values[level] || {})[m.key] || '');
+      const shape = m.computed ? { unit: 1, suffix: '', dec: Number.isFinite(v) && v < 10 ? 1 : 0 } : countShape(raw);
+      const row = el('div', 'bar-row');
+      row.dataset.pct = String(max > 0 && Number.isFinite(v) ? Math.max(0, v) / max * 100 : 0);
+      row.dataset.val = String(Number.isFinite(v) ? v : NaN);
+      row.dataset.final = textOf(b, level, m);
+      row.dataset.unit = String(shape.unit);
+      row.dataset.suffix = shape.suffix;
+      row.dataset.dec = String(shape.dec);
+      if (best !== null && v === best) row.dataset.best = '1';
+      const lab = el('div', 'bar-label', level);
+      const api = apiName(level);
+      if (api) lab.append(el('small', null, api));
+      const track = el('div', 'bar-track');
+      const scale = el('div', 'bar-scale');
+      scale.append(el('div', 'bar-fill'), el('span', 'bar-val', ''));
+      track.append(scale);
+      row.append(lab, track);
+      list.append(row);
+    });
+    const rows = Array.from(list.children);
+    if (!barPlayed) { rows.forEach(r => r.style.setProperty('--w', '0%')); return; }
+    if (!play || reduceMotion()) { rows.forEach(finishRow); return; }
+    rows.forEach(r => r.style.setProperty('--w', '0%'));
+    const t0 = performance.now(), DUR = 1300, STAG = 150;
+    const step = now => {
+      let done = true;
+      rows.forEach((r, i) => {
+        const t = Math.min(1, Math.max(0, (now - t0 - i * STAG) / DUR));
+        if (t >= 1) { finishRow(r); return; }
+        done = false;
+        const e = 1 - Math.pow(1 - t, 3);
+        r.style.setProperty('--w', (Number(r.dataset.pct) * e) + '%');
+        const val = Number(r.dataset.val);
+        r.querySelector('.bar-val').textContent = t > 0 && Number.isFinite(val) ? countText(r, val * e) : '';
+      });
+      if (!done) barAnim = requestAnimationFrame(step);
+    };
+    barAnim = requestAnimationFrame(step);
+  }
+  function toggleBars() {
+    state.view = state.view === 'bars' ? 'table' : 'bars';
+    if (state.view === 'bars') { editing = false; barIdx = 0; barPlayed = false; }
+    save(); render();
+    if (state.view === 'bars') toast('Balken: Leertaste startet die erste Messgröße.');
+  }
+
+  function renderControls() {
+    const bars = inBars();
+    $('btn-bars').setAttribute('aria-pressed', String(bars));
+    $('btn-next').querySelector('.lbl').textContent = bars ? 'Nächste Messgröße' : 'Nächste Spalte aufdecken';
+    $('btn-all').querySelector('.lbl').textContent = bars ? 'Wiederholen' : 'Alle';
+    $('btn-reset').querySelector('.lbl').textContent = bars ? 'Auf Anfang' : 'Zudecken';
+    $('tab-t1').setAttribute('aria-pressed', String(state.active === 't1'));
+    $('tab-t2').setAttribute('aria-pressed', String(state.active === 't2'));
+    $('btn-edit').setAttribute('aria-pressed', String(editing));
+    $('controls').hidden = state.chrome === false;
+    document.documentElement.dataset.look = state.look === 'light' ? 'light' : 'dark';
+  }
+
+  function fillDrawer() {
+    const b = board();
+    $('f-title').value = b.title || '';
+    $('f-subtitle').value = b.subtitle || '';
+    $('f-levels').value = b.levels.join(', ');
+    $('f-blind').value = (b.blind || []).join(', ');
+    $('f-currency').value = b.currency === '€' ? '€' : '$';
+    $('f-json').value = JSON.stringify(state, null, 1);
+  }
+
+  function render() {
+    const b = board();
+    renderControls();
+    renderHead(b);
+    const bars = inBars();
+    $('board').hidden = bars;
+    $('bars').hidden = !bars;
+    if (bars) renderBars(false);
+    else { cancelAnimationFrame(barAnim); renderBoard(); }
+    renderFoot();
+    $('drawer').hidden = !editing;
+    if (editing) fillDrawer();
+  }
+
+  let toastTimer;
+  function toast(text) {
+    const t = $('toast');
+    t.textContent = text;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 2200);
+  }
+
+  function next() {
+    if (inBars()) {
+      if (!barPlayed) barPlayed = true;
+      else if (barIdx < METRICS.length - 1) barIdx += 1;
+      else return;
+      renderBars(true); renderFoot();
+      return;
+    }
+    const b = board();
+    if (editing || b.revealed >= b.levels.length) return;
+    flipFrom = b.revealed; flipTo = b.revealed + 1;
+    b.revealed += 1; save(); render();
+  }
+  function prev() {
+    if (inBars()) {
+      if (barIdx > 0) { barIdx -= 1; barPlayed = true; renderBars(true); renderFoot(); }
+      return;
+    }
+    const b = board();
+    if (editing || b.revealed <= 0) return;
+    b.revealed -= 1; save(); render();
+  }
+  function all() {
+    if (inBars()) { barPlayed = true; renderBars(true); renderFoot(); return; }
+    const b = board();
+    if (editing || b.revealed >= b.levels.length) return;
+    flipFrom = b.revealed; flipTo = b.levels.length;
+    b.revealed = b.levels.length; save(); render();
+  }
+  function reset() {
+    if (inBars()) { barIdx = 0; barPlayed = false; renderBars(false); renderFoot(); return; }
+    if (editing) return;
+    board().revealed = 0; save(); render();
+  }
+  function setEditing(on) {
+    editing = on; render();
+    if (on) toast('Klick in eine Kachel und tipp den Wert ein.');
+  }
+  function switchBoard(key) {
+    if (state.active === key) return;
+    state.active = key; barIdx = 0; barPlayed = false; save(); render();
+  }
+  function toggleLook() {
+    state.look = state.look === 'light' ? 'dark' : 'light'; save(); render();
+  }
+  function toggleChrome() {
+    state.chrome = state.chrome === false; save(); render();
+    if (state.chrome === false) toast('Leiste ausgeblendet. H blendet sie wieder ein.');
+  }
+  function fullscreen() {
+    const d = document;
+    try {
+      if (d.fullscreenElement) d.exitFullscreen().catch(() => {});
+      else if (d.documentElement.requestFullscreen) {
+        d.documentElement.requestFullscreen().catch(() => toast('Vollbild ist hier nicht verfügbar. Nutze das Vollbild deines Browsers.'));
+      } else toast('Vollbild ist hier nicht verfügbar. Nutze das Vollbild deines Browsers.');
+    } catch (e) {
+      toast('Vollbild ist hier nicht verfügbar. Nutze das Vollbild deines Browsers.');
+    }
+  }
+
+  function levelsFromField() {
+    const b = board();
+    const names = $('f-levels').value.split(',').map(s => s.trim()).filter(Boolean);
+    if (!names.length) { toast('Mindestens eine Stufe eintragen.'); fillDrawer(); return; }
+    const values = {};
+    names.forEach(nm => { values[nm] = b.values[nm] || {}; });
+    b.levels = names;
+    b.values = values;
+    b.blind = names.map((_, i) => (b.blind || [])[i] || '');
+    b.revealed = Math.min(b.revealed, names.length);
+    save(); render();
+  }
+
+  // Steuerleiste
+  const click = (id, fn) => $(id).addEventListener('click', e => { fn(); e.currentTarget.blur(); });
+  click('tab-t1', () => switchBoard('t1'));
+  click('tab-t2', () => switchBoard('t2'));
+  click('btn-next', next);
+  click('btn-prev', prev);
+  click('btn-all', all);
+  click('btn-reset', reset);
+  click('btn-bars', toggleBars);
+  click('btn-edit', () => setEditing(!editing));
+  click('btn-look', toggleLook);
+  click('btn-full', fullscreen);
+  click('btn-chrome', toggleChrome);
+  click('btn-done', () => setEditing(false));
+
+  // Bearbeiten-Leiste
+  $('f-title').addEventListener('input', e => { board().title = e.target.value; save(); renderHead(board()); });
+  $('f-subtitle').addEventListener('input', e => { board().subtitle = e.target.value; save(); renderHead(board()); });
+  $('f-levels').addEventListener('change', levelsFromField);
+  $('f-blind').addEventListener('input', e => {
+    board().blind = e.target.value.split(',').map(s => s.trim());
+    save(); renderBoard();
+  });
+  $('f-currency').addEventListener('change', e => { board().currency = e.target.value; save(); renderBoard(); renderFoot(); });
+
+  let clearArmed = false, clearTimer;
+  $('btn-clear').addEventListener('click', e => {
+    const btn = e.currentTarget;
+    if (!clearArmed) {
+      clearArmed = true;
+      btn.textContent = 'Wirklich alle Werte leeren?';
+      clearTimer = setTimeout(() => { clearArmed = false; btn.textContent = 'Alle Werte leeren'; }, 3000);
+      return;
+    }
+    clearTimeout(clearTimer);
+    clearArmed = false;
+    btn.textContent = 'Alle Werte leeren';
+    const b = board();
+    b.levels.forEach(l => { b.values[l] = {}; });
+    b.example = false;
+    save(); render();
+    toast('Werte geleert.');
+  });
+
+  $('btn-copy').addEventListener('click', () => {
+    const area = $('f-json');
+    area.value = JSON.stringify(state, null, 1);
+    const fallback = () => { area.focus(); area.select(); toast('Text markiert. Mit Strg+C bzw. Cmd+C kopieren.'); };
+    try {
+      navigator.clipboard.writeText(area.value).then(() => toast('Daten kopiert.'), fallback);
+    } catch (e) { fallback(); }
+  });
+  $('btn-apply').addEventListener('click', () => {
+    try {
+      const s = JSON.parse($('f-json').value);
+      if (!valid(s)) throw new Error('ungültig');
+      state = s;
+      if (!state.boards[state.active]) state.active = 't1';
+      save(); render();
+      toast('Daten übernommen.');
+    } catch (e) {
+      toast('Das ist kein gültiger Scoreboard-Export. Bitte den kompletten kopierten Text einfügen.');
+    }
+  });
+
+  // Tastatur (auch Presenter-Klicker: Bild auf/ab)
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('input, textarea, select')) {
+      if (e.key === 'Escape' && editing) setEditing(false);
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === ' ' || k === 'ArrowRight' || k === 'PageDown') { e.preventDefault(); next(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); prev(); }
+    else if (k === 'a' || k === 'A') all();
+    else if (k === 'r' || k === 'R') reset();
+    else if (k === 'b' || k === 'B') toggleBars();
+    else if (k === 'e' || k === 'E') setEditing(!editing);
+    else if (k === 'Escape' && editing) setEditing(false);
+    else if (k === '1') switchBoard('t1');
+    else if (k === '2') switchBoard('t2');
+    else if (k === 't' || k === 'T') toggleLook();
+    else if (k === 'f' || k === 'F') fullscreen();
+    else if (k === 'h' || k === 'H') toggleChrome();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Effort-Prompter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600&family=Barlow:wght@500&display=swap">
+<style>
+  /* Teleprompter für die Kamera-Teile. Bewusst immer dunkel: Heller Text auf
+     dunklem Grund blendet nicht und spiegelt sauber in Prompter-Glas. */
+  :root {
+    color-scheme: dark;
+    --ground: #0c0f13;
+    --ink: #f1ece2;
+    --ink-dim: #8d96a3;
+    --ink-faint: #3a414c;
+    --accent: #f2b43f;
+    --accent-soft: rgba(242, 180, 63, 0.1);
+    --shade-top: rgba(12, 15, 19, 0.92);
+    --shade-bottom: rgba(12, 15, 19, 0.45);
+    --bar: #12161b;
+    --bar-edge: #252c35;
+    --backdrop: rgba(6, 8, 10, 0.86);
+    --size: clamp(26px, 5vw, 64px);
+    --font-read: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    --font-label: "Barlow Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+    --font-ui: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font: 500 14px/1.4 var(--font-ui);
+    overflow: hidden;
+  }
+  .app { height: 100%; display: flex; flex-direction: column; }
+
+  /* Lesefläche: Der Text beginnt oben, also so nah wie möglich an der Kamera. */
+  .stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding-inline: 16px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  body.running .stage { cursor: none; }
+  .flip { position: relative; height: 100%; }
+  .flip.mirrored { transform: scaleX(-1); }
+  .track { will-change: transform; }
+  .script {
+    position: relative;
+    max-width: 16em;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+    font: 400 var(--size)/1.4 var(--font-read);
+  }
+  .script p { margin: 0; }
+  .sec {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    margin: 0.9em 0 0;
+    font: 600 max(0.42em, 12px)/1.2 var(--font-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .sec:first-child { margin-top: 0; }
+  .sec .no { color: var(--accent); font-variant-numeric: tabular-nums; }
+  .sec::after { content: ""; flex: 1; border-top: 1px solid var(--ink-faint); }
+  .frei {
+    padding: 0.55em 0.75em 0.65em;
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    background: var(--accent-soft);
+    font-size: 0.66em;
+    line-height: 1.35;
+  }
+  .frei .tag {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.2em 1em;
+    margin-bottom: 0.45em;
+    font: 600 max(0.6em, 12px)/1.1 var(--font-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .frei .go { color: var(--ink-dim); visibility: hidden; }
+  .frei.held .go { visibility: visible; }
+  .note { font-size: 0.5em; font-style: italic; color: var(--ink-dim); }
+  mark.ph {
+    background: none;
+    color: var(--accent);
+    text-decoration: underline dashed 0.06em;
+    text-underline-offset: 0.18em;
+  }
+
+  /* Gelesenes abdunkeln, Lesezeile markieren */
+  .shade {
+    position: absolute;
+    inset: 0 0 auto;
+    height: var(--shade-h, 25%);
+    background: linear-gradient(to bottom, var(--shade-top), var(--shade-bottom));
+    pointer-events: none;
+  }
+  .marker {
+    position: absolute;
+    inset: var(--mark-y, 30%) 0 auto;
+    height: 0;
+    pointer-events: none;
+  }
+  .marker::before, .marker::after {
+    content: "";
+    position: absolute;
+    top: -9px;
+    border-block: 9px solid transparent;
+  }
+  .marker::before { left: -16px; border-left: 12px solid var(--accent); }
+  .marker::after { right: -16px; border-right: 12px solid var(--accent); }
+  .count {
+    position: absolute;
+    inset: calc(var(--mark-y, 30%) - 0.55em) 0 auto;
+    text-align: center;
+    font: 600 calc(var(--size) * 2.4)/1 var(--font-label);
+    color: var(--accent);
+    pointer-events: none;
+  }
+  .progress {
+    position: absolute;
+    inset: auto 0 0;
+    height: 3px;
+    background: var(--bar-edge);
+  }
+  .progress i { display: block; width: 0; height: 100%; background: var(--accent); }
+
+  /* Steuerleiste unten, damit der Text oben an der Kamera bleibt */
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+    padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: var(--bar);
+    border-top: 1px solid var(--bar-edge);
+  }
+  .group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .btn {
+    font: 500 13px/1 var(--font-ui);
+    color: var(--ink-dim);
+    background: var(--ground);
+    border: 1px solid var(--bar-edge);
+    border-radius: 6px;
+    padding: 7px 10px;
+    cursor: pointer;
+  }
+  .btn:hover { color: var(--ink); border-color: var(--ink-dim); }
+  .btn.primary { color: var(--ink); border-color: var(--accent); }
+  .btn.primary .lbl { display: inline-block; min-width: 5.4em; text-align: left; }
+  .btn.icon { min-width: 32px; padding-inline: 8px; }
+  .btn[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+  .btn:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  kbd {
+    font: 600 11px/1 var(--font-ui);
+    color: var(--ink-dim);
+    border: 1px solid var(--bar-edge);
+    border-radius: 4px;
+    padding: 2px 5px;
+    margin-left: 6px;
+  }
+  .readout {
+    min-width: 6.8em;
+    text-align: center;
+    font: 600 15px/1 var(--font-label);
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .readout.small { min-width: 3.6em; }
+  select {
+    max-width: 15em;
+    font: 500 13px/1 var(--font-ui);
+    color: var(--ink);
+    background: var(--ground);
+    border: 1px solid var(--bar-edge);
+    border-radius: 6px;
+    padding: 6px 8px;
+  }
+  .status {
+    margin-left: auto;
+    font: 600 14px/1.2 var(--font-label);
+    letter-spacing: 0.06em;
+    color: var(--ink-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .peek {
+    position: fixed;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    opacity: 0.35;
+  }
+  .peek:hover, .peek:focus-visible { opacity: 1; }
+
+  /* Text bearbeiten */
+  .editor {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: var(--backdrop);
+  }
+  .editor-box {
+    box-sizing: border-box;
+    width: min(760px, 100%);
+    height: min(720px, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    background: var(--bar);
+    border: 1px solid var(--bar-edge);
+    border-radius: 12px;
+  }
+  .editor-box h2 {
+    margin: 0;
+    font: 600 20px/1.1 var(--font-label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .help { margin: 0; max-width: 65ch; color: var(--ink-dim); font-size: 13px; line-height: 1.55; }
+  .help code { font: 600 12px/1 ui-monospace, "Cascadia Mono", Consolas, monospace; color: var(--accent); }
+  textarea {
+    flex: 1;
+    min-height: 8em;
+    resize: none;
+    font: 400 15px/1.55 var(--font-read);
+    color: var(--ink);
+    background: var(--ground);
+    border: 1px solid var(--bar-edge);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  @media (max-width: 520px) {
+    kbd { display: none; }
+    .bar { gap: 8px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="stage" id="stage" aria-label="Prompter-Text">
+    <div class="flip" id="flip">
+      <div class="track" id="track"><div class="script" id="script"></div></div>
+      <div class="shade" aria-hidden="true"></div>
+      <div class="marker" aria-hidden="true"></div>
+      <div class="count" id="count" aria-hidden="true" hidden></div>
+    </div>
+    <div class="progress" aria-hidden="true"><i id="progress"></i></div>
+  </main>
+
+  <footer class="bar" id="bar">
+    <div class="group">
+      <button class="btn primary" id="btn-play" type="button"><span class="lbl">Start</span><kbd>Leertaste</kbd></button>
+      <button class="btn" id="btn-back" type="button">Zurück<kbd>←</kbd></button>
+    </div>
+    <div class="group" role="group" aria-label="Tempo">
+      <button class="btn icon" id="btn-slower" type="button" aria-label="Langsamer">−</button>
+      <span class="readout" id="wpm">140 Wörter/Min</span>
+      <button class="btn icon" id="btn-faster" type="button" aria-label="Schneller">+</button>
+      <kbd>↑ ↓</kbd>
+    </div>
+    <div class="group" role="group" aria-label="Schriftgröße">
+      <button class="btn icon" id="btn-smaller" type="button" aria-label="Schrift kleiner">A−</button>
+      <span class="readout small" id="size">100 %</span>
+      <button class="btn icon" id="btn-bigger" type="button" aria-label="Schrift größer">A+</button>
+    </div>
+    <div class="group">
+      <select id="sec-select" aria-label="Abschnitt"></select>
+      <kbd>1–9</kbd>
+    </div>
+    <div class="group">
+      <button class="btn" id="btn-mirror" type="button" aria-pressed="false">Spiegeln<kbd>M</kbd></button>
+      <button class="btn" id="btn-edit" type="button">Text<kbd>E</kbd></button>
+      <button class="btn" id="btn-full" type="button">Vollbild<kbd>F</kbd></button>
+      <button class="btn" id="btn-hide" type="button">Leiste aus<kbd>H</kbd></button>
+    </div>
+    <div class="status" id="status"></div>
+  </footer>
+  <button class="btn peek" id="btn-show" type="button" hidden>Leiste<kbd>H</kbd></button>
+</div>
+
+<div class="editor" id="editor" role="dialog" aria-modal="true" aria-labelledby="editor-title" hidden>
+  <div class="editor-box">
+    <h2 id="editor-title">Skript</h2>
+    <p class="help">Eine Leerzeile trennt Absätze. <code># Titel</code> beginnt einen Abschnitt, die Tasten 1–9 springen dorthin. <code>[FREI] Stichworte</code> ist eine Freestyle-Stelle: Der Prompter hält dort an, weiter geht es mit der Leertaste. Text in <code>[ECKIGEN KLAMMERN]</code> wird gelb markiert, damit du Platzhalter vor der Aufnahme ausfüllst. Absätze, die mit <code>Bild:</code> beginnen, erscheinen klein als Regiehinweis.</p>
+    <textarea id="script-input" spellcheck="true" aria-label="Skripttext"></textarea>
+    <div class="row">
+      <button class="btn primary" id="btn-save" type="button">Übernehmen<kbd>Strg+Enter</kbd></button>
+      <button class="btn" id="btn-cancel" type="button">Abbrechen<kbd>Esc</kbd></button>
+      <button class="btn" id="btn-default" type="button">Skript Video 1 einsetzen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // Skript für Video 1 (Kurzfassung, rund 8 Minuten). Mit E durch eigenen Text ersetzen.
+  const DEFAULT_SCRIPT = `# Hook
+
+Opus 5.5 ist seit ein paar Tagen draußen. Günstiger als Opus 5 und in Anthropics Benchmarks sogar vor dem teureren Fable 5.1.
+
+Aber im Kleingedruckten steht: Gemessen wurde auf der höchsten Stufe, auf Max. Wenn du nichts einstellst, läuft Opus 5.5 auf Medium.
+
+Und es gibt sechs Stufen: Low, Medium, High, Extra, Max und Ultracode. Also habe ich Opus 5.5 einen einzigen Auftrag gegeben, sechsmal. Einmal pro Stufe.
+
+Gemessen habe ich alles: wie lange es braucht, was es kostet, wie viele Tokens es verbraucht, wie oft es seine eigene Arbeit prüft und wie oft es mich etwas fragt.
+
+[FREI] Nur wenn es stimmt: „Ich war mir ziemlich sicher, welche Stufe gewinnt. Ich lag daneben.“
+
+Und am Ende sage ich dir klar, welche Stufe du wofür nimmst, damit du kein Geld verbrennst.
+
+# Was ist Opus 5.5?
+
+Ganz kurz, damit wir alle auf demselben Stand sind. Opus 5.5 ist am 22. September erschienen, als Nachfolger von Opus 5. Über die API kostet es 4 Dollar pro Million Input-Tokens und 20 Dollar pro Million Output-Tokens. Opus 5 lag bei 5 und 25.
+
+In Anthropics eigenen Tests liegt es vorne. Beim agentischen Programmieren auf Terminal-Bench 4.0 zum Beispiel mit 66,4 Prozent. Fable 5.1 kommt auf 55,8, Opus 5 auf 52,3. Das sind Herstellerangaben. Genau deshalb teste ich selbst.
+
+Und jetzt der Punkt, über den kaum jemand redet: Diese Zahlen wurden auf Max gemessen. Standard ist aber Medium. Anthropic rät sogar selbst, mehrere Stufen an den eigenen Aufgaben zu testen.
+
+Opus 5.5 denkt dabei immer mit, das lässt sich nicht abschalten. Die Stufe ist also dein einziger Regler.
+
+# Regeln und Aufgabe
+
+Eingestellt wird die Stufe in Claude Code mit /effort. Meine Regeln: Jede Stufe bekommt denselben Prompt, Wort für Wort, in einer frischen Sitzung und einem leeren Ordner. Fragt Claude etwas, antworte ich immer gleich: Triff eine sinnvolle Annahme und mach weiter. Und ich bessere nichts von Hand nach.
+
+Die Aufgabe: eine begehbare 3D-Altstadt im Browser. Marktplatz, Fachwerkhäuser, Tag und Nacht, eine Minikarte und ein paar kleine Interaktionen. Bei so etwas siehst du sofort, ob es funktioniert und ob es gut aussieht.
+
+Alles landet auf meinem Scoreboard: Laufzeit, Kosten, Tokens, Checks, Rückfragen und eine Qualitätsnote nach festen Kriterien.
+
+# Blindrunde
+
+Bevor ich auflöse, zeige ich dir alle sechs Ergebnisse ohne Beschriftung, A bis F. Schreib in die Kommentare, welcher Buchstabe Max ist und welcher Low.
+
+# Test 1, Stufe für Stufe
+
+[FREI] Low: Buchstabe, Laufzeit, Kosten, Tokens, Checks, Rückfragen. Was ist gut, was hakt? Note von 10.
+
+[FREI] Medium: Werte, was gut ist, was hakt, Note. Nur wenn es stimmt: „Bis hierhin … Aber bei … ist etwas passiert, womit ich nicht gerechnet habe.“
+
+[FREI] High: Werte, was gut ist, was hakt, Note.
+
+[FREI] Extra: Werte, was gut ist, was hakt, Note.
+
+[FREI] Max: Werte, was gut ist, was hakt, Note.
+
+Ultracode ist eigentlich keine eigene Denkstufe. Das ist Extra plus: Claude darf mehrere Agenten gleichzeitig losschicken und die Arbeit verteilen.
+
+[FREI] Ultracode: Werte, was gut ist, was hakt, Note.
+
+# Scoreboard und Fazit
+
+Hier ist alles auf einen Blick.
+
+[FREI] Deine größte Überraschung in einem Satz.
+
+Die billigste Stufe hat [BETRAG] gekostet, die teuerste [BETRAG]. Das ist Faktor [X]. Die beste Note hat [STUFE] geholt.
+
+Die meisten Punkte pro Dollar holt fast immer die billigste Stufe. Wichtiger ist: Welche ist die günstigste Stufe mit mindestens 7 von 10 Punkten? Das ist [STUFE].
+
+Und im Abo? Da zahlst du nicht pro Token, aber die hohen Stufen verbrauchen dein Nutzungslimit spürbar schneller.
+
+[FREI] Deine klare Empfehlung: Welche Stufe für den Alltag, welche für große Aufgaben, wann lohnt sich Max?
+
+Und der wichtigste Tipp kommt von Anthropic selbst: Teste die Stufen an deinen eigenen Aufgaben. Meinen Prompt findest du in der Beschreibung.
+
+# Outro
+
+Schreib mir in die Kommentare, welche Stufe du nutzt und ob du bei der Blindrunde richtig lagst. Die Auflösung pinne ich oben an.
+
+Im nächsten Video wird es praktisch: Opus 5.5 baut eine Homepage für ein Unternehmen, und ich schaue, ob sie an die typischen Fallen in Deutschland denkt. Den Prompt kannst du dann für dein eigenes Business nutzen.
+
+Wenn dir solche Tests auf Deutsch helfen, abonnier den Kanal. Bis zum nächsten Mal.
+`;
+
+  const KEY = 'effort-prompter-v1';
+  const BASE_SIZE = 'clamp(26px, 5vw, 64px)';
+  const READ_LINE = 0.28;   // Lesezeile bei 28 % der Höhe, also nah an der Kamera
+  const $ = id => document.getElementById(id);
+  const stage = $('stage'), flip = $('flip'), track = $('track'), script = $('script');
+  const sel = $('sec-select'), status = $('status'), progress = $('progress');
+  const playLabel = $('btn-play').querySelector('.lbl');
+  const editor = $('editor'), input = $('script-input');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const state = { text: DEFAULT_SCRIPT, wpm: 140, scale: 1, mirror: false, bar: true };
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (saved) {
+      if (typeof saved.text === 'string') state.text = saved.text;
+      if (Number.isFinite(saved.wpm)) state.wpm = clamp(saved.wpm, 60, 260);
+      if (Number.isFinite(saved.scale)) state.scale = clamp(saved.scale, 0.6, 2);
+      if (typeof saved.mirror === 'boolean') state.mirror = saved.mirror;
+      if (typeof saved.bar === 'boolean') state.bar = saved.bar;
+    }
+  } catch (e) { /* ohne gespeicherte Werte geht es auch */ }
+
+  let blocks = [], sections = [];
+  let pos = 0, maxPos = 0, lineH = 40, pxPerWord = 9;
+  let running = false, counting = false, armed = true, held = null;
+  let raf = 0, anim = 0, countTimer = 0, lastT = 0, statusT = 0;
+  let wakeLock = null, drag = null;
+
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* nicht schlimm */ }
+  }
+
+  // ---------- Text zerlegen und aufbauen ----------
+  function parse(text) {
+    const out = [];
+    for (const raw of text.replace(/\r\n?/g, '\n').split(/\n[ \t]*\n/)) {
+      let t = raw.trim();
+      if (!t) continue;
+      if (t.startsWith('#')) {
+        const nl = t.indexOf('\n');
+        const head = (nl < 0 ? t : t.slice(0, nl)).replace(/^#+\s*/, '').trim();
+        if (head) out.push({ type: 'sec', text: head });
+        t = nl < 0 ? '' : t.slice(nl + 1).trim();
+        if (!t) continue;
+      }
+      const frei = t.match(/^\[frei\]\s*:?\s*/i);
+      if (frei) { out.push({ type: 'frei', text: t.slice(frei[0].length) }); continue; }
+      if (/^bild\s*:/i.test(t)) { out.push({ type: 'note', text: t }); continue; }
+      if (t.startsWith('„') && t.endsWith('“')) t = t.slice(1, -1).trim();
+      out.push({ type: 'p', text: t });
+    }
+    return out;
+  }
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const inline = s => esc(s).replace(/\[([^\]\n]+)\]/g, '<mark class="ph">$1</mark>').replace(/\n/g, '<br>');
+  const countWords = s => (s.match(/[^\s[\]]+/g) || []).length;
+
+  function render() {
+    blocks = [];
+    sections = [];
+    held = null;
+    const frag = document.createDocumentFragment();
+    for (const part of parse(state.text)) {
+      let el;
+      if (part.type === 'sec') {
+        el = document.createElement('h2');
+        el.className = 'sec';
+        el.innerHTML = `<span class="no">${sections.length + 1}</span><span>${esc(part.text)}</span>`;
+      } else if (part.type === 'frei') {
+        el = document.createElement('div');
+        el.className = 'frei';
+        el.innerHTML = `<div class="tag"><span>Freestyle</span><span class="go">weiter mit Leertaste</span></div><div>${inline(part.text)}</div>`;
+      } else {
+        el = document.createElement('p');
+        if (part.type === 'note') el.className = 'note';
+        el.innerHTML = inline(part.text);
+      }
+      const block = { type: part.type, el, words: part.type === 'p' ? countWords(part.text) : 0, top: 0, height: 0 };
+      if (part.type === 'sec') sections.push({ name: part.text, block });
+      blocks.push(block);
+      frag.append(el);
+    }
+    if (!blocks.length) {
+      const el = document.createElement('p');
+      el.className = 'note';
+      el.textContent = 'Noch kein Text. Mit E fügst du dein Skript ein.';
+      blocks.push({ type: 'note', el, words: 0, top: 0, height: 0 });
+      frag.append(el);
+    }
+    script.replaceChildren(frag);
+    sel.replaceChildren(...sections.map((s, i) => new Option(`${i + 1} ${s.name}`, String(i))));
+    sel.disabled = !sections.length;
+    layout(false);
+  }
+
+  // Misst alle Absätze neu. keep = Leseposition über Größenänderungen halten.
+  function layout(keep) {
+    if (!blocks.length) return;
+    const anchor = keep ? anchorAt(pos) : null;
+    const readY = Math.round(stage.clientHeight * READ_LINE);
+    script.style.paddingTop = readY + 'px';
+    lineH = parseFloat(getComputedStyle(script).lineHeight) || 40;
+    const base = blocks[0].el.offsetTop;
+    let height = 0, words = 0;
+    for (const b of blocks) {
+      b.top = b.el.offsetTop - base;
+      b.height = b.el.offsetHeight;
+      if (b.type === 'p') { height += b.height; words += b.words; }
+    }
+    pxPerWord = words ? height / words : lineH / 5;
+    const last = blocks[blocks.length - 1];
+    maxPos = last.top + last.height;
+    flip.style.setProperty('--mark-y', Math.round(readY + lineH / 2) + 'px');
+    flip.style.setProperty('--shade-h', Math.max(0, Math.round(readY - lineH * 0.2)) + 'px');
+    pos = anchor ? clamp(blocks[anchor.i].top + anchor.frac * blocks[anchor.i].height, 0, maxPos) : 0;
+    applyPos();
+    updateStatus();
+  }
+  function anchorAt(p) {
+    let i = 0;
+    blocks.forEach((b, j) => { if (b.top <= p + 0.5) i = j; });
+    const b = blocks[i];
+    return { i, frac: b.height ? clamp((p - b.top) / b.height, 0, 1) : 0 };
+  }
+  function applyPos() {
+    track.style.transform = `translate3d(0, ${-pos}px, 0)`;
+    progress.style.width = (maxPos ? pos / maxPos * 100 : 0) + '%';
+  }
+  function setPos(p) { pos = clamp(p, 0, maxPos); applyPos(); }
+
+  // ---------- Laufen, Anhalten, Springen ----------
+  function frame(t) {
+    if (!running) return;
+    const dt = lastT ? Math.min(0.1, (t - lastT) / 1000) : 0;
+    lastT = t;
+    const next = pos + state.wpm / 60 * pxPerWord * dt;
+    const stop = blocks.find(b => b.type === 'frei' && b.top > pos && b.top <= next);
+    if (stop) { setPos(stop.top); hold(stop); return; }
+    if (next >= maxPos) { setPos(maxPos); pause(); return; }
+    setPos(next);
+    if (t - statusT > 250) { statusT = t; updateStatus(); }
+    raf = requestAnimationFrame(frame);
+  }
+  function run() {
+    running = true;
+    armed = false;
+    lastT = 0;
+    statusT = 0;
+    keepAwake();
+    raf = requestAnimationFrame(frame);
+    updateUI();
+  }
+  function pause() {
+    running = false;
+    cancelAnimationFrame(raf);
+    stopAnim();
+    stopCount();
+    updateUI();
+    updateStatus();
+  }
+  function hold(b) {
+    running = false;
+    cancelAnimationFrame(raf);
+    held = b;
+    b.el.classList.add('held');
+    updateUI();
+    updateStatus();
+  }
+  function release() {
+    if (held) held.el.classList.remove('held');
+    held = null;
+  }
+  const freiAt = p => blocks.find(b => b.type === 'frei' && Math.abs(b.top - p) < 1);
+
+  // Nach einer Freestyle-Stelle direkt zum nächsten Absatz, dann weiterlaufen
+  function skipPast(b) {
+    release();
+    armed = false;
+    const next = blocks[blocks.indexOf(b) + 1];
+    glide(next ? next.top : maxPos, 380, () => {
+      if (next && next.type === 'frei') hold(next); else run();
+    });
+    updateUI();
+  }
+  function toggle() {
+    if (counting) { pause(); armed = true; updateUI(); return; }
+    if (running) { pause(); return; }
+    if (anim) return;
+    if (pos >= maxPos - 1) { goTo(0, true); return; }
+    if (held) { skipPast(held); return; }
+    const card = freiAt(pos);
+    if (card) { hold(card); return; }
+    if (armed) { countIn(); return; }
+    run();
+  }
+  function goTo(target, arm) {
+    pause();
+    release();
+    if (arm) armed = true;
+    glide(target, 320, () => {
+      const card = freiAt(pos);
+      if (card) hold(card); else { updateUI(); updateStatus(); }
+    });
+  }
+  function back() {
+    let target = 0;
+    for (const b of blocks) if (b.top < pos - 2) target = b.top;
+    goTo(target, false);
+  }
+  function jump(i) { if (sections[i]) goTo(sections[i].block.top, true); }
+
+  function glide(target, ms, done) {
+    stopAnim();
+    target = clamp(target, 0, maxPos);
+    if (reduceMotion || Math.abs(target - pos) < 1) { setPos(target); if (done) done(); return; }
+    const from = pos, t0 = performance.now();
+    const step = t => {
+      const k = clamp((t - t0) / ms, 0, 1);
+      setPos(from + (target - from) * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) { anim = requestAnimationFrame(step); return; }
+      anim = 0;
+      if (done) done();
+    };
+    anim = requestAnimationFrame(step);
+  }
+  function stopAnim() { cancelAnimationFrame(anim); anim = 0; }
+
+  // 3-2-1 vor dem Start einer Aufnahme
+  function countIn() {
+    const el = $('count');
+    let n = 3;
+    counting = true;
+    el.textContent = n;
+    el.hidden = false;
+    updateUI();
+    countTimer = setInterval(() => {
+      n -= 1;
+      if (n > 0) { el.textContent = n; return; }
+      stopCount();
+      run();
+    }, 700);
+  }
+  function stopCount() {
+    clearInterval(countTimer);
+    countTimer = 0;
+    counting = false;
+    $('count').hidden = true;
+  }
+
+  async function keepAwake() {
+    if (wakeLock || !('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (e) { wakeLock = null; }
+  }
+
+  // ---------- Anzeige ----------
+  function fmt(sec) {
+    sec = Math.max(0, Math.round(sec));
+    return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+  }
+  function updateStatus() {
+    let current = -1;
+    sections.forEach((s, i) => { if (s.block.top <= pos + 1) current = i; });
+    let words = 0, cards = 0;
+    for (const b of blocks) {
+      if (b.type === 'frei') { if (b.top >= pos - 0.5) cards += 1; continue; }
+      if (b.type !== 'p') continue;
+      if (b.top >= pos) words += b.words;
+      else if (b.top + b.height > pos) words += b.words * (1 - (pos - b.top) / b.height);
+    }
+    if (pos >= maxPos - 1) {
+      status.textContent = 'Ende · Leertaste springt an den Anfang';
+    } else {
+      const where = current >= 0 ? `${current + 1} ${sections[current].name} · ` : '';
+      status.textContent = `${where}Rest ca. ${fmt(words / state.wpm * 60)}${cards ? ` + ${cards}× Freestyle` : ''}`;
+    }
+    if (current >= 0 && document.activeElement !== sel) sel.value = String(current);
+  }
+  function updateUI() {
+    playLabel.textContent = running || counting ? 'Pause'
+      : held ? 'Weiter'
+      : pos >= maxPos - 1 ? 'Zum Anfang'
+      : armed ? 'Start' : 'Weiter';
+    $('wpm').textContent = `${state.wpm} Wörter/Min`;
+    $('size').textContent = `${Math.round(state.scale * 100)} %`;
+    $('btn-mirror').setAttribute('aria-pressed', String(state.mirror));
+    flip.classList.toggle('mirrored', state.mirror);
+    $('bar').hidden = !state.bar;
+    $('btn-show').hidden = state.bar;
+    document.body.classList.toggle('running', running);
+  }
+
+  // ---------- Einstellungen ----------
+  function setWpm(v) {
+    state.wpm = clamp(Math.round(v / 10) * 10, 60, 260);
+    save();
+    updateUI();
+    updateStatus();
+  }
+  function setScale(v) {
+    state.scale = clamp(Math.round(v * 10) / 10, 0.6, 2);
+    applyScale();
+    save();
+    updateUI();
+  }
+  function applyScale() {
+    document.documentElement.style.setProperty('--size', `calc(${BASE_SIZE} * ${state.scale})`);
+    layout(true);
+  }
+  function toggleMirror() { state.mirror = !state.mirror; save(); updateUI(); }
+  function toggleBar() { state.bar = !state.bar; save(); updateUI(); }
+  function toggleFullscreen() {
+    const d = document;
+    const p = d.fullscreenElement ? d.exitFullscreen?.() : d.documentElement.requestFullscreen?.();
+    if (p && p.catch) p.catch(() => {});
+  }
+
+  function openEditor() {
+    pause();
+    input.value = state.text;
+    editor.hidden = false;
+    input.focus();
+    input.setSelectionRange(0, 0);
+    input.scrollTop = 0;
+  }
+  function closeEditor(apply) {
+    editor.hidden = true;
+    if (apply && input.value !== state.text) {
+      state.text = input.value;
+      save();
+      armed = true;
+      render();
+    }
+    updateUI();
+  }
+
+  // ---------- Bedienung ----------
+  document.addEventListener('keydown', e => {
+    if (!editor.hidden) {
+      if (e.key === 'Escape') { e.preventDefault(); closeEditor(false); }
+      else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); closeEditor(true); }
+      return;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey || e.target === sel) return;
+    const k = e.key;
+    const go = k === ' ' || k === 'PageDown' || k === 'ArrowRight';
+    const backKey = k === 'PageUp' || k === 'ArrowLeft';
+    if (e.repeat && (go || backKey)) { e.preventDefault(); return; }
+    let handled = true;
+    if (go) toggle();
+    else if (backKey) back();
+    else if (k === 'ArrowUp') setWpm(state.wpm + 10);
+    else if (k === 'ArrowDown') setWpm(state.wpm - 10);
+    else if (k === '+' || k === '=') setScale(state.scale + 0.1);
+    else if (k === '-' || k === '_') setScale(state.scale - 0.1);
+    else if (k === 'Home' || k === 'r' || k === 'R') goTo(0, true);
+    else if (k === 'm' || k === 'M') toggleMirror();
+    else if (k === 'e' || k === 'E') openEditor();
+    else if (k === 'f' || k === 'F') toggleFullscreen();
+    else if (k === 'h' || k === 'H') toggleBar();
+    else if (k === 'Escape' && (running || counting)) pause();
+    else if (/^[1-9]$/.test(k)) jump(Number(k) - 1);
+    else handled = false;
+    if (handled) e.preventDefault();
+  });
+  // Klicks auf Knöpfe nehmen der Leertaste nicht den Fokus weg
+  document.addEventListener('mousedown', e => {
+    if (e.target.closest('.bar button, .peek')) e.preventDefault();
+  });
+
+  stage.addEventListener('wheel', e => {
+    e.preventDefault();
+    if (counting) return;
+    stopAnim();
+    release();
+    const unit = e.deltaMode === 1 ? lineH : e.deltaMode === 2 ? stage.clientHeight : 1;
+    setPos(pos + e.deltaY * unit);
+    updateUI();
+    updateStatus();
+  }, { passive: false });
+
+  // Handy und Tablet: ziehen verschiebt den Text, tippen startet oder hält an
+  stage.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse') return;
+    drag = { y: e.clientY, from: pos, moved: false };
+  });
+  stage.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dy = e.clientY - drag.y;
+    if (!drag.moved && Math.abs(dy) < 8) return;
+    drag.moved = true;
+    stopAnim();
+    release();
+    setPos(drag.from - dy);
+    updateStatus();
+  });
+  stage.addEventListener('pointerup', () => {
+    if (!drag) return;
+    const tap = !drag.moved;
+    drag = null;
+    if (tap) toggle();
+  });
+  stage.addEventListener('pointercancel', () => { drag = null; });
+
+  $('btn-play').addEventListener('click', toggle);
+  $('btn-back').addEventListener('click', back);
+  $('btn-slower').addEventListener('click', () => setWpm(state.wpm - 10));
+  $('btn-faster').addEventListener('click', () => setWpm(state.wpm + 10));
+  $('btn-smaller').addEventListener('click', () => setScale(state.scale - 0.1));
+  $('btn-bigger').addEventListener('click', () => setScale(state.scale + 0.1));
+  $('btn-mirror').addEventListener('click', toggleMirror);
+  $('btn-edit').addEventListener('click', openEditor);
+  $('btn-full').addEventListener('click', toggleFullscreen);
+  $('btn-hide').addEventListener('click', toggleBar);
+  $('btn-show').addEventListener('click', toggleBar);
+  sel.addEventListener('change', () => { jump(Number(sel.value)); sel.blur(); });
+  $('btn-save').addEventListener('click', () => closeEditor(true));
+  $('btn-cancel').addEventListener('click', () => closeEditor(false));
+  $('btn-default').addEventListener('click', () => { input.value = DEFAULT_SCRIPT; input.focus(); });
+
+  document.documentElement.style.setProperty('--size', `calc(${BASE_SIZE} * ${state.scale})`);
+  render();
+  updateUI();
+  new ResizeObserver(() => layout(true)).observe(stage);
+  if (document.fonts) {
+    document.fonts.ready.then(() => layout(true));
+    document.fonts.addEventListener?.('loadingdone', () => layout(true));
+  }
+})();
+</script>
+</body>
+</html>
