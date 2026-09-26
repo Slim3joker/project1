@@ -23,6 +23,9 @@
     --ink-faint: #5f6875;
     --accent: #f2b43f;
     --accent-soft: rgba(242, 180, 63, 0.13);
+    --accent-deep: #d69526;
+    --bar-top: #6f7886;
+    --bar-bottom: #626b78;
     --worst: #e27a64;
     --chip: #2c333d;
     --control-bg: #12161b;
@@ -44,6 +47,9 @@
     --ink-faint: #979ca5;
     --accent: #a8680a;
     --accent-soft: rgba(168, 104, 10, 0.12);
+    --accent-deep: #8c5607;
+    --bar-top: #a3aab5;
+    --bar-bottom: #949ca8;
     --worst: #b0412d;
     --chip: #e2ddd3;
     --control-bg: #f6f4ef;
@@ -353,6 +359,83 @@
     box-shadow: 0 10px 30px -15px var(--shadow);
   }
 
+  /* Balken-Ansicht: eine Messgröße pro Klick, Balken wachsen von links nach rechts */
+  .bars { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 1.4cqw; }
+  .bars-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 2cqw;
+    padding-bottom: 0.9cqw;
+    border-bottom: 0.25cqw solid var(--panel-edge);
+  }
+  .bars-title { margin: 0; font: 700 2.7cqw/1 var(--font-display); letter-spacing: 0.03em; text-transform: uppercase; }
+  .bars-title small {
+    margin-left: 1cqw;
+    font: 500 1.15cqw/1 var(--font-ui);
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+  }
+  .bars-hint {
+    flex: none;
+    font: 600 1.05cqw/1 var(--font-ui);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 0.4cqw;
+    padding: 0.5cqw 0.8cqw;
+  }
+  .bars-hint.neutral { color: var(--ink-dim); border-color: var(--ink-faint); }
+  .bars-list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.8cqw; }
+  .bar-row {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 13cqw minmax(0, 1fr);
+    align-items: center;
+    gap: 1.2cqw;
+  }
+  .bar-label { font: 700 1.85cqw/1 var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; }
+  .bar-label small {
+    display: block;
+    margin-top: 0.35cqw;
+    font: 500 0.95cqw/1 var(--font-ui);
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--ink-faint);
+  }
+  .bar-track {
+    height: 64%;
+    max-height: 4.6cqw;
+    box-sizing: border-box;
+    padding-right: 11cqw;
+    border-radius: 0.45cqw;
+    background: linear-gradient(to bottom, var(--flap-top) 0 50%, var(--flap-bottom) 50% 100%);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22);
+  }
+  .bar-scale { position: relative; height: 100%; }
+  .bar-fill {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: var(--w, 0%);
+    border-radius: 0.45cqw;
+    background: linear-gradient(to bottom, var(--bar-top) 0 50%, var(--bar-bottom) 50% 100%);
+  }
+  .bar-val {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--w, 0%) + 1cqw);
+    transform: translateY(-50%);
+    font: 600 2.2cqw/1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .bar-row.best .bar-fill { background: linear-gradient(to bottom, var(--accent) 0 50%, var(--accent-deep) 50% 100%); }
+  .bar-row.best .bar-val { color: var(--accent); }
+  .bar-row.best .bar-val::after { content: " ▲"; font-size: 0.55em; vertical-align: 0.35em; }
+
   @media (max-width: 760px) {
     .viewport { container-type: normal; display: block; overflow-x: auto; padding-block: 12px; }
     .stage { width: 720px; }
@@ -373,12 +456,13 @@
       <button class="btn" id="tab-t2" type="button">Test 2<kbd>2</kbd></button>
     </div>
     <div class="group" role="group" aria-label="Aufdecken">
-      <button class="btn primary" id="btn-next" type="button">Nächste Spalte aufdecken<kbd>Leertaste</kbd></button>
-      <button class="btn" id="btn-prev" type="button">Zurück<kbd>←</kbd></button>
-      <button class="btn" id="btn-all" type="button">Alle<kbd>A</kbd></button>
-      <button class="btn" id="btn-reset" type="button">Zudecken<kbd>R</kbd></button>
+      <button class="btn primary" id="btn-next" type="button"><span class="lbl">Nächste Spalte aufdecken</span><kbd>Leertaste</kbd></button>
+      <button class="btn" id="btn-prev" type="button"><span class="lbl">Zurück</span><kbd>←</kbd></button>
+      <button class="btn" id="btn-all" type="button"><span class="lbl">Alle</span><kbd>A</kbd></button>
+      <button class="btn" id="btn-reset" type="button"><span class="lbl">Zudecken</span><kbd>R</kbd></button>
     </div>
     <div class="group" role="group" aria-label="Ansicht">
+      <button class="btn" id="btn-bars" type="button" aria-pressed="false">Balken<kbd>B</kbd></button>
       <button class="btn" id="btn-edit" type="button" aria-pressed="false">Werte eintragen<kbd>E</kbd></button>
       <button class="btn" id="btn-look" type="button">Hell/Dunkel<kbd>T</kbd></button>
       <button class="btn" id="btn-full" type="button">Vollbild<kbd>F</kbd></button>
@@ -397,6 +481,13 @@
           <div class="badge" id="badge">Beispielwerte</div>
         </header>
         <div class="board" id="board" role="table" aria-label="Messwerte je Effort-Stufe"></div>
+        <div class="bars" id="bars" hidden>
+          <div class="bars-head">
+            <h2 class="bars-title" id="bars-title"></h2>
+            <span class="bars-hint" id="bars-hint"></span>
+          </div>
+          <div class="bars-list" id="bars-list"></div>
+        </div>
         <footer class="sheet-foot">
           <div class="dots" id="dots" aria-hidden="true"></div>
           <div id="summary"></div>
@@ -686,6 +777,12 @@
     const n = b.levels.length;
     const dots = $('dots');
     dots.replaceChildren();
+    if (inBars()) {
+      METRICS.forEach((m, i) => dots.append(el('span', 'dot' + (i < barIdx || (i === barIdx && barPlayed) ? ' on' : ''))));
+      $('summary').replaceChildren();
+      $('legend').hidden = true;
+      return;
+    }
     for (let i = 0; i < n; i++) dots.append(el('span', 'dot' + (i < b.revealed || editing ? ' on' : '')));
     const summary = $('summary');
     summary.replaceChildren();
@@ -717,7 +814,103 @@
     });
   }
 
+  // Balken-Ansicht
+  let barIdx = 0, barPlayed = false, barAnim = 0;
+  const inBars = () => state.view === 'bars' && !editing;
+  const reduceMotion = () => {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  };
+  // Hochzählen im gleichen Format wie der eingetragene Wert ("0,4 Mio.", "14,50", "850k")
+  function countShape(raw) {
+    const t = String(raw || '').trim();
+    const d = t.match(/,(\d+)/);
+    const dec = d ? d[1].length : 0;
+    if (/mio/i.test(t)) return { unit: 1e6, suffix: ' Mio.', dec };
+    if (/tsd\.?$/i.test(t)) return { unit: 1e3, suffix: ' Tsd.', dec };
+    if (/k$/i.test(t)) return { unit: 1e3, suffix: 'k', dec };
+    return { unit: 1, suffix: '', dec };
+  }
+  function countText(row, v) {
+    const dec = Number(row.dataset.dec);
+    return (v / Number(row.dataset.unit)).toLocaleString('de-DE', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + row.dataset.suffix;
+  }
+  function finishRow(row) {
+    row.style.setProperty('--w', row.dataset.pct + '%');
+    row.querySelector('.bar-val').textContent = row.dataset.final;
+    if (row.dataset.best) row.classList.add('best');
+  }
+  function renderBars(play) {
+    cancelAnimationFrame(barAnim);
+    const b = board();
+    const m = METRICS[barIdx];
+    $('bars-title').replaceChildren(document.createTextNode(m.label(b)), el('small', null, m.unit(b)));
+    const hint = $('bars-hint');
+    hint.textContent = m.dir < 0 ? 'Kürzer ist besser' : m.dir > 0 ? 'Länger ist besser' : 'Nur zur Einordnung';
+    hint.classList.toggle('neutral', !m.dir);
+    const vals = b.levels.map(l => valueOf(b, l, m));
+    const finite = vals.filter(v => Number.isFinite(v) && v >= 0);
+    const max = finite.length ? Math.max(...finite) : 0;
+    let best = null;
+    if (m.dir && finite.length > 1 && Math.min(...finite) !== Math.max(...finite)) {
+      best = m.dir > 0 ? Math.max(...finite) : Math.min(...finite);
+    }
+    const list = $('bars-list');
+    list.replaceChildren();
+    b.levels.forEach((level, i) => {
+      const v = vals[i];
+      const raw = m.computed ? '' : ((b.values[level] || {})[m.key] || '');
+      const shape = m.computed ? { unit: 1, suffix: '', dec: Number.isFinite(v) && v < 10 ? 1 : 0 } : countShape(raw);
+      const row = el('div', 'bar-row');
+      row.dataset.pct = String(max > 0 && Number.isFinite(v) ? Math.max(0, v) / max * 100 : 0);
+      row.dataset.val = String(Number.isFinite(v) ? v : NaN);
+      row.dataset.final = textOf(b, level, m);
+      row.dataset.unit = String(shape.unit);
+      row.dataset.suffix = shape.suffix;
+      row.dataset.dec = String(shape.dec);
+      if (best !== null && v === best) row.dataset.best = '1';
+      const lab = el('div', 'bar-label', level);
+      const api = apiName(level);
+      if (api) lab.append(el('small', null, api));
+      const track = el('div', 'bar-track');
+      const scale = el('div', 'bar-scale');
+      scale.append(el('div', 'bar-fill'), el('span', 'bar-val', ''));
+      track.append(scale);
+      row.append(lab, track);
+      list.append(row);
+    });
+    const rows = Array.from(list.children);
+    if (!barPlayed) { rows.forEach(r => r.style.setProperty('--w', '0%')); return; }
+    if (!play || reduceMotion()) { rows.forEach(finishRow); return; }
+    rows.forEach(r => r.style.setProperty('--w', '0%'));
+    const t0 = performance.now(), DUR = 1300, STAG = 150;
+    const step = now => {
+      let done = true;
+      rows.forEach((r, i) => {
+        const t = Math.min(1, Math.max(0, (now - t0 - i * STAG) / DUR));
+        if (t >= 1) { finishRow(r); return; }
+        done = false;
+        const e = 1 - Math.pow(1 - t, 3);
+        r.style.setProperty('--w', (Number(r.dataset.pct) * e) + '%');
+        const val = Number(r.dataset.val);
+        r.querySelector('.bar-val').textContent = t > 0 && Number.isFinite(val) ? countText(r, val * e) : '';
+      });
+      if (!done) barAnim = requestAnimationFrame(step);
+    };
+    barAnim = requestAnimationFrame(step);
+  }
+  function toggleBars() {
+    state.view = state.view === 'bars' ? 'table' : 'bars';
+    if (state.view === 'bars') { editing = false; barIdx = 0; barPlayed = false; }
+    save(); render();
+    if (state.view === 'bars') toast('Balken: Leertaste startet die erste Messgröße.');
+  }
+
   function renderControls() {
+    const bars = inBars();
+    $('btn-bars').setAttribute('aria-pressed', String(bars));
+    $('btn-next').querySelector('.lbl').textContent = bars ? 'Nächste Messgröße' : 'Nächste Spalte aufdecken';
+    $('btn-all').querySelector('.lbl').textContent = bars ? 'Wiederholen' : 'Alle';
+    $('btn-reset').querySelector('.lbl').textContent = bars ? 'Auf Anfang' : 'Zudecken';
     $('tab-t1').setAttribute('aria-pressed', String(state.active === 't1'));
     $('tab-t2').setAttribute('aria-pressed', String(state.active === 't2'));
     $('btn-edit').setAttribute('aria-pressed', String(editing));
@@ -739,7 +932,11 @@
     const b = board();
     renderControls();
     renderHead(b);
-    renderBoard();
+    const bars = inBars();
+    $('board').hidden = bars;
+    $('bars').hidden = !bars;
+    if (bars) renderBars(false);
+    else { cancelAnimationFrame(barAnim); renderBoard(); }
     renderFoot();
     $('drawer').hidden = !editing;
     if (editing) fillDrawer();
@@ -755,23 +952,36 @@
   }
 
   function next() {
+    if (inBars()) {
+      if (!barPlayed) barPlayed = true;
+      else if (barIdx < METRICS.length - 1) barIdx += 1;
+      else return;
+      renderBars(true); renderFoot();
+      return;
+    }
     const b = board();
     if (editing || b.revealed >= b.levels.length) return;
     flipFrom = b.revealed; flipTo = b.revealed + 1;
     b.revealed += 1; save(); render();
   }
   function prev() {
+    if (inBars()) {
+      if (barIdx > 0) { barIdx -= 1; barPlayed = true; renderBars(true); renderFoot(); }
+      return;
+    }
     const b = board();
     if (editing || b.revealed <= 0) return;
     b.revealed -= 1; save(); render();
   }
   function all() {
+    if (inBars()) { barPlayed = true; renderBars(true); renderFoot(); return; }
     const b = board();
     if (editing || b.revealed >= b.levels.length) return;
     flipFrom = b.revealed; flipTo = b.levels.length;
     b.revealed = b.levels.length; save(); render();
   }
   function reset() {
+    if (inBars()) { barIdx = 0; barPlayed = false; renderBars(false); renderFoot(); return; }
     if (editing) return;
     board().revealed = 0; save(); render();
   }
@@ -781,7 +991,7 @@
   }
   function switchBoard(key) {
     if (state.active === key) return;
-    state.active = key; save(); render();
+    state.active = key; barIdx = 0; barPlayed = false; save(); render();
   }
   function toggleLook() {
     state.look = state.look === 'light' ? 'dark' : 'light'; save(); render();
@@ -823,6 +1033,7 @@
   click('btn-prev', prev);
   click('btn-all', all);
   click('btn-reset', reset);
+  click('btn-bars', toggleBars);
   click('btn-edit', () => setEditing(!editing));
   click('btn-look', toggleLook);
   click('btn-full', fullscreen);
@@ -891,6 +1102,7 @@
     else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); prev(); }
     else if (k === 'a' || k === 'A') all();
     else if (k === 'r' || k === 'R') reset();
+    else if (k === 'b' || k === 'B') toggleBars();
     else if (k === 'e' || k === 'E') setEditing(!editing);
     else if (k === 'Escape' && editing) setEditing(false);
     else if (k === '1') switchBoard('t1');

@@ -8,7 +8,7 @@ Immer exakt so einfügen – kein Wort ändern, auch nicht zwischen den Stufen.
 2. `/model` → Opus 5.5, `/effort` → Stufe wählen (Ultracode im selben Menü).
 3. Uhrzeit notieren, Prompt einfügen, absenden.
 4. Jede Rückfrage mit der Standardantwort beantworten und mitzählen.
-5. Nach der Fertig-Meldung die Kostenanzeige (`/cost`) abfotografieren und die Werte ins Scoreboard eintragen.
+5. Nach der Fertig-Meldung `/usage` eingeben (früher `/cost`), abfotografieren und die Werte ins Scoreboard eintragen. Vorher einmal mit `/status` prüfen, ob du über das Abo oder einen API-Key angemeldet bist, und für alle Läufe dabei bleiben.
 6. Ergebnis auf dem festen Weg abfilmen. Nichts nachbessern.
 
 Nie im Repo-Ordner testen: Dort würde Claude diese Datei und die Prüfliste sehen.

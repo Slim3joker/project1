@@ -14,7 +14,7 @@ Hier liegt alles, was du für die Testläufe und den Dreh brauchst:
 | `PROMPTS.md` | Die Test-Prompts zum Kopieren, Standardantwort auf Rückfragen, Ablauf pro Lauf |
 | `setup-laeufe.sh` | Legt die Testordner mit identischem Startzustand an – außerhalb dieses Repos |
 | `PRUEFLISTE-WEBSITE.md` | Bewertung für Test 2 (Homepage): DSGVO-Punkte, Formular-Logik, typische Fehlbilder |
-| `scoreboard.html` | Mess-Tabelle zum Abfilmen: im Browser öffnen, Werte eintragen (E), Spalten aufdecken (Leertaste) |
+| `scoreboard.html` | Mess-Tabelle zum Abfilmen: im Browser öffnen, Werte eintragen (E), Spalten aufdecken (Leertaste), Balken-Ansicht (B) |
 
 Die Analyse des Originalvideos steht zusätzlich in `knowledge/swipe.md`.
 
@@ -47,6 +47,7 @@ Wichtig: Die Läufe nie in diesem Repo starten. Claude würde sonst Prompts und 
 | Leertaste, →, Bild ab | Nächste Spalte aufdecken (Presenter-Klicker gehen auch) |
 | ←, Bild auf | Letzte Spalte wieder zudecken |
 | A / R | Alle aufdecken / alle zudecken |
+| B | Balken-Ansicht: pro Klick eine Messgröße, die Balken wachsen von links nach rechts (A wiederholt, R zurück auf Anfang) |
 | E | Werte eintragen (Titel, Stufen, Blind-Buchstaben, Währung) |
 | 1 / 2 | Tafel Test 1 / Test 2 |
 | T | Helle oder dunkle Tafel |
