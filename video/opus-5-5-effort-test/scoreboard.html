@@ -845,7 +845,7 @@
     const m = METRICS[barIdx];
     $('bars-title').replaceChildren(document.createTextNode(m.label(b)), el('small', null, m.unit(b)));
     const hint = $('bars-hint');
-    hint.textContent = m.dir < 0 ? 'Kürzer ist besser' : m.dir > 0 ? 'Länger ist besser' : 'Nur zur Einordnung';
+    hint.textContent = m.dir < 0 ? 'Weniger ist besser' : m.dir > 0 ? 'Mehr ist besser' : 'Nur zur Einordnung';
     hint.classList.toggle('neutral', !m.dir);
     const vals = b.levels.map(l => valueOf(b, l, m));
     const finite = vals.filter(v => Number.isFinite(v) && v >= 0);
