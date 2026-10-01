@@ -1006,9 +1006,9 @@ function viewHome() {
         <span>Wiederholen<span class="sub">Spaced Repetition – fällige Wörter</span></span>
         ${due > 0 ? `<span class="badge">${due}</span>` : `<span class="badge green">0</span>`}
       </button>
-      <button class="mbtn" id="btn-shaky" ${countShaky(S) === 0 ? "disabled" : ""}>
+      <button class="mbtn" id="btn-shaky">
         <span class="ico">🧠</span>
-        <span>Auffrischen<span class="sub">Wackelkandidaten aktiv abrufen (Deutsch → Türkisch)</span></span>
+        <span>Auffrischen<span class="sub">${countShaky(S) > 0 ? "Wackelkandidaten aktiv abrufen (Deutsch → Türkisch)" : "Erst Wörter mit 🔄 markieren – antippen für Infos"}</span></span>
         ${countShaky(S) > 0 ? `<span class="badge shaky">${countShaky(S)}</span>` : ""}
       </button>
       <button class="mbtn" id="btn-new" ${fresh ? "" : "disabled"}>
@@ -1047,7 +1047,7 @@ function viewHome() {
     </div>
   `);
   $("#btn-review").onclick = () => startSession("review");
-  $("#btn-shaky").onclick = () => startSession("shaky");
+  $("#btn-shaky").onclick = () => (countShaky(S) > 0 ? startSession("shaky") : viewShakyInfo());
   $("#btn-new").onclick = () => startSession("new");
   $("#btn-blitz").onclick = () => startSession("blitz");
   $("#btn-type").onclick = () => startSession("type");
@@ -1364,6 +1364,29 @@ function viewType(session, item) {
       } else check();
     }
   });
+}
+
+// --- Auffrischen: Erklärung, solange noch nichts markiert ist
+function viewShakyInfo() {
+  render(`
+    <button class="backbtn" id="back">← Zurück</button>
+    <h2 class="pagetitle">🧠 Auffrischen</h2>
+    <div class="lesson">
+      <p>Hier landen deine <b>Wackelkandidaten</b>: Wörter, die du eigentlich kennst,
+      die dir aber nicht sofort einfallen. Die übst du in diesem Modus gezielt
+      <i>aktiv</i> (überwiegend Deutsch → Türkisch), bis sie im Langzeitgedächtnis sitzen.</p>
+      <p>Noch ist keins markiert. So markierst du Wörter:</p>
+      <p>1. In der <b>Wörterliste</b>: beim Wort auf <b>🔄</b> tippen.<br>
+      2. Beim <b>Neue-Wörter-Lernen</b>: auf der Wortkarte <b>„🔄 Vergesse ich oft"</b> wählen.</p>
+      <p>Sobald ein Wackelkandidat Box 5 erreicht, gilt er als gefestigt
+      (<i>+20 🪙</i>) und verschwindet automatisch aus diesem Modus.</p>
+    </div>
+    <div class="nextrow" style="margin-top:16px">
+      <button class="bigbtn" id="si-dict">📖 Zur Wörterliste – Wörter markieren</button>
+    </div>
+  `);
+  $("#back").onclick = viewHome;
+  $("#si-dict").onclick = () => viewDict();
 }
 
 // ---------------------------------------------------------------- Grammatik
