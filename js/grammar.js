@@ -44,65 +44,78 @@ const TENSES = {
   aor: { name: "Geniş zaman", de: "Aorist (-r, generell/immer)" },
 };
 
-/* Konjugiert ein Verb. inf: Infinitiv (…mak/…mek), personIdx: 0-5,
-   tense: pres|past|fut|aor, negative: bool. Gibt String oder null zurück. */
-function conjugate(inf, personIdx, tense, negative) {
+const PERSON_LABELS = ["ich (ben)", "du (sen)", "er/sie (o)", "wir (biz)", "ihr/Sie (siz)", "sie, Mehrzahl (onlar)"];
+
+/* Konjugiert ein Verb und liefert die Form samt Baustein-Zerlegung.
+   inf: Infinitiv (…mak/…mek), personIdx: 0-5, tense: pres|past|fut|aor,
+   negative: bool. Rückgabe: { form, parts: [[text, label], …] } oder null. */
+function conjugateParts(inf, personIdx, tense, negative) {
   if (!/^[a-zçğıiöşü]+m[ae]k$/.test(inf)) return null;
   const stem = inf.slice(0, -3);
   const lv = lastVowelOf(stem);
   if (!lv) return null;
   const p = personIdx;
+  const parts = [];
+  const push = (text, label) => {
+    if (text) parts.push([text, label]);
+  };
+  const result = () => ({ form: parts.map((x) => x[0]).join(""), parts });
 
   if (tense === "pres") {
     if (negative) {
-      // stem + m + I + yor
       const v = HARM4[lv];
-      const base = stem + "m" + v + "yor";
-      return base + ["um", "sun", "", "uz", "sunuz", "lar"][p];
+      push(stem, "Stamm");
+      push("m" + v, "Verneinung (-ma/-me, Vokal verengt)");
+      push("yor", "Gegenwart (-iyor)");
+      push(["um", "sun", "", "uz", "sunuz", "lar"][p], PERSON_LABELS[p]);
+      return result();
     }
     let b = softenStem(stem);
-    let harmSrc = lv;
     if (endsWithVowel(b)) b = b.slice(0, -1); // yaşa->yaş, iste->ist, ye->y
-    const remV = lastVowelOf(b);
-    const v = HARM4[remV || harmSrc];
-    const base = b + v + "yor";
-    return base + ["um", "sun", "", "uz", "sunuz", "lar"][p];
+    const v = HARM4[lastVowelOf(b) || lv];
+    push(b, b === stem ? "Stamm" : "Stamm (angepasst)");
+    push(v + "yor", "Gegenwart (-iyor)");
+    push(["um", "sun", "", "uz", "sunuz", "lar"][p], PERSON_LABELS[p]);
+    return result();
   }
 
   if (tense === "past") {
     let b = stem;
-    if (negative) b = stem + "m" + HARM2[lv];
+    push(stem, "Stamm");
+    if (negative) {
+      b = stem + "m" + HARM2[lv];
+      push("m" + HARM2[lv], "Verneinung (-ma/-me)");
+    }
     const lv2 = lastVowelOf(b);
     const d = !negative && VOICELESS.includes(b[b.length - 1]) ? "t" : "d";
     const v = HARM4[lv2];
-    const base = b + d + v;
+    push(d + v, "Vergangenheit (-di)" + (d === "t" ? " – nach hartem Konsonanten d→t" : ""));
     const nIz = "n" + v + "z";
-    return base + ["m", "n", "", "k", nIz, HARM2[lv2] === "a" ? "lar" : "ler"][p];
+    push(["m", "n", "", "k", nIz, HARM2[lv2] === "a" ? "lar" : "ler"][p], PERSON_LABELS[p]);
+    return result();
   }
 
   if (tense === "fut") {
-    let b;
+    let b, buf;
     if (negative) {
-      b = stem + "m" + HARM2[lv] + "y";
+      push(stem, "Stamm");
+      push("m" + HARM2[lv], "Verneinung (-ma/-me)");
+      buf = "y";
     } else {
       b = softenStem(stem);
-      if (b === "y") b = "yi"; // ye- -> yiyecek
+      if (b === "y" || stem === "ye") b = "yi"; // ye- -> yiyecek
       if (b === "d" || stem === "de") b = "di"; // de- -> diyecek
-      if (stem === "ye") b = "yi";
-      if (endsWithVowel(b)) b = b + "y";
+      buf = endsWithVowel(b) ? "y" : "";
+      push(b, b === stem ? "Stamm" : "Stamm (angepasst)");
     }
     const a = HARM2[lv];
     const cek = a + "c" + a + "k"; // acak / ecek
-    const cekSoft = a + "c" + a + "ğ"; // acağ / eceğ
+    const cekSoft = a + "c" + a + "ğ"; // acağ / eceğ (k→ğ vor Vokal)
     const i4 = HARM4[a];
-    return [
-      b + cekSoft + i4 + "m",
-      b + cek + "s" + i4 + "n",
-      b + cek,
-      b + cekSoft + i4 + "z",
-      b + cek + "s" + i4 + "n" + i4 + "z",
-      b + cek + (a === "a" ? "lar" : "ler"),
-    ][p];
+    const soft = p === 0 || p === 3;
+    push(buf + (soft ? cekSoft : cek), "Zukunft (-acak/-ecek)" + (soft ? " – k→ğ vor Vokal" : ""));
+    push([i4 + "m", "s" + i4 + "n", "", i4 + "z", "s" + i4 + "n" + i4 + "z", a === "a" ? "lar" : "ler"][p], PERSON_LABELS[p]);
+    return result();
   }
 
   if (tense === "aor") {
@@ -110,35 +123,33 @@ function conjugate(inf, personIdx, tense, negative) {
       const ma = "m" + HARM2[lv]; // ma/me
       const maz = ma + "z";
       const i4 = HARM4[lv];
-      return [
-        stem + ma + "m",
-        stem + maz + "s" + i4 + "n",
-        stem + maz,
-        stem + ma + "y" + i4 + "z",
-        stem + maz + "s" + i4 + "n" + i4 + "z",
-        stem + maz + (HARM2[lv] === "a" ? "lar" : "ler"),
-      ][p];
+      push(stem, "Stamm");
+      push(
+        [ma + "m", maz + "s" + i4 + "n", maz, ma + "y" + i4 + "z", maz + "s" + i4 + "n" + i4 + "z", maz + (HARM2[lv] === "a" ? "lar" : "ler")][p],
+        "Aorist verneint (unregelmäßig) + " + PERSON_LABELS[p]
+      );
+      return result();
     }
     let b = softenStem(stem);
     let suffix;
     if (endsWithVowel(b)) suffix = "r"; // bekle-r, oku-r, ye-r
     else if (stem.endsWith("et")) suffix = "er"; // et-Komposita wie etmek: affeder, hisseder
     else if (syllableCount(b) > 1) suffix = HARM4[lastVowelOf(b)] + "r"; // çalış-ır
-    else if (AORIST_IR.includes(stem)) suffix = HARM4[lastVowelOf(b)] + "r"; // gel-ir
+    else if (AORIST_IR.includes(stem)) suffix = HARM4[lastVowelOf(b)] + "r"; // gel-ir (Ausnahmeliste)
     else suffix = HARM2[lastVowelOf(b)] + "r"; // yap-ar (gid-er über soften)
-    const base = b + suffix;
-    const lvB = lastVowelOf(base);
+    push(b, b === stem ? "Stamm" : "Stamm (angepasst)");
+    push(suffix, "Aorist (-r)");
+    const lvB = lastVowelOf(b + suffix);
     const i4 = HARM4[lvB];
-    return [
-      base + HARM4[lvB] + "m",
-      base + "s" + i4 + "n",
-      base,
-      base + HARM4[lvB] + "z",
-      base + "s" + i4 + "n" + i4 + "z",
-      base + (HARM2[lvB] === "a" ? "lar" : "ler"),
-    ][p];
+    push([i4 + "m", "s" + i4 + "n", "", i4 + "z", "s" + i4 + "n" + i4 + "z", HARM2[lvB] === "a" ? "lar" : "ler"][p], PERSON_LABELS[p]);
+    return result();
   }
   return null;
+}
+
+function conjugate(inf, personIdx, tense, negative) {
+  const r = conjugateParts(inf, personIdx, tense, negative);
+  return r ? r.form : null;
 }
 
 // ---------------------------------------------------------------- Lektionen

@@ -296,6 +296,22 @@ button { font: inherit; color: inherit; border: none; background: none; cursor: 
 .gtable td { padding: 6px 8px; border-bottom: 1px solid #3a3162; vertical-align: top; }
 .gtable tr:last-child td { border-bottom: none; }
 
+/* ---------- Konjugations-Trainer ---------- */
+.conjchips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+.cchip {
+  background: var(--bg2); border: 1px solid #3a3162; border-radius: 999px;
+  padding: 5px 11px; font-size: 0.78rem; color: #cfc8e6;
+}
+.cchip.cneg { border-color: var(--red); color: #ffb3b0; }
+.cchip.cpos { border-color: var(--green); color: #9fe8c3; }
+.breakdown-form { font-size: 1.5rem; font-weight: 900; text-align: center; margin-bottom: 10px; }
+.breakdown-form span { color: var(--gold); }
+.breakdown-form span:first-child { color: var(--teal); }
+.breakdown-form i { color: #6c6488; font-style: normal; margin: 0 2px; }
+.breakdown-row { font-size: 0.85rem; color: var(--muted); padding: 2px 0; }
+.breakdown-row b { display: inline-block; min-width: 56px; color: var(--text); }
+.breakdown-gloss { margin-top: 10px; font-size: 0.92rem; color: var(--teal); }
+
 /* ---------- Satz-Puzzle ---------- */
 .orderline {
   min-height: 54px; background: var(--bg2); border: 2px dashed #3a3162;

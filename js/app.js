@@ -744,9 +744,41 @@ function viewLesson(idx) {
   $("#l-drill").onclick = () => startSession(idx === 8 ? "order" : "conj");
 }
 
+const PRON_DE = ["ich", "du", "er/sie", "wir", "ihr", "sie (alle)"];
+const SEIN_DE = ["bin", "bist", "ist", "sind", "seid", "sind"];
+const WERDEN_DE = ["werde", "wirst", "wird", "werden", "werdet", "werden"];
+const TENSE_EXPLAIN = {
+  pres: "passiert gerade jetzt",
+  past: "ist schon passiert",
+  fut: "wird passieren",
+  aor: "gilt allgemein / immer",
+};
+const BAUPLAN = {
+  pres: { pos: "Stamm + ı/i/u/ü + yor + Endung", neg: "Stamm + mı/mi/mu/mü + yor + Endung" },
+  past: { pos: "Stamm + dı/di/du/dü + Endung (nach f s t k ç ş h p: tı/ti…)", neg: "Stamm + ma/me + dı/di + Endung" },
+  fut: { pos: "Stamm (+y nach Vokal) + acak/ecek + Endung", neg: "Stamm + ma/me + yacak/yecek + Endung" },
+  aor: { pos: "Stamm + (ı/i/u/ü)r oder ar/er + Endung", neg: "unregelmäßig: -mam, -mazsın, -maz, -mayız …" },
+};
+
+function deVerbOf(w) {
+  return w.de.split(/[,;(]/)[0].trim();
+}
+
+// Deutsche Beschreibung der gesuchten Form – immer grammatisch korrekt
+function deGloss(item) {
+  const p = item.person;
+  const verb = deVerbOf(item.w);
+  const nicht = item.neg ? "nicht " : "";
+  if (item.tense === "fut") return `${PRON_DE[p]} ${WERDEN_DE[p]} ${nicht}${verb}`;
+  if (item.tense === "pres") return `${PRON_DE[p]} ${SEIN_DE[p]} gerade ${nicht}dabei zu ${verb}`;
+  if (item.tense === "past") return `${PRON_DE[p]} + „${nicht}${verb}" – schon passiert`;
+  return `${PRON_DE[p]} + „${nicht}${verb}" – allgemein/immer`;
+}
+
 function viewConj(session, item) {
   const inf = item.w.tr;
-  const correct = conjugate(inf, item.person, item.tense, item.neg);
+  const solution = conjugateParts(inf, item.person, item.tense, item.neg);
+  const correct = solution.form;
   // Distraktoren: gleiche Verbform mit anderer Person / Polarität / Zeit
   const opts = new Set([correct]);
   const variants = [];
@@ -763,10 +795,15 @@ function viewConj(session, item) {
   render(`
     ${sessionBar(session)}
     <div class="qcard">
-      <div class="qtype">Bilde die Form:</div>
-      <div class="qword">${esc(inf)}</div>
-      <div class="qhint"><b>${PERSONS[item.person]}</b> · ${tenseInfo.de}${item.neg ? " · <b>verneint</b>" : ""}</div>
-      <div class="rankinfo">${esc(item.w.de.split("(")[0].trim())} · ${tenseInfo.name}</div>
+      <div class="qtype">Gesucht ist auf Türkisch:</div>
+      <div class="qword" style="font-size:1.3rem">»${esc(deGloss(item))}«</div>
+      <div class="conjchips">
+        <span class="cchip">📖 ${esc(inf)} = ${esc(deVerbOf(item.w))}</span>
+        <span class="cchip">👤 ${PERSONS[item.person]} = ${PRON_DE[item.person]}</span>
+        <span class="cchip">⏱ ${tenseInfo.de} – ${TENSE_EXPLAIN[item.tense]}</span>
+        <span class="cchip ${item.neg ? "cneg" : "cpos"}">${item.neg ? "✖ verneint (nicht-Form)" : "✔ bejaht"}</span>
+      </div>
+      <div class="rankinfo">Bauplan: ${BAUPLAN[item.tense][item.neg ? "neg" : "pos"]}</div>
     </div>
     <div class="answers" id="answers">
       ${options.map((o, i) => `<button class="abtn" data-i="${i}">${esc(o)}</button>`).join("")}
@@ -796,7 +833,11 @@ function viewConj(session, item) {
       speak(correct);
       save();
       $("#nextrow").innerHTML = `
-        <div class="wordinfo"><b>${esc(correct)}</b> = ${esc(deConj(item))}</div>
+        <div class="wordinfo">
+          <div class="breakdown-form">${solution.parts.map((x) => `<span>${esc(x[0])}</span>`).join("<i>·</i>")}</div>
+          ${solution.parts.map((x) => `<div class="breakdown-row"><b>${esc(x[0])}</b> ${esc(x[1])}</div>`).join("")}
+          <div class="breakdown-gloss">→ »${esc(deGloss(item))}«</div>
+        </div>
         <button class="bigbtn" id="s-next" style="margin-top:12px">Weiter</button>`;
       $("#s-next").onclick = () => {
         session.pos++;
@@ -806,12 +847,6 @@ function viewConj(session, item) {
   });
 }
 
-function deConj(item) {
-  const persDe = ["ich", "du", "er/sie", "wir", "ihr/Sie", "sie (Mehrzahl)"][item.person];
-  const verb = item.w.de.split(/[,;(]/)[0].trim();
-  const t = { pres: "gerade", past: "(Vergangenheit)", fut: "(Zukunft)", aor: "(generell)" }[item.tense];
-  return `${persDe} ${item.neg ? "NICHT " : ""}${verb} ${t}`;
-}
 
 function viewOrder(session, item) {
   const words = item.s.tr.split(" ");
