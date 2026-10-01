@@ -475,6 +475,7 @@ function viewIntro(session, item) {
       <button class="speak" id="s-speak">🔊</button>
       <div class="meaning">${esc(trans(w))}</div>
       ${w.ex ? `<div class="qhint">Häufige Form im Alltag: <b>${esc(w.ex)}</b></div>` : ""}
+      ${w.s ? `<div class="exsent" data-say="${esc(w.s)}">📝 „${esc(w.s)}"<br><span class="sec">${esc(w.sd)}</span></div>` : ""}
       ${w.n ? `<div class="notetip">💡 ${esc(w.n)}</div>` : ""}
       <div class="rankinfo">deckt ${w.cov.toFixed(2).replace(".", ",")} % aller gesprochenen Wörter ab</div>
     </div>
@@ -489,6 +490,8 @@ function viewIntro(session, item) {
   bindClose();
   speak(w.tr);
   $("#s-speak").onclick = () => speak(w.tr);
+  const sent = $(".exsent");
+  if (sent) sent.onclick = () => speak(sent.dataset.say);
   $("#s-known").onclick = () => {
     S.words[w.tr] = { box: 0, due: today(), c: 0, w: 0, known: true };
     save();
@@ -583,6 +586,7 @@ function viewMC(session, item) {
         <div class="wordinfo">
           <b>${esc(w.tr)}</b> – ${esc(w.de)}<br>
           <span class="sec">🇬🇧 ${esc(w.en)}${w.ex ? ` · häufige Form: ${esc(w.ex)}` : ""}</span>
+          ${w.s ? `<div class="exsent" data-say="${esc(w.s)}">📝 „${esc(w.s)}"<br><span class="sec">${esc(w.sd)}</span></div>` : ""}
           ${w.n ? `<div class="notetip">💡 ${esc(w.n)}</div>` : ""}
         </div>
         <button class="bigbtn" id="s-next" style="margin-top:12px">Weiter</button>`;
@@ -591,12 +595,8 @@ function viewMC(session, item) {
         session.pos++;
         stepSession(session);
       };
-      if (correct) {
-        setTimeout(() => {
-          const el = $("#s-next");
-          if (el) el.click();
-        }, 1400);
-      }
+      const sent = $("#nextrow .exsent");
+      if (sent) sent.onclick = () => speak(sent.dataset.say);
     };
   });
 }
@@ -665,6 +665,7 @@ function viewType(session, item) {
       <div class="wordinfo">
         ${correct ? "✅ Richtig!" : `❌ Richtig wäre: <b>${esc(w.tr)}</b>`} – ${esc(w.de)}<br>
         <span class="sec">🇬🇧 ${esc(w.en)}</span>
+        ${w.s ? `<div class="exsent">📝 „${esc(w.s)}"<br><span class="sec">${esc(w.sd)}</span></div>` : ""}
       </div>
       <button class="bigbtn" id="s-next" style="margin-top:12px">Weiter</button>`;
     $("#s-check").style.display = "none";
@@ -801,11 +802,6 @@ function viewConj(session, item) {
         session.pos++;
         stepSession(session);
       };
-      if (ok)
-        setTimeout(() => {
-          const el = $("#s-next");
-          if (el) el.click();
-        }, 1500);
     };
   });
 }

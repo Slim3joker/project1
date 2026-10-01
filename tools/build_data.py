@@ -20,7 +20,25 @@ ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "data" / "tuerkisch_frequenzliste_lemmatisiert.csv"
 TRANS_PATH = ROOT / "tools" / "translations.psv"
 NOTES_PATH = ROOT / "tools" / "notes.psv"
+EXAMPLES_PATH = ROOT / "tools" / "examples.psv"
 OUT_PATH = ROOT / "js" / "data.js"
+
+
+def load_examples() -> dict:
+    examples = {}
+    if not EXAMPLES_PATH.exists():
+        return examples
+    with EXAMPLES_PATH.open(encoding="utf-8") as f:
+        for lineno, raw in enumerate(f, 1):
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split("|")
+            if len(parts) != 3:
+                print(f"WARNUNG examples.psv Zeile {lineno}: erwartet 3 Felder")
+                continue
+            examples[parts[0].strip()] = (parts[1].strip(), parts[2].strip())
+    return examples
 
 
 def load_notes() -> dict:
@@ -61,6 +79,8 @@ def main() -> int:
 
     notes = load_notes()
     used_notes = set()
+    examples = load_examples()
+    used_examples = set()
     entries = []
     missing = []
     seen = set()
@@ -96,6 +116,9 @@ def main() -> int:
             if lemma in notes:
                 entry["n"] = notes[lemma]
                 used_notes.add(lemma)
+            if lemma in examples:
+                entry["s"], entry["sd"] = examples[lemma]
+                used_examples.add(lemma)
             entries.append(entry)
 
     entries.sort(key=lambda e: e["r"])
@@ -109,6 +132,10 @@ def main() -> int:
     unused_notes = set(notes) - used_notes
     if unused_notes:
         print(f"WARNUNG: {len(unused_notes)} Notizen ohne passendes Wort: {sorted(unused_notes)}")
+    unused_examples = set(examples) - used_examples
+    if unused_examples:
+        print(f"WARNUNG: {len(unused_examples)} Beispielsätze ohne passendes Wort: {sorted(unused_examples)}")
+    print(f"{len(used_examples)} Beispielsätze, {len(used_notes)} Notizen eingebaut")
 
     js = (
         "// Automatisch generiert von tools/build_data.py – nicht von Hand bearbeiten.\n"

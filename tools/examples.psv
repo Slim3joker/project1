@@ -1,0 +1,202 @@
+# Beispielsätze für einzelne Wörter
+# Format: lemma|türkischer Satz|deutsche Übersetzung
+# Wird von build_data.py als Felder "s"/"sd" in js/data.js eingebaut.
+bir|Bir dakika bekle.|Warte eine Minute.
+olmak|Her şey iyi olacak.|Alles wird gut.
+bu|Bu benim arabam.|Das ist mein Auto.
+ben|Ben de geliyorum.|Ich komme auch mit.
+o|O benim kardeşim.|Das ist mein Bruder.
+ne|Ne istiyorsun?|Was willst du?
+sen|Sen nerede oturuyorsun?|Wo wohnst du?
+ve|Annem ve babam evde.|Meine Mutter und mein Vater sind zu Hause.
+mi|Geliyor musun?|Kommst du?
+yapmak|Bugün ne yapıyorsun?|Was machst du heute?
+iç|Bu hediye senin için.|Dieses Geschenk ist für dich.
+etmek|Yardım et lütfen!|Hilf mir bitte!
+şey|Bir şey söylemek istiyorum.|Ich möchte etwas sagen.
+de|Sen de gel!|Komm du auch!
+var|Bir sorum var.|Ich habe eine Frage.
+değil|Bu doğru değil.|Das ist nicht richtig.
+çok|Seni çok seviyorum.|Ich liebe dich sehr.
+istemek|Su istiyorum.|Ich möchte Wasser.
+ama|Geldim ama kimse yoktu.|Ich kam, aber niemand war da.
+bilmek|Cevabı bilmiyorum.|Ich weiß die Antwort nicht.
+evet|Evet, haklısın.|Ja, du hast recht.
+gitmek|Eve gidiyorum.|Ich gehe nach Hause.
+gelmek|Buraya gel!|Komm her!
+iyi|İyi bir fikir bu.|Das ist eine gute Idee.
+bura|Burada ne yapıyorsun?|Was machst du hier?
+söylemek|Bana gerçeği söyle.|Sag mir die Wahrheit.
+sanmak|Öyle sanmıyorum.|Das glaube ich nicht.
+hayır|Hayır, istemiyorum.|Nein, ich will nicht.
+daha|Daha çok zaman lazım.|Wir brauchen noch mehr Zeit.
+yok|Hiç param yok.|Ich habe gar kein Geld.
+demek|Ne demek istiyorsun?|Was willst du damit sagen?
+vermek|Bana bir şans ver.|Gib mir eine Chance.
+kadar|Akşama kadar çalışıyorum.|Ich arbeite bis zum Abend.
+zaman|Zamanımız yok.|Wir haben keine Zeit.
+gibi|Kardeşim gibisin.|Du bist wie mein Bruder für mich.
+görmek|Seni görmek güzel.|Schön, dich zu sehen.
+biz|Biz hazırız.|Wir sind bereit.
+tamam|Tamam, anlaştık.|Okay, abgemacht.
+bakmak|Şuna bak!|Guck dir das an!
+iş|Yarın işe gidiyorum.|Morgen gehe ich zur Arbeit.
+siz|Siz nereden geliyorsunuz?|Woher kommen Sie?
+her|Her gün spor yapıyorum.|Ich mache jeden Tag Sport.
+ki|Biliyorum ki beni seviyorsun.|Ich weiß (doch), dass du mich liebst.
+almak|Ekmek almayı unutma.|Vergiss nicht, Brot zu kaufen.
+kendi|Kendi işine bak.|Kümmere dich um deinen eigenen Kram.
+şu|Şu adamı tanıyor musun?|Kennst du den Mann da?
+nasıl|Nasılsın?|Wie geht es dir?
+sade|Sadece bir soru sordum.|Ich habe doch nur eine Frage gestellt.
+ya|Ya sen ne düşünüyorsun?|Und du, was denkst du?
+öyle|Öyle deme!|Sag das nicht!
+sonra|Sonra konuşuruz.|Wir reden später.
+kalmak|Bu akşam evde kalıyorum.|Heute Abend bleibe ich zu Hause.
+gerçek|Bu gerçek bir hikâye.|Das ist eine wahre Geschichte.
+şimdi|Şimdi gitmem lazım.|Ich muss jetzt los.
+hiç|Hiç sorun değil.|Überhaupt kein Problem.
+bulmak|Anahtarımı bulamıyorum.|Ich finde meinen Schlüssel nicht.
+yemek|Yemek çok güzeldi.|Das Essen war sehr lecker.
+çalışmak|Babam çok çalışıyor.|Mein Vater arbeitet viel.
+en|Bu en güzel gün.|Das ist der schönste Tag.
+çocuk|Çocuklar parkta oynuyor.|Die Kinder spielen im Park.
+konuşmak|Seninle konuşmam lazım.|Ich muss mit dir reden.
+önce|Önce ellerini yıka.|Wasch dir zuerst die Hände.
+güzel|Çok güzel görünüyorsun.|Du siehst sehr schön aus.
+düşünmek|Bunu düşüneceğim.|Ich werde darüber nachdenken.
+baba|Babam işte.|Mein Vater ist auf der Arbeit.
+olur|Olur, sorun değil.|Geht klar, kein Problem.
+kim|Bu kim?|Wer ist das?
+iki|İki çay lütfen.|Zwei Tee, bitte.
+pek|Pek emin değilim.|Ich bin mir nicht so sicher.
+ev|Evde kimse yok.|Es ist niemand zu Hause.
+ora|Orada ne var?|Was ist dort?
+böyle|Böyle devam et!|Mach weiter so!
+çıkmak|Dışarı çıkıyorum.|Ich gehe raus.
+biraz|Biraz bekler misin?|Wartest du ein bisschen?
+anlamak|Şimdi anlıyorum.|Jetzt verstehe ich.
+anne|Annem harika yemek yapar.|Meine Mutter kocht großartig.
+gerekmek|Gitmem gerekiyor.|Ich muss gehen.
+kız|Kızlar birazdan gelir.|Die Mädels kommen gleich.
+hadi|Hadi gidelim!|Los, gehen wir!
+gün|Güzel bir gün bugün.|Heute ist ein schöner Tag.
+teşekkür|Her şey için teşekkürler.|Danke für alles.
+insan|Burada çok insan var.|Hier sind viele Menschen.
+son|Bu son şansın.|Das ist deine letzte Chance.
+hak|Haklısın.|Du hast recht.
+yüz|Yüzün çok tanıdık geliyor.|Dein Gesicht kommt mir sehr bekannt vor.
+yani|Yani gelmiyor musun?|Also kommst du nicht?
+bırakmak|Beni rahat bırak!|Lass mich in Ruhe!
+hayat|Hayat çok güzel.|Das Leben ist sehr schön.
+geri|Geri gel!|Komm zurück!
+sormak|Sana bir şey sorabilir miyim?|Darf ich dich etwas fragen?
+sevmek|Çay içmeyi severim.|Ich trinke gern Tee.
+tanrı|Aman Tanrım!|Oh mein Gott!
+işte|İşte geldi!|Da kommt er ja!
+başka|Başka bir şey var mı?|Gibt es sonst noch etwas?
+bile|Bana bakmadı bile.|Er hat mich nicht einmal angeschaut.
+lütfen|Lütfen acele et.|Bitte beeil dich.
+durmak|Dur! Bekle!|Stopp! Warte!
+eğmek|Eğer istersen gelirim.|Wenn du willst, komme ich.
+doğru|Bu doğru mu?|Stimmt das?
+çünkü|Gelmedim çünkü hastaydım.|Ich kam nicht, weil ich krank war.
+artık|Artık eve gidelim.|Lass uns jetzt (endlich) nach Hause gehen.
+bay|Bay Yılmaz sizi bekliyor.|Herr Yılmaz wartet auf Sie.
+tek|Tek başıma yaşıyorum.|Ich lebe allein.
+zor|Bu çok zor bir soru.|Das ist eine sehr schwere Frage.
+yol|Yol çok uzun.|Der Weg ist sehr lang.
+el|Ellerini yıka.|Wasch deine Hände.
+ölmek|Açlıktan ölüyorum.|Ich sterbe vor Hunger.
+öldürmek|Bu sıcak beni öldürüyor.|Diese Hitze bringt mich um.
+duymak|Beni duyuyor musun?|Hörst du mich?
+belki|Belki yarın gelirim.|Vielleicht komme ich morgen.
+başlamak|Film başladı.|Der Film hat angefangen.
+yardım|Yardımına ihtiyacım var.|Ich brauche deine Hilfe.
+inmek|Bir sonraki durakta iniyorum.|Ich steige an der nächsten Haltestelle aus.
+arkadaş|O benim en iyi arkadaşım.|Er ist mein bester Freund.
+büyük|Ev çok büyük.|Das Haus ist sehr groß.
+gece|İyi geceler!|Gute Nacht!
+aramak|Seni sonra ararım.|Ich rufe dich später an.
+yer|Burası güzel bir yer.|Das hier ist ein schöner Ort.
+ara|Ara sıra görüşüyoruz.|Wir sehen uns ab und zu.
+nere|Nerede kaldın?|Wo bleibst du?
+adam|Bu adamı tanımıyorum.|Ich kenne diesen Mann nicht.
+fazla|Fazla yeme!|Iss nicht zu viel!
+girmek|İçeri girebilir miyim?|Darf ich reinkommen?
+dönmek|Ne zaman dönüyorsun?|Wann kommst du zurück?
+getirmek|Bana su getirir misin?|Bringst du mir Wasser?
+ile|Otobüs ile geliyorum.|Ich komme mit dem Bus.
+baş|Başım ağrıyor.|Mein Kopf tut weh.
+kötü|Kötü bir gün geçirdim.|Ich hatte einen schlechten Tag.
+hiçbir|Hiçbir şey görmedim.|Ich habe gar nichts gesehen.
+ad|Adın ne?|Wie heißt du?
+kimse|Kimse yok mu?|Ist da niemand?
+ihtiyaç|Yardıma ihtiyacım var.|Ich brauche Hilfe.
+kadın|O kadın kim?|Wer ist diese Frau?
+efendi|Efendim? Duyamadım.|Wie bitte? Ich habe es nicht verstanden.
+hep|Hep aynı şeyi söylüyorsun.|Du sagst immer dasselbe.
+harika|Bu harika bir haber!|Das ist eine großartige Nachricht!
+yeni|Yeni bir telefon aldım.|Ich habe ein neues Handy gekauft.
+tüm|Tüm gün evdeydim.|Ich war den ganzen Tag zu Hause.
+hâlâ|Hâlâ uyuyor musun?|Schläfst du immer noch?
+gerek|Gerek yok, sağ ol.|Nicht nötig, danke.
+yaşamak|Almanya'da yaşıyorum.|Ich lebe in Deutschland.
+merhaba|Merhaba, nasılsın?|Hallo, wie geht es dir?
+beklemek|Seni dışarıda bekliyorum.|Ich warte draußen auf dich.
+inanmak|Sana inanıyorum.|Ich glaube dir.
+emin|Emin misin?|Bist du sicher?
+herkes|Herkes burada.|Alle sind da.
+karşı|Okul evin karşısında.|Die Schule ist gegenüber vom Haus.
+geçmek|Zaman çok hızlı geçiyor.|Die Zeit vergeht so schnell.
+saat|Saat kaç?|Wie spät ist es?
+durum|Durum nedir?|Wie ist die Lage?
+üzgün|Üzgünüm, geç kaldım.|Tut mir leid, ich bin zu spät.
+konu|Bu konuyu kapatalım.|Lassen wir das Thema.
+fark|Fark etmez.|Ist egal, macht keinen Unterschied.
+kullanmak|Bunu nasıl kullanıyorsun?|Wie benutzt man das?
+ilk|İlk defa buradayım.|Ich bin zum ersten Mal hier.
+tam|Tam zamanında geldin.|Du kommst genau rechtzeitig.
+dinlemek|Beni dinle!|Hör mir zu!
+küçük|Küçük bir ev istiyorum.|Ich möchte ein kleines Haus.
+dünya|Dünya küçük!|Die Welt ist klein!
+yıl|Yeni yılın kutlu olsun!|Frohes neues Jahr!
+araba|Araban nerede?|Wo ist dein Auto?
+hemen|Hemen geliyorum.|Ich komme sofort.
+yan|Yanıma otur.|Setz dich neben mich.
+görünmek|Yorgun görünüyorsun.|Du siehst müde aus.
+aile|Ailem İstanbul'da.|Meine Familie ist in Istanbul.
+dost|Gerçek bir dostsun.|Du bist ein echter Freund.
+ayn|Aynı şeyi düşünüyoruz.|Wir denken dasselbe.
+yaş|Kaç yaşındasın?|Wie alt bist du?
+göz|Gözlerin çok güzel.|Deine Augen sind sehr schön.
+tabiî|Tabii ki gelirim!|Natürlich komme ich!
+devam|Devam et, dinliyorum.|Mach weiter, ich höre zu.
+hissetmek|Kendimi iyi hissetmiyorum.|Ich fühle mich nicht gut.
+az|Az kaldı, geliyoruz.|Nicht mehr lange, wir kommen gleich.
+hoş|Hoş geldin!|Willkommen!
+dakika|Beş dakika sonra oradayım.|In fünf Minuten bin ich da.
+göstermek|Bana yolu gösterir misin?|Zeigst du mir den Weg?
+olmaz|Böyle olmaz!|So geht das nicht!
+bugün|Bugün hava çok güzel.|Heute ist das Wetter sehr schön.
+tutmak|Elimi tut.|Halt meine Hand.
+tanımak|Seni çok iyi tanıyorum.|Ich kenne dich sehr gut.
+polis|Polisi aradın mı?|Hast du die Polizei gerufen?
+birlik|Birlikte gidelim.|Lass uns zusammen gehen.
+hazır|Yemek hazır!|Das Essen ist fertig!
+şans|İyi şanslar!|Viel Glück!
+sela|Selam, naber?|Hi, was geht?
+para|Param bitti.|Mein Geld ist alle.
+kardeş|Kaç kardeşin var?|Wie viele Geschwister hast du?
+özür|Özür dilerim, geç kaldım.|Entschuldigung, ich bin zu spät gekommen.
+söz|Söz veriyorum.|Ich verspreche es.
+üç|Üç gün sonra dönüyorum.|In drei Tagen komme ich zurück.
+anlatmak|Bana her şeyi anlat.|Erzähl mir alles.
+bitmek|Film bitti.|Der Film ist zu Ende.
+haber|İyi haberlerim var.|Ich habe gute Nachrichten.
+tekrar|Tekrar söyler misin?|Sagst du es noch einmal?
+göre|Bana göre haklısın.|Meiner Meinung nach hast du recht.
+laz|Bana yardım lazım.|Ich brauche Hilfe.
+bakal|Bakalım ne olacak.|Mal sehen, was passiert.
+falan|Ekmek, süt falan aldım.|Ich habe Brot, Milch und so gekauft.
+birşey|Bir şey mi oldu?|Ist etwas passiert?
