@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUBOLT Style – Brand-Book</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M7 14.8L24 24.6V44L7 34.4Z' fill='%233a4f7a'/%3E%3Cpath d='M24 24.6L41 14.8v19.6L24 44Z' fill='%2316294d'/%3E%3Cpath d='M24 5l17 9.8L24 24.6 7 14.8Z' fill='%231e50e6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Unbounded:wght@500..900&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens (LOCKED) ---------- */
+  :root {
+    --sand: #efe7d6; --card: #f7f2e7; --navy: #16294d; --night: #0b1530;
+    --sage: #9caf9a; --rose: #d2a6a1;
+    --cobalt: #1e50e6; --glow: #6e9bff;
+    --mut: #56607a; --mutd: #a3aeca;
+  }
+  html { color-scheme: light; scroll-snap-type: y mandatory; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--night); font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-optical-sizing: auto; -webkit-font-smoothing: antialiased; }
+
+  /* ---------- Bühne: jede Folie exakt 16:9, alles in cqw ---------- */
+  .frame { height: 100vh; height: 100dvh; display: grid; place-items: center; scroll-snap-align: start; overflow: hidden; }
+  .slide { width: min(100vw, 177.78vh); width: min(100vw, calc(100dvh * 16 / 9)); aspect-ratio: 16 / 9; container-type: inline-size;
+           position: relative; overflow: hidden; padding: 4.5cqw 6cqw 6.75cqw; }
+  .light { background: var(--sand); color: var(--navy); }
+  .dark  { background: var(--navy); color: var(--sand); }
+  .stack { display: flex; flex-direction: column; justify-content: center; }
+  .werk  { display: grid; grid-template-columns: 1fr auto; align-items: center; align-content: center; gap: 5cqw; }
+  .vis canvas, canvas.art { display: block; width: 100%; height: 100%; }
+
+  /* ---------- Schrift ---------- */
+  .kick { font-weight: 600; font-size: 1.3cqw; letter-spacing: .32em; text-transform: uppercase; color: var(--cobalt); }
+  .dark .kick { color: var(--glow); }
+  h1 { font-weight: 700; font-size: 6.2cqw; line-height: 1.02; letter-spacing: -.025em; margin-top: 1.2cqw; }
+  h2 { font-weight: 700; font-size: 3.8cqw; line-height: 1.06; letter-spacing: -.02em; margin-top: 1cqw; }
+  .em { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: .86em; letter-spacing: -.01em; color: var(--cobalt); margin-left: .06em; }
+  .dark .em { color: var(--glow); text-shadow: 0 0 .4em rgba(110,155,255,.45); }
+  .body { font-weight: 400; font-size: 1.6cqw; line-height: 1.5; color: var(--mut); }
+  .dark .body { color: var(--mutd); }
+  .lab { font-weight: 600; font-size: 1.3cqw; letter-spacing: .14em; text-transform: uppercase; color: var(--mut); }
+  .dark .lab { color: var(--mutd); }
+
+  /* ---------- Karten ---------- */
+  .card { background: var(--card); border: .16cqw solid var(--navy); border-radius: 1cqw; box-shadow: .45cqw .45cqw 0 var(--sage); }
+  .card.hot { border-color: var(--cobalt); box-shadow: .45cqw .45cqw 0 var(--cobalt); }
+
+  /* S1 Cover */
+  .s1 .sub { margin-top: 2.2cqw; }
+
+  /* S2 Farbe */
+  .sw-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.5cqw; margin-top: 3.2cqw; }
+  .sw { overflow: hidden; }
+  .sw .chip { height: 9cqw; border-bottom: .16cqw solid var(--navy); display: grid; place-items: center; }
+  .sw.hot .chip { border-bottom-color: var(--cobalt); }
+  .sw .chip i { width: 3.2cqw; height: 3.2cqw; border-radius: .7cqw; background: var(--glow); box-shadow: 0 0 1.6cqw rgba(110,155,255,.75); }
+  .sw .meta { padding: 1.1cqw 1.2cqw 1.3cqw; }
+  .sw .nm { font-weight: 700; font-size: 1.6cqw; }
+  .sw .hex { font-family: 'Unbounded'; font-weight: 600; font-size: 1.05cqw; color: var(--mut); margin-top: .3cqw; letter-spacing: .04em; }
+  .sw .use { font-size: 1.3cqw; color: var(--mut); margin-top: .6cqw; line-height: 1.35; }
+  .sw.hot .nm, .sw.hot .hex { color: var(--cobalt); }
+  .s2 .body { margin-top: 2.6cqw; }
+
+  /* S3 Schrift */
+  .tl { display: grid; grid-template-columns: 22cqw 1fr; gap: 3cqw; align-items: baseline; padding: 1.5cqw 0; border-bottom: .08cqw solid rgba(22,41,77,.16); }
+  .tl:last-child { border-bottom: none; }
+  .demo-h { font-weight: 700; font-size: 3.4cqw; letter-spacing: -.02em; line-height: 1.1; }
+  .demo-b { font-size: 1.6cqw; line-height: 1.5; max-width: 52ch; }
+  .demo-e { font-family: 'Unbounded'; font-weight: 800; font-size: 3.2cqw; letter-spacing: -.01em; }
+  .ramp { margin-top: 1.8cqw; }
+
+  /* S4 Raster */
+  .rules { display: flex; flex-direction: column; gap: 1.8cqw; margin-top: 2.8cqw; }
+  .rule { display: grid; grid-template-columns: 4cqw 1fr; gap: 1.2cqw; align-items: start; }
+  .rule .n { font-family: 'Unbounded'; font-weight: 700; font-size: 1.6cqw; color: var(--glow); text-shadow: 0 0 .5em rgba(110,155,255,.45); }
+  .rule .t { font-weight: 700; font-size: 1.75cqw; line-height: 1.2; }
+  .rule .d { font-size: 1.35cqw; color: var(--mutd); margin-top: .3cqw; line-height: 1.45; }
+  .figure { display: flex; flex-direction: column; align-items: center; gap: 1.4cqw; }
+
+  /* S5 Motive */
+  .lib { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.8cqw; margin-top: 2.8cqw; }
+  .motif { padding: 1.1cqw 1.1cqw .9cqw; display: flex; flex-direction: column; align-items: center; gap: .7cqw; }
+  .motif .vis { width: 100%; height: 10.4cqw; }
+  .motif .nm { font-weight: 700; font-size: 1.45cqw; }
+
+  /* S6 Karten + Icons */
+  .specs { display: flex; flex-direction: column; gap: 1.1cqw; margin-top: 2.6cqw; }
+  .spec { display: flex; gap: 1cqw; font-size: 1.45cqw; line-height: 1.4; color: var(--mut); }
+  .spec::before { content: ''; flex: none; width: .75cqw; height: .75cqw; margin-top: .55em; border-radius: .18cqw; background: var(--cobalt); }
+  .spec b { color: var(--navy); font-weight: 700; }
+  .cards { display: flex; flex-direction: column; gap: 1.7cqw; width: 34cqw; }
+  .ccard { display: grid; grid-template-columns: 3.8cqw 1fr; gap: 1.5cqw; align-items: center; padding: 1.4cqw 1.7cqw; }
+  .ccard canvas { width: 3.8cqw; height: 3.8cqw; display: block; }
+  .ccard .t { font-weight: 700; font-size: 1.9cqw; line-height: 1.15; }
+  .ccard .s { font-weight: 600; font-size: 1.3cqw; letter-spacing: .12em; text-transform: uppercase; color: var(--mut); margin-top: .2cqw; }
+  .ccard.hot .s { color: var(--cobalt); }
+
+  /* S7 Recherche: Browser-Rahmen + Marker */
+  .s7 { grid-template-columns: auto 1fr; }
+  .browser { width: 50cqw; overflow: hidden; }
+  .browser .bar { display: flex; align-items: center; gap: .55cqw; padding: .8cqw 1.1cqw; border-bottom: .16cqw solid var(--navy); background: var(--sand); }
+  .browser .bar i { width: .85cqw; height: .85cqw; border-radius: .2cqw; background: var(--sage); }
+  .browser .bar i:nth-child(2) { background: var(--rose); }
+  .browser .bar i:nth-child(3) { background: var(--card); border: .1cqw solid var(--navy); }
+  .browser .url { margin-left: .8cqw; flex: 1; font-size: 1.15cqw; color: var(--mut); background: var(--card); border-radius: 2cqw; padding: .25cqw 1cqw; }
+  .shot { position: relative; aspect-ratio: 16 / 10; background: var(--card); }
+  .shot > * { position: absolute; }
+  .pimg { left: 4%; top: 7%; width: 40%; height: 86%; background: var(--sand); border-radius: .6cqw; padding: 1.2cqw; }
+  .ln { background: var(--navy); opacity: .85; border-radius: .25cqw; }
+  .ln.m { background: var(--mut); opacity: .35; }
+  .stars { display: flex; gap: .3cqw; }
+  .stars i { width: 1cqw; height: 1cqw; border-radius: .22cqw; background: var(--rose); }
+  .price { line-height: 1; }
+  .price b { font-weight: 800; font-size: 2.5cqw; letter-spacing: -.02em; color: var(--navy); }
+  .price s { font-size: 1.3cqw; color: var(--mut); margin-left: .5cqw; }
+  .buy { border: .16cqw solid var(--navy); border-radius: .5cqw; }
+  .mark { border: .3cqw solid var(--cobalt); border-radius: .8cqw; }
+  .badge { width: 2.6cqw; height: 2.6cqw; border-radius: .55cqw; background: var(--cobalt); color: var(--card); display: grid; place-items: center;
+           font-family: 'Unbounded'; font-weight: 800; font-size: 1.35cqw; }
+  .mark .badge { position: absolute; left: -1.5cqw; top: -1.5cqw; }
+  .callout { display: grid; grid-template-columns: 2.6cqw 1fr; gap: 1.2cqw; align-items: center; padding: 1.3cqw 1.5cqw; margin-top: 2.4cqw; }
+  .callout .t { font-weight: 700; font-size: 1.8cqw; line-height: 1.15; }
+  .callout .s { font-size: 1.35cqw; color: var(--mut); margin-top: .2cqw; }
+
+  /* S8 Thumbnail */
+  .thumb { width: 50cqw; aspect-ratio: 16 / 9; container-type: inline-size; position: relative; overflow: hidden; background: var(--navy); color: var(--sand);
+           border-radius: 1cqw; box-shadow: .45cqw .45cqw 0 var(--sage); }
+  .thumb .tex { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .thumb .big { position: absolute; left: 6cqw; top: 50%; transform: translateY(-50%); line-height: .9; }
+  .thumb .num { font-family: 'Unbounded'; font-weight: 900; font-size: 26cqw; letter-spacing: -.03em; color: var(--glow); text-shadow: 0 0 .25em rgba(110,155,255,.55); }
+  .thumb .word { font-weight: 800; font-size: 12cqw; letter-spacing: -.03em; margin-top: 1cqw; }
+  .thumb .face { position: absolute; right: 6cqw; top: 9cqw; width: 34cqw; height: 40cqw; border: .5cqw dashed rgba(239,231,214,.45); border-radius: 3cqw;
+                 display: grid; place-items: center; text-align: center; font-size: 3.2cqw; font-weight: 600; color: var(--mutd); line-height: 1.3; }
+  .thumb .ts { position: absolute; right: 2cqw; bottom: 2cqw; background: rgba(0,0,0,.78); color: #fff; font: 600 3cqw/1 system-ui, sans-serif; padding: .9cqw 1.4cqw; border-radius: .8cqw; }
+
+  /* S9 Regeln */
+  .lr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4cqw 2.6cqw; margin-top: 3cqw; }
+  .lr { border-top: .16cqw solid rgba(239,231,214,.2); padding-top: 1.3cqw; }
+  .lr .t { font-weight: 700; font-size: 1.65cqw; line-height: 1.2; }
+  .lr .d { font-size: 1.3cqw; color: var(--mutd); margin-top: .6cqw; line-height: 1.45; }
+
+  /* S10 Abschluss */
+  .s10 { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-bottom: 14cqw; }
+  .s10 h1 { font-size: 6.8cqw; }
+  .s10 .kick { color: var(--mutd); margin-top: 2.2cqw; }
+  .band { position: absolute; left: 0; right: 0; bottom: 0; height: 17cqw; }
+</style>
+</head>
+<body>
+
+<!-- S1 · COVER -->
+<section class="frame" id="s1"><div class="slide light werk s1">
+  <div>
+    <div class="kick">KUBOLT Style · Brand-Book</div>
+    <h1>Klar wie ein<br><span class="em">WÜRFEL</span></h1>
+    <div class="lab sub">pastell · würfel · kobalt</div>
+  </div>
+  <div class="vis" style="width:36cqw;height:36cqw"><canvas id="aCube"></canvas></div>
+</div></section>
+
+<!-- S2 · FARBE -->
+<section class="frame" id="s2"><div class="slide light stack s2">
+  <div class="kick">01 · Farbe</div>
+  <h2>Pastell als Basis. <span class="em">EIN</span> Akzent.</h2>
+  <div class="sw-row">
+    <div class="card sw"><div class="chip" style="background:#efe7d6"></div><div class="meta"><div class="nm">Sand</div><div class="hex">#EFE7D6</div><div class="use">Fläche · Karten #F7F2E7</div></div></div>
+    <div class="card sw"><div class="chip" style="background:#16294d"></div><div class="meta"><div class="nm">Navy</div><div class="hex">#16294D</div><div class="use">Schrift · dunkle Folien</div></div></div>
+    <div class="card sw"><div class="chip" style="background:#9caf9a"></div><div class="meta"><div class="nm">Salbei</div><div class="hex">#9CAF9A</div><div class="use">ruhige Flächen · Schatten</div></div></div>
+    <div class="card sw"><div class="chip" style="background:#d2a6a1"></div><div class="meta"><div class="nm">Altrosa</div><div class="hex">#D2A6A1</div><div class="use">warme Flächen</div></div></div>
+    <div class="card sw hot"><div class="chip" style="background:#1e50e6"></div><div class="meta"><div class="nm">Kobalt</div><div class="hex">#1E50E6</div><div class="use">der EINE Akzent</div></div></div>
+    <div class="card sw"><div class="chip" style="background:#16294d"><i></i></div><div class="meta"><div class="nm">Kobalt-Glut</div><div class="hex">#6E9BFF</div><div class="use">Akzent auf Navy · darf glühen</div></div></div>
+  </div>
+  <p class="body">Kobalt markiert genau eine Sache pro Folie. Pastell ist Fläche, nie Betonung.</p>
+</div></section>
+
+<!-- S3 · SCHRIFT -->
+<section class="frame" id="s3"><div class="slide light stack s3">
+  <div class="kick">02 · Schrift</div>
+  <h2>Zwei Stimmen, klare <span class="em">ROLLEN</span></h2>
+  <div style="margin-top:1.6cqw">
+    <div class="tl"><div class="lab">Überschrift<br>Bricolage 700</div><div class="demo-h">Recherche in <span class="em">5</span> Minuten</div></div>
+    <div class="tl"><div class="lab">Text<br>Bricolage 400</div><div class="demo-b">Ein Gedanke pro Folie. Der Text bleibt kurz – den Rest sagst du im Video.</div></div>
+    <div class="tl"><div class="lab">Kicker<br>Bricolage 600 · gesperrt</div><div class="kick" style="font-size:1.5cqw">Lektion 03 · Produktrecherche</div></div>
+    <div class="tl"><div class="lab">Betonung<br>Unbounded 800</div><div class="demo-e"><span style="color:var(--cobalt)">28</span> TAGE</div></div>
+  </div>
+  <div class="lab ramp">bei 1080p: Titel 120 px · Folie 72 px · Text 31 px · Label 25 px</div>
+</div></section>
+
+<!-- S4 · WÜRFELRASTER -->
+<section class="frame" id="s4"><div class="slide dark werk s4">
+  <div>
+    <div class="kick">03 · Würfelraster</div>
+    <h2>Würfel tragen die <span class="em">FORM</span></h2>
+    <div class="rules">
+      <div class="rule"><div class="n">01</div><div><div class="t">Größe macht das Bild</div><div class="d">festes Raster, Würfelgröße = Dichte. Formen entstehen aus der Größe.</div></div></div>
+      <div class="rule"><div class="n">02</div><div><div class="t">Zwei Ebenen, nie mehr</div><div class="d">Sand- oder Navy-Feld + ein Kobalt-Motiv. Auf Navy darf Kobalt glühen.</div></div></div>
+      <div class="rule"><div class="n">03</div><div><div class="t">Text gewinnt</div><div class="d">Raster hinter Text auf höchstens 20 % – oder das Motiv lässt eine Lücke.</div></div></div>
+      <div class="rule"><div class="n">04</div><div><div class="t">Spalten statt Pixel</div><div class="d">das Raster zählt Spalten, nicht Pixel – scharf von 720p bis 4K.</div></div></div>
+    </div>
+  </div>
+  <div class="figure">
+    <div class="vis" style="width:33cqw;height:31cqw"><canvas id="aCrystal"></canvas></div>
+    <div class="lab">ein Kristall · eine Funktion</div>
+  </div>
+</div></section>
+
+<!-- S5 · MOTIVE -->
+<section class="frame" id="s5"><div class="slide light stack s5">
+  <div class="kick">04 · Motive</div>
+  <h2>Acht Motive, <span class="em">BEREIT</span></h2>
+  <div class="lib">
+    <div class="card motif"><div class="vis"><canvas id="mWuerfel"></canvas></div><div class="nm">Würfel</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mKristall"></canvas></div><div class="nm">Kristall</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mBlitz"></canvas></div><div class="nm">Blitz</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mErzader"></canvas></div><div class="nm">Erzader</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mTuerme"></canvas></div><div class="nm">Würfeltürme</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mWachstum"></canvas></div><div class="nm">Wachstum</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mRing"></canvas></div><div class="nm">Fortschritt</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mSteckdose"></canvas></div><div class="nm">Steckdose</div></div>
+  </div>
+</div></section>
+
+<!-- S6 · KARTEN + ICONS -->
+<section class="frame" id="s6"><div class="slide light werk s6">
+  <div>
+    <div class="kick">05 · Karten + Icons</div>
+    <h2>Weiche Kanten, klare <span class="em">ICONS</span></h2>
+    <div class="specs">
+      <div class="spec"><span><b>3 px Navy-Rahmen</b>, runde Ecken, Schatten in Salbei</span></div>
+      <div class="spec"><span><b>Kobalt-Rahmen + Schatten</b> markiert DIE eine Karte</span></div>
+      <div class="spec"><span>Icons aus <b>12 × 12 Würfeln</b> mit Fuge – nie Vektor-SVG</span></div>
+      <div class="spec"><span><b>Umriss in Navy</b> · gefüllt nur das Kobalt-Icon</span></div>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card ccard"><canvas id="icLupe"></canvas><div><div class="t">Recherche</div><div class="s">Schritt 1 · Markt prüfen</div></div></div>
+    <div class="card ccard"><canvas id="icBalken"></canvas><div><div class="t">Analyse</div><div class="s">Schritt 2 · Zahlen lesen</div></div></div>
+    <div class="card ccard hot"><canvas id="icBlitz"></canvas><div><div class="t">Umsetzen</div><div class="s">Schritt 3 · Listing bauen</div></div></div>
+  </div>
+</div></section>
+
+<!-- S7 · RECHERCHE ZEIGEN -->
+<section class="frame" id="s7"><div class="slide light werk s7">
+  <div class="card browser">
+    <div class="bar"><i></i><i></i><i></i><span class="url">example.com/steckdosenwuerfel</span></div>
+    <div class="shot">
+      <div class="pimg"><canvas id="bCube" class="art"></canvas></div>
+      <div class="ln" style="left:50%;top:9%;width:42%;height:5%"></div>
+      <div class="ln" style="left:50%;top:17%;width:30%;height:5%"></div>
+      <div class="stars" style="left:50%;top:27%"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="price" style="left:51.5%;top:39%"><b>49,99 €</b><s>59,99 €</s></div>
+      <div class="ln m" style="left:50%;top:56%;width:38%;height:2.8%"></div>
+      <div class="ln m" style="left:50%;top:62.5%;width:33%;height:2.8%"></div>
+      <div class="ln m" style="left:50%;top:69%;width:40%;height:2.8%"></div>
+      <div class="ln m" style="left:50%;top:75.5%;width:28%;height:2.8%"></div>
+      <div class="buy" style="left:50%;top:84%;width:22%;height:8%"></div>
+      <div class="mark" style="left:48%;top:34%;width:33%;height:17%"><div class="badge">1</div></div>
+    </div>
+  </div>
+  <div>
+    <div class="kick">06 · Recherche zeigen</div>
+    <h2>Zeigen statt <span class="em">LESEN</span></h2>
+    <div class="card hot callout"><div class="badge">1</div><div><div class="t">Preis-Anker</div><div class="s">49,99 € statt 59,99 €</div></div></div>
+    <div class="specs">
+      <div class="spec"><span>Screenshot immer <b>im Browser-Rahmen</b></span></div>
+      <div class="spec"><span><b>ein Marker</b> pro Bild, Position in %</span></div>
+      <div class="spec"><span><b>Badge-Zahl = Zahl im Text</b></span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- S8 · THUMBNAIL -->
+<section class="frame" id="s8"><div class="slide light werk s8" style="grid-template-columns:auto 1fr">
+  <div class="thumb">
+    <canvas id="tOre" class="tex"></canvas>
+    <div class="big"><div class="num">28</div><div class="word">TAGE?</div></div>
+    <div class="face">Gesicht<br>oder KUBI</div>
+    <div class="ts">12:34</div>
+  </div>
+  <div>
+    <div class="kick">07 · Thumbnail</div>
+    <h2>Vier Wörter, <span class="em">MAX</span></h2>
+    <div class="specs">
+      <div class="spec"><span><b>1280 × 720</b>, gleiche Farben wie die Folien</span></div>
+      <div class="spec"><span><b>Navy-Fläche + Sand-Schrift</b> – Kontrast fürs Handy</span></div>
+      <div class="spec"><span><b>Kobalt nur auf der einen</b> Zahl oder dem einen Wort</span></div>
+      <div class="spec"><span><b>unten rechts frei</b> – dort liegt der Zeitstempel</span></div>
+      <div class="spec"><span>Gesicht oder KUBI auf <b>eine Seite</b>, Text auf die andere</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- S9 · REGELN -->
+<section class="frame" id="s9"><div class="slide dark stack s9">
+  <div class="kick">08 · Regeln für Video &amp; Kurs</div>
+  <h2>Weniger ist die <span class="em">REGEL</span></h2>
+  <div class="lr-grid">
+    <div class="lr"><div class="t">Sicherer Rand</div><div class="d">6 % Abstand links und rechts, 8 % oben. Nichts Wichtiges ganz außen.</div></div>
+    <div class="lr"><div class="t">Unten frei</div><div class="d">die unteren 12 % gehören Player-Leiste und Untertiteln.</div></div>
+    <div class="lr"><div class="t">Handy-lesbar</div><div class="d">Kernaussage ≥ 72 px, Text ≥ 31 px, Labels ≥ 25 px bei 1080p.</div></div>
+    <div class="lr"><div class="t">Eine Idee pro Folie</div><div class="d">eine Überschrift, ein Motiv. Lieber zwei Folien als eine volle.</div></div>
+    <div class="lr"><div class="t">Kobalt = eine Sache</div><div class="d">genau ein Akzent pro Folie. Alles andere bleibt Navy und Sand.</div></div>
+    <div class="lr"><div class="t">Schnitt statt Effekt</div><div class="d">Folien sind statisch. Bewegung kommt vom Schnitt, nicht von Animationen.</div></div>
+    <div class="lr"><div class="t">Kicker für Lektionen</div><div class="d">„Lektion 03 · Thema“ über dem Titel – sonst kein Etikett, keine Ecktexte.</div></div>
+    <div class="lr"><div class="t">Präsentieren</div><div class="d">← → oder Leertaste blättern, F für Vollbild – jede Folie exakt 16:9.</div></div>
+  </div>
+</div></section>
+
+<!-- S10 · ABSCHLUSS -->
+<section class="frame" id="s10"><div class="slide dark s10">
+  <div class="band"><canvas id="aBand" class="art"></canvas></div>
+  <h1>Klein. Klar. <span class="em">KOBALT</span>.</h1>
+  <div class="kick">der KUBOLT Style</div>
+</div></section>
+
+<script>
+/* ---------- Würfelraster-Engine ---------- */
+function raster(id, cols, f, o = {}) {
+  const c = document.getElementById(id); if (!c) return;
+  const { width: w, height: h } = c.getBoundingClientRect(); if (!w || !h) return;
+  const dpr = window.devicePixelRatio || 1, a = w / h, step = w / cols, k = step / h, max = step * (o.fill || 0.84);
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = o.alpha ?? 1;
+  for (let y = step / 2; y < h; y += step) for (let x = step / 2; x < w; x += step) {
+    const u = x / w, v = y / h; let b = f(u, v, a, k), col = o.color, hot = false;
+    if (o.f2) { const b2 = o.f2(u, v, a, k); if (b2 > b) { b = b2; col = o.color2; hot = true; } }
+    if (b <= 0.03) continue;
+    const s = Math.min(1, b) * max;
+    ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = hot && o.glow ? o.glow * step * dpr : 0;
+    ctx.beginPath(); box(ctx, x - s / 2, y - s / 2, s, s, s * (o.round ?? 0.24)); ctx.fill();
+  }
+}
+function box(ctx, x, y, w, h, r) { if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+function segDist(px, py, [ax, ay], [bx, by]) { const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))); return Math.hypot(px - ax - t * dx, py - ay - t * dy); }
+function noise(x, y) { const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return n - Math.floor(n); }   // reproduzierbar, nie Math.random()
+function inPoly(p, x, y) { let s = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) if ((p[i][1] > y) !== (p[j][1] > y) && x < (p[j][0] - p[i][0]) * (y - p[i][1]) / (p[j][1] - p[i][1]) + p[i][0]) s = !s; return s; }
+
+/* ---------- Würfel-Icons: 12×12 Raster, jede Zelle ein Würfel mit Fuge ---------- */
+function icon(id, rows, pal) {
+  const c = document.getElementById(id); if (!c) return;
+  const w = c.getBoundingClientRect().width, n = rows[0].length, m = rows.length, cell = w / n, dpr = window.devicePixelRatio || 1;
+  c.width = Math.round(w * dpr); c.height = Math.round(cell * m * dpr);
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const g = cell * 0.09;
+  rows.forEach((row, y) => [...row].forEach((k, x) => {
+    if (k === '.') return;
+    ctx.fillStyle = pal[k]; ctx.beginPath(); box(ctx, x * cell + g, y * cell + g, cell - 2 * g, cell - 2 * g, cell * 0.22); ctx.fill();
+  }));
+}
+
+/* ---------- Farben ---------- */
+const NAVY = 'rgba(22,41,77,0.9)', SAND = 'rgba(239,231,214,0.88)', KOBALT = '#1e50e6', GLUT = '#6e9bff';
+const LIGHT = { color: NAVY, color2: KOBALT };              // auf Sand
+const DARK  = { color: SAND, color2: GLUT, glow: 0.9 };     // auf Navy: Kobalt glüht
+
+/* ---------- Motiv-Bibliothek: f = Feld (Navy/Sand), f2 = Kobalt-Motiv. (u, v) = 0..1, a = Breite/Höhe, k = Würfelgröße ---------- */
+const M = {};
+const S3 = Math.sqrt(3) / 2;
+function cubeFace(X, Y, s, g = 0) {   // g = Fugenbreite zwischen den Flächen
+  const T = [0, -s], UR = [S3 * s, -s / 2], LR = [S3 * s, s / 2], B = [0, s], LL = [-S3 * s, s / 2], UL = [-S3 * s, -s / 2], C = [0, 0];
+  if (!inPoly([T, UR, LR, B, LL, UL], X, Y)) return '';
+  if (Math.min(segDist(X, Y, C, UL), segDist(X, Y, C, UR), segDist(X, Y, C, B)) < g) return 'gap';
+  if (inPoly([T, UR, C, UL], X, Y)) return 'top';
+  if (inPoly([UL, C, B, LL], X, Y)) return 'left';
+  if (inPoly([C, UR, LR, B], X, Y)) return 'right';
+  return '';
+}
+M.wuerfel = {   // isometrischer Würfel, Deckel in Kobalt
+  f: (u, v, a, k) => {
+    const X = (u - 0.5) * a, Y = v - 0.5 + 0.03, s = 0.38, face = cubeFace(X, Y, s, k * 0.6);
+    if (face === 'left') return 0.5 + 0.2 * (Y + s / 2) / (1.5 * s);
+    if (face === 'right') return 0.92;
+    if (!face && ((X - 0.04) / 0.44) ** 2 + ((Y - s - 0.04) / 0.05) ** 2 < 1) return 0.18;   // Bodenschatten
+    return 0;
+  },
+  f2: (u, v, a, k) => { const X = (u - 0.5) * a, Y = v - 0.5 + 0.03, s = 0.38; return cubeFace(X, Y, s, k * 0.6) === 'top' ? 0.55 + 0.35 * (Y + s) / s : 0; }
+};
+const CRYST = [ // x0, Basis-y, Breite, Höhe, Spitze, Neigung
+  [0, 0.26, 0.2, 0.4, 0.15, 0], [-0.17, 0.28, 0.14, 0.25, 0.1, -0.42], [0.17, 0.28, 0.15, 0.29, 0.11, 0.36], [0.31, 0.31, 0.09, 0.14, 0.07, 0.78]
+];
+function crystalAt(X, Y) {
+  for (const [x0, yb, w, h, tip, t] of CRYST) {
+    const dx = X - x0, dy = Y - yb, sn = Math.sin(t), cs = Math.cos(t), al = dx * sn - dy * cs, ac = dx * cs + dy * sn, hw = w / 2;
+    if (Math.abs(ac) <= hw && al >= 0 && al <= h + tip * (1 - Math.abs(ac) / hw)) return ac < -hw * 0.15 ? 0.55 : (ac < hw * 0.25 ? 0.95 : 0.75);
+  }
+  return 0;
+}
+M.kristall = {  // Kobalt-Kristalle auf Gestein
+  f: (u, v, a) => {
+    const X = (u - 0.5) * a, Y = v - 0.5; if (crystalAt(X, Y)) return 0;
+    if ((X / 0.46) ** 2 + ((Y - 0.36) / 0.13) ** 2 > 1 || Y < 0.25) return 0;
+    return 0.3 + 0.35 * noise(X * 31, Y * 29);
+  },
+  f2: (u, v, a) => crystalAt((u - 0.5) * a, v - 0.5)
+};
+const BOLT = [[-0.05, -0.46], [0.27, -0.46], [0.08, -0.07], [0.27, -0.07], [-0.15, 0.46], [-0.03, 0.05], [-0.22, 0.05]];
+M.blitz = {     // Blitz mit Funken
+  f: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5, d = Math.hypot(X, Y); if (inPoly(BOLT, X, Y)) return 0; return (d > 0.36 && d < 0.48 && noise(X * 40, Y * 40) > 0.8) ? 0.3 : 0; },
+  f2: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5; return inPoly(BOLT, X, Y) ? 0.55 + 0.4 * (Y + 0.46) / 0.92 : 0; }
+};
+const veinY = X => 0.06 * Math.sin(X * 7 + 1) + 0.12 * X;
+M.erzader = {   // Gestein mit Kobalt-Ader
+  f: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5; if (Math.abs(Y - veinY(X)) < 0.085) return 0; return 0.22 + 0.3 * (0.5 + 0.5 * Math.sin(Y * 22 + Math.sin(X * 4) * 2)) + 0.25 * noise(X * 23, Y * 19); },
+  f2: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5; return Math.abs(Y - veinY(X)) < 0.05 ? 0.75 + 0.25 * noise(X * 50, Y * 50) : 0; }
+};
+const BARS = [0.34, 0.48, 0.6, 0.74, 0.9];
+function barAt(u, v) { const n = BARS.length, i = Math.floor(u * n), g = u * n - i; if (g < 0.18 || g > 0.82) return [-1, 0]; const h = BARS[i] * 0.92; return v > 1 - h ? [i, (v - (1 - h)) / h] : [-1, 0]; }
+M.tuerme = {    // Balken aus gestapelten Würfeln, der letzte in Kobalt
+  f: (u, v) => { const [i, t] = barAt(u, v); return i >= 0 && i < BARS.length - 1 ? 0.62 + 0.3 * t : 0; },
+  f2: (u, v) => { const [i, t] = barAt(u, v); return i === BARS.length - 1 ? 0.7 + 0.25 * t : 0; }
+};
+const curve = u => 0.82 - 0.62 * Math.pow(u, 1.7) - 0.03 * Math.sin(u * 14);
+M.wachstum = {  // Kurve in Kobalt, Fläche darunter verblasst
+  f: (u, v) => { const c = curve(u); return v < c + 0.05 ? 0 : Math.max(0, 0.5 - (v - c) * 0.7); },
+  f2: (u, v, a) => { const c = curve(u); if (u > 0.08 && u < 0.92 && Math.abs(v - c) < 0.045) return 0.9; return Math.hypot((u - 0.9) * a, v - curve(0.9)) < 0.07 ? 1 : 0; }
+};
+const ringAng = (X, Y) => (Math.atan2(X, -Y) / (2 * Math.PI) + 1) % 1;   // 0 = oben, im Uhrzeigersinn
+const P = 0.68;
+M.ring = {      // Fortschrittsring, Mitte frei für eine Zahl
+  f: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5, d = Math.hypot(X, Y); return d < 0.3 || d > 0.42 ? 0 : (ringAng(X, Y) > P ? 0.36 : 0); },
+  f2: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5, d = Math.hypot(X, Y); return d < 0.3 || d > 0.42 ? 0 : (ringAng(X, Y) <= P ? 0.9 : 0); }
+};
+M.steckdose = { // Schuko-Steckdose mit Kobalt-Ring
+  f: (u, v, a) => {
+    const X = (u - 0.5) * a, Y = v - 0.5, d = Math.hypot(X, Y);
+    if (Math.max(Math.abs(X), Math.abs(Y)) > 0.42 || Math.hypot(Math.max(0, Math.abs(X) - 0.3), Math.max(0, Math.abs(Y) - 0.3)) > 0.12) return 0;
+    if (d > 0.29) return d < 0.335 ? 0 : 0.26;                    // Platte
+    if (Math.hypot(Math.abs(X) - 0.12, Y) < 0.065) return 0;        // Stiftlöcher
+    if (Math.abs(X) < 0.06 && Math.abs(Y) > 0.22) return 0;         // Schutzkontakte
+    return 0.5 + 0.35 * (0.29 - d) / 0.29;                          // Mulde, zur Mitte dunkler
+  },
+  f2: (u, v, a) => { const d = Math.hypot((u - 0.5) * a, v - 0.5); return d > 0.295 && d < 0.33 ? 0.85 : 0; }
+};
+M.flöz = {      // Gesteinsband für Folienunterkanten
+  f: (u, v, a) => {
+    const X = (u - 0.5) * a, Y = v - 0.5, top = -0.18 + 0.1 * Math.sin(X * 3.1) + 0.05 * Math.sin(X * 7.3 + 2);
+    if (Y < top || Math.abs(Y - (0.12 + 0.07 * Math.sin(X * 2.3 + 1))) < 0.07) return 0;
+    return Math.min(0.9, 0.15 + (Y - top) * 1.1 + 0.2 * noise(X * 17, Y * 17));
+  },
+  f2: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5; return Math.abs(Y - (0.12 + 0.07 * Math.sin(X * 2.3 + 1))) < 0.035 && noise(X * 9, Y * 9) > 0.3 ? 0.8 : 0; }
+};
+
+/* ---------- Zeichnen (und bei jeder Größenänderung neu) ---------- */
+const ART = [];
+const art = f => ART.push(f);
+art(() => raster('aCube', 44, M.wuerfel.f, { ...LIGHT, f2: M.wuerfel.f2 }));
+art(() => raster('aCrystal', 46, M.kristall.f, { ...DARK, f2: M.kristall.f2 }));
+[['mWuerfel', 'wuerfel'], ['mKristall', 'kristall'], ['mBlitz', 'blitz'], ['mErzader', 'erzader'],
+ ['mTuerme', 'tuerme'], ['mWachstum', 'wachstum'], ['mRing', 'ring'], ['mSteckdose', 'steckdose']]
+  .forEach(([id, k]) => art(() => raster(id, 46, M[k].f, { ...LIGHT, f2: M[k].f2 })));
+art(() => raster('bCube', 30, M.wuerfel.f, { ...LIGHT, f2: M.wuerfel.f2 }));
+art(() => raster('tOre', 64, M.erzader.f, { color: SAND, alpha: 0.14 }));    // Text darüber → 14 %
+art(() => raster('aBand', 150, M.flöz.f, { ...DARK, f2: M.flöz.f2, glow: 0.7 }));
+const INK = { k: '#16294d' }, HOT = { o: '#1e50e6' };
+art(() => icon('icLupe', ['............', '..kkkkk.....', '.k.....k....', 'k.......k...', 'k.......k...', 'k.......k...', 'k.......k...', '.k.....k....', '..kkkkkkk...', '.......kkk..', '........kkk.', '.........kk.'], INK));
+art(() => icon('icBalken', ['............', '.........kk.', '.........kk.', '.....kk..kk.', '.....kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', 'kkkkkkkkkkkk', '............'], INK));
+art(() => icon('icBlitz', ['.....ooooo..', '....ooooo...', '....oooo....', '...oooo.....', '...ooooooo..', '..oooooooo..', '.....oooo...', '.....ooo....', '....ooo.....', '....oo......', '...oo.......', '...o........'], HOT));
+const drawAll = () => ART.forEach(f => f());
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawAll, 150); });
+addEventListener('load', drawAll);
+if (document.fonts) document.fonts.ready.then(drawAll);
+
+/* ---------- Präsentieren: ← → / Leertaste blättern, F = Vollbild ---------- */
+const frames = [...document.querySelectorAll('.frame')];
+const go = i => frames[Math.max(0, Math.min(frames.length - 1, i))].scrollIntoView({ behavior: 'instant', block: 'start' });
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const cur = Math.round(scrollY / innerHeight);
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  else if (e.key === 'f' || e.key === 'F') { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); }
+});
+</script>
+</body>
+</html>

@@ -18,3 +18,12 @@
 
 - `index.html` ist das FBA Cockpit: eine Datei, kein Build, kein Server –
   im Browser öffnen. Daten liegen im `localStorage` (siehe README).
+
+## Design: KUBOLT-Style
+
+- Projekt-Skill `kubolt-style` (`.claude/skills/kubolt-style/`) ist der
+  Hausstil für YouTube-Folien, Kurs-Lektionen, Recherche-Screenshots und
+  Thumbnails. Vor dem Bauen `brand-book.html` im selben Ordner ansehen.
+- Für KUBOLT-Inhalte immer `kubolt-style` verwenden, nicht den Konto-Skill
+  `robo` – Robo ist nur die Vorlage (Herkunft: `ATTRIBUTION.md`).
+- KUBI, Wortmarke, Story und Markenrecht: Skill `kubolt-brand`.
