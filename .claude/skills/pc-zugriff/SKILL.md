@@ -48,10 +48,29 @@ Nur Titel + Kanal (schnell):
 
 ### YouTube-Transkript
 
-Die `timedtext`-URLs aus `captionTracks` liefern ohne Token leer zurück. Für
-Transkripte braucht es yt-dlp – **vorher den Nutzer fragen**, ob es
-installiert werden darf (`python -m pip install yt-dlp`), dann:
-`yt-dlp --skip-download --write-auto-subs --sub-langs en --sub-format vtt -o "$env:TEMP\yt\%(id)s" URL`
+Die `timedtext`-URLs aus der Webseite liefern ohne Token leer zurück. Was
+funktioniert (getestet am 12.10.2026, ohne Installation): die Caption-URLs über
+den Android-Client der YouTube-API holen. Zwei Schritte – erst XML speichern:
+
+```powershell
+$body='{"context":{"client":{"clientName":"ANDROID","clientVersion":"20.10.38","androidSdkVersion":30,"hl":"en"}},"videoId":"VIDEO_ID"}'
+$r=Invoke-RestMethod -Method Post -Uri "https://www.youtube.com/youtubei/v1/player?prettyPrint=false" -ContentType "application/json" -UserAgent "com.google.android.youtube/20.10.38 (Linux; U; Android 11) gzip" -Body $body
+$t=$r.captions.playerCaptionsTracklistRenderer.captionTracks | Where-Object { $_.languageCode -eq 'en' } | Select-Object -First 1
+(Invoke-WebRequest -UseBasicParsing ($t.baseUrl -replace '&fmt=[^&]+','')).Content | Set-Content -Encoding UTF8 "$env:TEMP\yt_VIDEO_ID.xml"
+```
+
+Dann in Text mit Zeitmarken umwandeln und die `.txt` mit `read_file` in
+Blöcken lesen:
+
+```powershell
+$x=[xml](Get-Content -Raw -Encoding UTF8 "$env:TEMP\yt_VIDEO_ID.xml"); $nodes = if ($x.transcript) { $x.transcript.text } else { $x.timedtext.body.p }
+$lines = foreach($n in $nodes){ $s = if ($n.start) { [double]$n.start } else { [double]$n.t/1000 }; $txt=[System.Net.WebUtility]::HtmlDecode(($n.InnerText -replace '\s+',' ').Trim()); if($txt){ '{0:mm\:ss} {1}' -f [timespan]::FromSeconds($s), $txt } }
+$lines | Set-Content -Encoding UTF8 "$env:TEMP\yt_VIDEO_ID.txt"; "LINES=" + $lines.Count
+```
+
+Hört das auf zu funktionieren (YouTube ändert das gelegentlich), zuerst die
+`clientVersion` erhöhen. Als Plan B bleibt yt-dlp – **vorher den Nutzer
+fragen**, ob es installiert werden darf (`python -m pip install yt-dlp`).
 
 ### Andere Webseiten
 

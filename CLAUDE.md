@@ -21,6 +21,12 @@
   `pc-zugriff` nutzen und über seinen Windows-PC „Jacktown“ gehen
   (`.claude/skills/pc-zugriff/SKILL.md`).
 
+## Video-Schnitt (Yumi-Kanal)
+
+- Videos schneiden/bearbeiten läuft nach dem Workflow im Skill
+  `video-schnitt` (`.claude/skills/video-schnitt/SKILL.md`). Nach jeder
+  Feedback-Runde die Erkenntnis dort unter „Regeln aus Feedback“ eintragen.
+
 ## Projekt
 
 - `index.html` ist das FBA Cockpit: eine Datei, kein Build, kein Server –
