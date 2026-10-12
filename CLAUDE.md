@@ -18,10 +18,15 @@
 
 - `.claude/skills/` enthält unveränderte Kopien öffentlicher Skills:
   Anthropic (Apache 2.0), `last30days` (MIT, `mvanhorn/last30days-skill`),
-  `html` (MIT, Robogold) und `surprise-me` (CC BY 4.0, Robogold). Nicht
-  inhaltlich bearbeiten. Zum Aktualisieren neu aus der jeweiligen Quelle
-  kopieren, siehe `SKILLS.md`. Ausnahme: `robogold-style` ist ein eigener
-  Skill dieses Repos und wird hier gepflegt (siehe unten).
+  `html` (MIT, Robogold), `surprise-me` (CC BY 4.0, Robogold) und
+  Superpowers (MIT, `obra/superpowers`). Dazu kommt das
+  Superpowers-Startskript `.claude/hooks/session-start`. Nicht inhaltlich
+  bearbeiten. Zum Aktualisieren neu aus der jeweiligen Quelle kopieren,
+  siehe `SKILLS.md`. Ausnahme: `robogold-style` ist ein eigener Skill
+  dieses Repos und wird hier gepflegt (siehe unten).
+- Superpowers-Skills verweisen aufeinander als `superpowers:<name>`. Hier
+  heißen sie ohne Präfix: `superpowers:brainstorming` ist der Skill
+  `brainstorming`.
 - `docx`, `pdf`, `pptx` und `xlsx` sind proprietär lizenziert: nie ins Repo
   kopieren. Sie kommen über den Marketplace in `.claude/settings.json`.
 - Das Repo ist öffentlich. Die eigenen Skills aus dem claude.ai-Konto
@@ -76,6 +81,9 @@
   unverändert; wie er hier eingesetzt wird, regelt nur dieser Abschnitt.
 - Nur auf ausdrücklichen Aufruf: `/surprise-me`, „surprise me“, „blow me
   away“. Nicht von selbst für normale Design-, Seiten- oder Folien-Arbeit.
+- Der Aufruf ist der Auftrag: kein vorgeschaltetes `brainstorming` und
+  keine Entwurfs-Freigabe (Superpowers). Eine Zeile Heads-up, dann bauen.
+  Rückfragen nur für Kosten-Freigaben.
 - RoboGold-Inhalte (Video, Kurs, Social): Der Look kommt aus
   `robogold-style` (Farben, Schrift, nur abstrakte Motive), auch für
   generierte Bilder und Videos. `surprise-me` bringt dort nur den Anspruch,
