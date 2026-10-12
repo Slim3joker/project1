@@ -9,3 +9,6 @@
 # Python-Cache (entsteht, wenn Skill-Skripte laufen)
 __pycache__/
 *.pyc
+
+# Vercel-Verknüpfung (entsteht beim Deploy, Skill `vercel`)
+.vercel/
