@@ -1,15 +1,17 @@
 ---
 name: kubolt-style
-description: "Der KUBOLT-Style – der visuelle Hausstil für alles, was im Video gezeigt wird: YouTube-Folien, Kurs-Lektionen, Website-Recherchen als Screenshot, Zahlen-Folien und Thumbnails. Sand/Navy-Pastell mit Kobaltblau als einzigem Akzent, Würfelraster-Grafiken (variabel große Würfel statt Punkte), Bricolage Grotesque + Unbounded, jede Folie exakt 16:9 – plus „Glut-Bühne“: Tiefnacht mit Kobalt-Glow, leuchtender Glaswürfel und Serif-Titel für Kapitel-Intros, Kurs-Cover und Instagram-Karussells im Hochformat 4:5. Nutzen bei „/kubolt-style“, „KUBOLT-Style“, „im KUBOLT-Look“, „Folien fürs Video“, „Kurs-Folie“, „Lektion“, „Recherche im Video zeigen“, „Thumbnail im KUBOLT-Look“, „Glut-Bühne“, „leuchtender Würfel“, „Karussell“, „Instagram-Post“, „Kapitel-Intro“. Für Maskottchen KUBI, Logo/Wortmarke, Markenstimme und Markenrecht gilt zusätzlich der Skill kubolt-brand."
+description: "Der KUBOLT-Style – der visuelle Hausstil für alles, was im Video gezeigt wird: YouTube-Folien, Kurs-Lektionen, Website-Recherchen als Screenshot, Zahlen-Folien und Thumbnails. Sand/Navy-Pastell mit Kobaltblau als einzigem Akzent, Würfelraster-Grafiken (variabel große Würfel statt Punkte), Bricolage Grotesque + Unbounded, jede Folie exakt 16:9 – plus „Glut-Bühne“: Tiefnacht mit Kobalt-Glow, leuchtender Glaswürfel und Serif-Titel für Kapitel-Intros, Kurs-Cover und Instagram-Karussells im Hochformat 4:5. Nutzen bei „/kubolt-style“, „KUBOLT-Style“, „im KUBOLT-Look“, „Folien fürs Video“, „Kurs-Folie“, „Lektion“, „Recherche im Video zeigen“, „Thumbnail im KUBOLT-Look“, „Glut-Bühne“, „leuchtender Würfel“, „Karussell“, „Instagram-Post“, „Kapitel-Intro“. Bewusst abstrakte Gestaltungskunst: keine Maskottchen-, Comic- oder Kinderfiguren, keine Produktmotive oder Produktfotos."
 ---
 
 # /kubolt-style – Der KUBOLT-Style
 
 Ein fester Hausstil für Video und Kurs: ruhig, warm, klar – Pastell als Fläche, **Kobalt als einziger Akzent**, Grafiken aus **variabel großen Würfeln**. Alles hier gilt für **jeden** Build in diesem Stil.
 
+**Grundsatz: abstrakte Gestaltungskunst.** Der Stil arbeitet ausschließlich mit Form, Raster, Licht, Fläche und Typografie. **Keine Figuren** – kein Maskottchen, keine Comic-, Kinder- oder 2D-Charaktere, keine Illustrationen von Personen. **Keine Produktmotive** – kein Steckdosenwürfel, keine Steckdosen, keine Produktfotos. Der Würfel im Stil ist reine Geometrie (Kubus), kein Produkt. Echte Inhalte (Screenshots, dein Gesicht im Thumbnail) bleiben erlaubt; erfunden wird nur Abstraktes.
+
 **Brand-Book (ZUERST öffnen):** [`brand-book.html`](brand-book.html) in diesem Ordner – der Stil dokumentiert sich selbst: Farben, Schrift, Würfelraster, acht Motive, Karten + Icons, Recherche-Rahmen, Thumbnail, Glut-Bühne (16:9 und 4:5) und Regeln. Blättern mit ← → / Leertaste, **F** = Vollbild. Wenn du etwas baust: Es muss aussehen wie das Brand-Book.
 
-**Abgrenzung zu `kubolt-brand`:** Dieser Skill regelt *wie es aussieht*. Für KUBI (immer das gespeicherte Higgsfield-Element verwenden), die Wortmarke, die Kobold→Kobalt→Strom-Story, die Markenstimme und die Markenrecht-Regeln gilt `kubolt-brand`. Insbesondere: Maskottchen und Produkte **nie „Kobold“ nennen** (Vorwerk-Marke) – der Name ist **KUBI**.
+**Abgrenzung zu `kubolt-brand`:** Dieser Skill regelt *wie es aussieht*. Für Wortmarke und Markenrecht gilt `kubolt-brand` – Figuren und Produktbezüge von dort werden in diesem Stil **nicht** verwendet. Den Namen **„Kobold“ nie verwenden** (Vorwerk-Marke).
 
 ---
 
@@ -149,13 +151,13 @@ Regeln:
 
 **Motiv-Bibliothek** – alle als lauffähiger Code im `<script>` von `brand-book.html` (Objekt `M`), einfach kopieren:
 - **Würfel** – isometrischer Würfel, Deckel in Kobalt, Fugen zwischen den Flächen (`cubeFace` + `segDist`). Das Leitmotiv.
-- **Kristall** – Kobalt-Kristalle auf Gestein. Auf Navy mit Glow = der Kobalt-Edelstein von KUBIs Ring.
+- **Kristall** – Kobalt-Kristalle auf Gestein. Auf Navy mit Glow besonders stark.
 - **Blitz** – Blitz mit flacher Oberkante, Funken als Feld.
 - **Erzader** – Gesteinsschichten mit Kobalt-Ader. Auch als Hintergrund-Textur (alpha ≤ 0.2).
 - **Würfeltürme** – Balkendiagramm aus gestapelten Würfeln, der wichtige Balken in Kobalt. Daten bleiben im Stil.
 - **Wachstum** – Kurve in Kobalt mit Endpunkt, Fläche darunter verblasst.
 - **Fortschritt** – Ring mit Kobalt-Anteil (`P`), Mitte frei für die Zahl.
-- **Steckdose** – Schuko-Steckdose mit Kobalt-Ring – das Produkt-Motiv.
+- **Spirale** – logarithmische Spirale mit drei Armen und Kobalt-Kern. Rein abstrakt, gut als Kapitel- oder Cover-Motiv.
 - **Flöz** – Gesteinsband mit Kobalt-Ader für die Unterkante von Abschluss-Folien.
 
 ## Karten + Würfel-Icons
@@ -213,7 +215,7 @@ function icon(id, rows, pal) {
 - **1280 × 720** – dieselbe Bühne, Screenshot bei 1280 × 720.
 - **Höchstens vier Wörter.** Navy-Fläche, Sand-Schrift, **Kobalt-Glut nur auf der einen Zahl oder dem einen Wort** (Unbounded 900, Glow).
 - **Unten rechts frei** – dort liegt YouTubes Zeitstempel.
-- Gesicht oder KUBI auf **eine** Seite, Text auf die andere. KUBI nur über das Higgsfield-Element aus `kubolt-brand` erzeugen.
+- Dein Gesicht (echtes Foto) oder **ein abstraktes Motiv** auf **eine** Seite, Text auf die andere. Keine gezeichneten Figuren, keine Produktbilder.
 - Hintergrund-Textur (Erzader) höchstens alpha 0.15.
 - Muster: Folie „07 · Thumbnail“ im Brand-Book.
 
@@ -262,7 +264,7 @@ Regeln:
 - **Glas-Pille** für „Teil 1“, „Lektion 3“, „Kapitel 2“ – ein bis drei Wörter.
 - **Kern im Glas** immer aus dem Würfelraster (Blitz, Würfel oder Kristall) in Weiß – nie ein fremdes Logo, nie ein Vektor-Icon.
 - **Glow-Zentrum** mit `--gy` auf die Mitte des Glaswürfels legen (16:9 ≈ 58 %, 4:5 ≈ 62 %).
-- **Hand oder KUBI** dürfen den Würfel halten: freigestelltes PNG (`position: absolute`, unten mittig, vor dem Würfel). KUBI nur über das Higgsfield-Element aus `kubolt-brand`; eine eigene Hand fotografierst du selbst – nie fremde Fotos übernehmen.
+- **Nur abstrakt:** Der Glaswürfel schwebt frei. Keine Figuren, keine Maskottchen, keine Hände oder Produktfotos davor.
 - Kein `backdrop-filter` auf der Pille – Chromium malt damit einen dunklen Streifen in den Glow.
 
 **Hochformat 4:5 (Instagram-Karussell, 1080 × 1350)** – dieselbe Bühne, andere Proportion. Alle Maße in `cqw` beziehen sich hier auf die Postbreite:
@@ -303,7 +305,7 @@ Regeln:
 
 ## Arbeitsablauf
 
-1. `brand-book.html` ansehen (und bei Bedarf den Skill `kubolt-brand` für KUBI, Story und Wortlaut).
+1. `brand-book.html` ansehen (für Wortmarke und Markenrecht: `kubolt-brand`).
 2. Pro Folie eine Idee festlegen, Layout wählen (Werkbank / Bühne / Split), Sand oder Navy.
 3. **Eine** HTML-Datei bauen: alle Folien als `.frame > .slide`, Bühnen-CSS, Präsentieren-Steuerung, Engine und nur die Motive, die gebraucht werden.
 4. **Headless prüfen:** jede Folie bei 1920 × 1080 (Hochformat: 1080 × 1350) als Screenshot (Playwright: `page.locator('.slide').nth(i).screenshot()` oder pro `.frame` `scrollIntoView` + Screenshot). Prüfen: nichts ragt über die Folie, nichts liegt in den unteren 12 %, Kobalt nur einmal pro Folie, Schriften geladen (`document.fonts`).
@@ -323,7 +325,9 @@ Regeln:
 - Keine knalligen Primärfarben, kein Mehrfarben-Mix. Farbverläufe nur als Kobalt-Glow und Glas in der Glut-Bühne.
 - Keine Textwände, keine Bullet-Listen mit mehr als drei Punkten auf Video-Folien.
 - Keine Animationen, keine Ecktexte, keine Wasserzeichen.
-- Nie „Kobold“ als Name – KUBI.
+- **Keine Figuren:** kein Maskottchen, keine Comic-, Kinder- oder 2D-Charaktere – auch nicht als Deko.
+- **Keine Produktmotive:** kein Steckdosenwürfel, keine Steckdosen, keine Produktfotos.
+- Nie „Kobold“ als Name (Vorwerk-Marke).
 
 ## Herkunft
 

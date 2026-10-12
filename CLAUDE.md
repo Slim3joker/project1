@@ -28,4 +28,6 @@
   `brand-book.html` im selben Ordner ansehen.
 - Für KUBOLT-Inhalte immer `kubolt-style` verwenden, nicht den Konto-Skill
   `robo` – Robo ist nur die Vorlage (Herkunft: `ATTRIBUTION.md`).
-- KUBI, Wortmarke, Story und Markenrecht: Skill `kubolt-brand`.
+- Der Style ist bewusst abstrakte Gestaltungskunst: keine Maskottchen-,
+  Comic- oder Kinderfiguren (auch nicht KUBI), keine Produktmotive wie den
+  Steckdosenwürfel. Wortmarke und Markenrecht: Skill `kubolt-brand`.

@@ -15,7 +15,7 @@ https://creativecommons.org/licenses/by/4.0/
   Raster rechnet in Spalten statt Pixeln (auflösungsunabhängig), mit Glow auf Navy
   und Zellgröße als Parameter für Fugen.
 - **Motive:** alle Formen neu (Würfel, Kristall, Blitz, Erzader, Würfeltürme,
-  Wachstum, Fortschritt, Steckdose, Flöz).
+  Wachstum, Fortschritt, Spirale, Flöz).
 - **Icons und Karten:** Würfel-Icons mit Fuge statt Pixel-Sprites; runde Ecken und
   Salbei-Schatten statt eckiger Ink-Schatten.
 - **Format und Regeln:** 16:9-Bühne für Video und Kurs mit Sicherheitsrand,
