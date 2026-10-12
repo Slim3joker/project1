@@ -6,6 +6,15 @@
       "headers": {
         "Authorization": "Bearer ${SCARLETT_API_TOKEN}"
       }
+    },
+    "rea": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "rea-agents@6.4.0",
+        "mcp"
+      ]
     }
   }
 }

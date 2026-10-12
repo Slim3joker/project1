@@ -14,10 +14,22 @@
 - Den Server nicht zusätzlich per `claude mcp add` anlegen – er ist über
   `.mcp.json` bereits vorhanden.
 
+## REA-MCP
+
+- Der MCP-Server `rea` (Reverse Engineering, `morluto/rea`) ist in
+  `.mcp.json` eingetragen und startet `npx -y rea-agents@<Version> mcp`. Kein
+  Key nötig.
+- Server-Version in `.mcp.json` und der Skill
+  `.claude/skills/reverse-engineer-anything` gehören zusammen: nur gemeinsam
+  aus demselben npm-Paket aktualisieren, siehe `SKILLS.md`.
+- Nicht zusätzlich `rea setup` oder `claude mcp add` ausführen, sonst ist REA
+  doppelt registriert.
+
 ## Skills
 
 - `.claude/skills/` enthält unveränderte Kopien öffentlicher Skills:
-  Anthropic (Apache 2.0) und `last30days` (MIT, `mvanhorn/last30days-skill`).
+  Anthropic (Apache 2.0), `last30days` (MIT, `mvanhorn/last30days-skill`) und
+  `reverse-engineer-anything` (MIT, `morluto/rea`).
   Nicht inhaltlich bearbeiten. Zum Aktualisieren neu aus der jeweiligen Quelle
   kopieren, siehe `SKILLS.md`.
 - `docx`, `pdf`, `pptx` und `xlsx` sind proprietär lizenziert: nie ins Repo
