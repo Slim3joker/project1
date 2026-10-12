@@ -21,8 +21,10 @@
   `anthropics/skills` kopieren, siehe `SKILLS.md`.
 - `docx`, `pdf`, `pptx` und `xlsx` sind proprietär lizenziert: nie ins Repo
   kopieren. Sie kommen über den Marketplace in `.claude/settings.json`.
-- Das Repo ist öffentlich: private Skills aus dem claude.ai-Konto nur
-  hinzufügen, wenn der Nutzer das ausdrücklich will.
+- Das Repo ist öffentlich. Die eigenen Skills aus dem claude.ai-Konto
+  bleiben privat: nicht ins Repo kopieren und auch nicht namentlich nennen,
+  weder in `SKILLS.md` noch sonst wo. Das ist so entschieden, also nicht
+  erneut nachfragen.
 - Wenn ein Skill dazukommt oder entfernt wird, `SKILLS.md` mit anpassen.
 
 ## Projekt
