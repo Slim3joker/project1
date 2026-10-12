@@ -10,7 +10,7 @@ Anfrage zur Beschreibung passt. Gezielt aufrufen kannst du ihn mit
 `/<skill-name>`, z. B. `/theme-factory`. Welche Skills geladen sind, zeigt
 `/skills`.
 
-## Im Repo enthalten (14 Anthropic-Skills + 2 Drittanbieter)
+## Im Repo enthalten (14 Anthropic-Skills + 3 Drittanbieter)
 
 Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 (`LICENSE.txt` im jeweiligen Ordner).
@@ -54,12 +54,13 @@ Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 |---|---|
 | `skill-creator` | Neue Skills erstellen, bestehende verbessern, mit Evals testen und die Beschreibung so optimieren, dass der Skill zuverlässig auslöst. |
 
-## Drittanbieter (2 Skills)
+## Drittanbieter (3 Skills)
 
 | Skill | Wofür |
 |---|---|
 | `last30days` | Recherchiert, was in den letzten 30 Tagen über ein Thema gesagt wurde: Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub und Web, gewichtet nach echtem Engagement. Aufruf z. B. `/last30days Steckdosenwürfel`. |
 | `html` | Liefert große Ergebnisse (Pläne, Reports, Reviews, Vergleiche, Dashboards, kleine Werkzeuge) als eine eigenständige HTML-Seite statt als langen Markdown-Text, in vier Stufen: Lese-Seite, Seite mit Grafiken und Tabellen, Seite zum Klicken und Einstellen, Wegwerf-Werkzeug. Stufe 3 und 4 enden mit einem „Copy as …“-Knopf, der deine Auswahl als nächsten Prompt zurückgibt. Aufruf: `/html`. |
+| `surprise-me` | Modus für einen einzelnen visuellen Build mit maximalem Anspruch (Website, Seite, Folien): mindestens drei fortgeschrittene Techniken gemischt (z. B. 3D, Animation, Shader, ungewöhnliche Typografie), echte Bilder statt Platzhalter und mindestens drei Runden Screenshot → Kritik → Verbessern, bevor du etwas siehst. Nur auf Aufruf: `/surprise-me <Ziel>` oder „surprise me“. |
 
 ### `last30days`
 
@@ -91,6 +92,25 @@ The Unreasonable Effectiveness of HTML“ von Thariq Shihipar. Unverändert
   Fertige Seiten kommen als privater claude.ai-Link und landen nie im Repo.
 - Keine Skripte, keine Abhängigkeiten. Der im README erwähnte Zusatz-Skill
   für Live-Regler gehört nicht zum Paket.
+
+### `surprise-me`
+
+Quelle: Skill-Paket `robogold-surprise-me.zip` von
+[Robogold](https://robogold.de), Lizenz
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (`LICENSE` im
+Ordner). Unverändert übernommen (`SKILL.md`, `README.md`, `LICENSE`,
+`scripts/shoot.js`).
+
+- Wie der Skill hier eingesetzt wird, regelt `CLAUDE.md`, Abschnitt
+  „Surprise Me“, nicht der Skill selbst. Kurz: Er greift nur auf Aufruf.
+  RoboGold-Inhalte behalten den Look von `robogold-style`, auch wenn der
+  Skill sonst freie Stilwahl verlangt. Vor jedem kostenpflichtigen Bild-,
+  Video- oder Stimm-Aufruf fragt Claude mit Modell, Anzahl und geschätzten
+  Credits nach. Ergebnisse kommen als privater claude.ai-Link und landen nie
+  im Repo.
+- `scripts/shoot.js` macht die Screenshots für die Prüfschleife (Desktop
+  1440 px, mit `--mobile` 390 px). Braucht Node.js und Playwright, siehe
+  „Voraussetzungen für Skripte“. Den Pfad zur HTML-Datei absolut übergeben.
 
 ## Eigener Skill (1)
 
@@ -146,6 +166,9 @@ Ordner bestätigt.
   - `slack-gif-creator`: `pip install -r .claude/skills/slack-gif-creator/requirements.txt`
   - `webapp-testing`: Playwright für Python (`pip install playwright`)
   - `web-artifacts-builder`: Node.js 18 oder neuer
+  - `surprise-me`: Playwright für Node (`npm install playwright`, dann
+    `npx playwright install chromium`). In Cloud-Sitzungen ist beides schon
+    installiert.
   - `mcp-builder` (Evaluation): `pip install -r .claude/skills/mcp-builder/scripts/requirements.txt`
 - **Lizenzen:** Apache 2.0 je Skill in `LICENSE.txt`. Die mitgelieferten
   Schriften (`canvas-design/canvas-fonts`) stehen unter der SIL Open Font
@@ -194,3 +217,15 @@ unzip -o robogold-html.zip -d /tmp/robogold-html
 rm -rf .claude/skills/html
 cp -a /tmp/robogold-html/html .claude/skills/html
 ```
+
+`surprise-me` auf den neuesten Stand bringen (neue ZIP von Robogold):
+
+```bash
+unzip -o robogold-surprise-me.zip -d /tmp/robogold-surprise-me
+rm -rf .claude/skills/surprise-me
+cp -a /tmp/robogold-surprise-me/surprise-me .claude/skills/surprise-me
+```
+
+Vor dem Commit prüfen, ob die Lizenz noch CC BY 4.0 ist:
+`grep -c "CC BY 4.0" .claude/skills/surprise-me/LICENSE` muss mindestens 1
+ausgeben.
