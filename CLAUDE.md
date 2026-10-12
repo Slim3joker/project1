@@ -14,6 +14,17 @@
 - Den Server nicht zusätzlich per `claude mcp add` anlegen – er ist über
   `.mcp.json` bereits vorhanden.
 
+## Skills
+
+- `.claude/skills/` enthält unveränderte Kopien öffentlicher Anthropic-Skills
+  (Apache 2.0). Nicht inhaltlich bearbeiten. Zum Aktualisieren neu aus
+  `anthropics/skills` kopieren, siehe `SKILLS.md`.
+- `docx`, `pdf`, `pptx` und `xlsx` sind proprietär lizenziert: nie ins Repo
+  kopieren. Sie kommen über den Marketplace in `.claude/settings.json`.
+- Das Repo ist öffentlich: private Skills aus dem claude.ai-Konto nur
+  hinzufügen, wenn der Nutzer das ausdrücklich will.
+- Wenn ein Skill dazukommt oder entfernt wird, `SKILLS.md` mit anpassen.
+
 ## Projekt
 
 - `index.html` ist das FBA Cockpit: eine Datei, kein Build, kein Server –

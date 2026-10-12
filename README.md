@@ -90,6 +90,16 @@ manuelle Eingabe:
 Beim ersten Start ist eine Beispiel-SKU (Kuvio Steckdosenwürfel) angelegt,
 damit man sieht, wie alles funktioniert – einfach bearbeiten oder löschen.
 
+## Skills (Claude Code)
+
+Das Repo bringt die öffentlich nutzbaren Skills von Anthropic mit
+(Apache 2.0, unter `.claude/skills/`). In jeder Claude-Code-Sitzung in diesem
+Ordner sind sie verfügbar. Die Dokument-Skills `docx`, `pdf`, `pptx` und
+`xlsx` sind proprietär lizenziert und werden deshalb über den offiziellen
+Anthropic-Marketplace eingebunden (`.claude/settings.json`). Die vollständige
+Liste mit Beschreibungen, Aufruf und Aktualisierung steht in
+**[SKILLS.md](SKILLS.md)**.
+
 ## Scarlett-MCP-Anbindung (Claude Code)
 
 [Scarlett](https://scarlett.ai) stellt einen MCP-Server unter
