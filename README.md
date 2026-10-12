@@ -175,3 +175,36 @@ claude mcp list           # alle Server mit Health-Check
 **Sicherheit:** Den Key nie in `.mcp.json`, README, Commits oder Logs
 eintragen. `.env`-Dateien und `.claude/settings.local.json` sind per
 `.gitignore` ausgeschlossen.
+
+## REA-MCP-Anbindung (Claude Code)
+
+[REA](https://github.com/morluto/rea) ist ein lokaler MCP-Server für
+Reverse Engineering: Er untersucht Apps ohne deren Quellcode – JavaScript-
+und Electron-Apps, .NET-Assemblies, Android-APKs, Websites und native
+Binärdateien – und liefert zu jeder Aussage die Belege. Typische Frage an
+Claude: „Untersuche, wie die Suche in App X funktioniert, zeig mir die Belege
+und entwirf etwas Ähnliches für mein Projekt.“
+
+Eingebunden ist REA wie Scarlett über `.mcp.json` (Server `rea`, startet
+`npx -y rea-agents@6.4.0 mcp`), dazu der passende Skill
+`reverse-engineer-anything` unter `.claude/skills/` (siehe
+[SKILLS.md](SKILLS.md)). Ein API-Key ist nicht nötig, die Analyse läuft lokal.
+
+- **Voraussetzung:** Node.js 22.19 oder neuer (bzw. 24.11+) mit `npx`. Beim
+  ersten Start lädt `npx` das Paket herunter (ca. 10 Sekunden).
+- **Freigabe:** Wie bei Scarlett fragt Claude Code beim ersten Start einmalig,
+  ob die Server aus `.mcp.json` genutzt werden dürfen.
+- **Prüfen:** `/mcp` zeigt `rea` als verbunden. Ob ein Programm für native
+  Analysen gefunden wird, zeigt
+  `npx -y rea-agents@6.4.0 doctor --provider ghidra` (oder `hopper`, `ida`).
+  Ein `doctor` ohne Option meldet `registration:claude_code` und
+  `skill:identity` als fehlend, weil er nur `~/.claude.json` und
+  `~/.claude/skills` prüft. Das ist hier erwartet und kein Fehler.
+- **Nicht zusätzlich `npx rea-agents setup` ausführen:** Das würde REA ein
+  zweites Mal im User-Scope (`~/.claude.json`) und den Skill in
+  `~/.claude/skills` anlegen. Am eigenen PC ist das nur sinnvoll, wenn REA
+  auch außerhalb dieses Ordners verfügbar sein soll; dann ist eine der beiden
+  Registrierungen überflüssig.
+- **Erlaubte Nutzung:** Nur Software analysieren, die du untersuchen darfst
+  (eigene Software, Sicherheitsforschung, Interoperabilität). Siehe
+  [DISCLAIMER.md](https://github.com/morluto/rea/blob/main/DISCLAIMER.md).

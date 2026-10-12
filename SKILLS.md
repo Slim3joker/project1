@@ -10,7 +10,7 @@ Anfrage zur Beschreibung passt. Gezielt aufrufen kannst du ihn mit
 `/<skill-name>`, z. B. `/theme-factory`. Welche Skills geladen sind, zeigt
 `/skills`.
 
-## Im Repo enthalten (14 Anthropic-Skills + 1 Drittanbieter)
+## Im Repo enthalten (14 Anthropic-Skills + 2 Drittanbieter)
 
 Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 (`LICENSE.txt` im jeweiligen Ordner).
@@ -54,11 +54,14 @@ Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 |---|---|
 | `skill-creator` | Neue Skills erstellen, bestehende verbessern, mit Evals testen und die Beschreibung so optimieren, dass der Skill zuverlässig auslöst. |
 
-## Drittanbieter (1 Skill)
+## Drittanbieter (2 Skills)
 
 | Skill | Wofür |
 |---|---|
 | `last30days` | Recherchiert, was in den letzten 30 Tagen über ein Thema gesagt wurde: Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub und Web, gewichtet nach echtem Engagement. Aufruf z. B. `/last30days Steckdosenwürfel`. |
+| `reverse-engineer-anything` | Arbeitsanleitung für den REA-MCP-Server: untersucht Apps ohne Quellcode (JavaScript/Electron, .NET, Android-APKs, Websites, native Binärdateien) und belegt jede Aussage. Beispiel: „Untersuche, wie die Suche in App X funktioniert, und zeig mir die Belege.“ |
+
+### `last30days`
 
 Quelle: [mvanhorn/last30days-skill](https://github.com/mvanhorn/last30days-skill),
 Version 3.28.0, Lizenz MIT (`LICENSE` im Ordner). Unverändert übernommen, nur
@@ -74,6 +77,23 @@ weglässt.
   Zustimmung.
 - Am PC ist er als Plugin installiert. Solche Plugins laden in Cloud-Sitzungen
   nicht, deshalb liegt er hier als Skill.
+
+### `reverse-engineer-anything` (REA)
+
+Quelle: [morluto/rea](https://github.com/morluto/rea), der Skill aus dem
+npm-Paket `rea-agents` Version 6.4.0 (Skill-Version 37), Lizenz MIT (`LICENSE`
+im Ordner). Unverändert übernommen.
+
+- Der Skill ist nur die Anleitung. Die Werkzeuge liefert der MCP-Server `rea`
+  aus `.mcp.json`, der dieselbe Version 6.4.0 startet. Beides gehört zusammen:
+  Wer die Version anhebt, aktualisiert beides (siehe unten). Mehr dazu im
+  README, Abschnitt „REA-MCP-Anbindung“.
+- Voraussetzung: Node.js 22.19 oder neuer (bzw. 24.11+) mit `npx`.
+- Statische Analysen von JavaScript/Electron und .NET brauchen nichts weiter.
+  Für native Binärdateien braucht es Hopper, Ghidra oder IDA, für APKs JADX.
+- REA ist für erlaubte Analysen gedacht (eigene Software, Sicherheitsforschung,
+  Interoperabilität). Kopierschutz, Lizenzprüfungen oder Anti-Cheat umgehen
+  unterstützt es nicht, siehe `DISCLAIMER.md` im Original.
 
 ## Über den Anthropic-Marketplace (nicht kopiert)
 
@@ -158,3 +178,19 @@ cp -a /tmp/last30days/skills/last30days .claude/skills/last30days
 rm -rf .claude/skills/last30days/assets
 cp /tmp/last30days/LICENSE .claude/skills/last30days/LICENSE
 ```
+
+REA (Skill und MCP-Server) auf eine neue Version bringen, z. B. `6.5.0`:
+
+```bash
+V=6.5.0
+rm -rf /tmp/package
+cd /tmp && npm pack "rea-agents@$V" && tar xzf "rea-agents-$V.tgz" && cd -
+rm -rf .claude/skills/reverse-engineer-anything
+cp -a /tmp/package/skills/reverse-engineer-anything .claude/skills/
+cp /tmp/package/LICENSE .claude/skills/reverse-engineer-anything/LICENSE
+sed -i "s/rea-agents@[0-9.]*/rea-agents@$V/" .mcp.json
+```
+
+Den Skill aus dem npm-Paket nehmen, nicht aus dem GitHub-`main`: Nur dort passt
+er genau zur Server-Version. Danach die Versionsnummern hier und im README
+anpassen.
