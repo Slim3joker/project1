@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M7 14.8L24 24.6V44L7 34.4Z' fill='%233a4f7a'/%3E%3Cpath d='M24 24.6L41 14.8v19.6L24 44Z' fill='%2316294d'/%3E%3Cpath d='M24 5l17 9.8L24 24.6 7 14.8Z' fill='%231e50e6'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Unbounded:wght@500..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Unbounded:wght@500..900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
   /* ---------- Tokens (LOCKED) ---------- */
   :root {
@@ -15,6 +15,7 @@
     --sage: #9caf9a; --rose: #d2a6a1;
     --cobalt: #1e50e6; --glow: #6e9bff;
     --mut: #56607a; --mutd: #a3aeca;
+    --deep: #060a1c; --light: #dbe5ff;   /* nur Glut-Bühne: Tiefnacht + Kobalt-Licht */
   }
   html { color-scheme: light; scroll-snap-type: y mandatory; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -139,6 +140,40 @@
   .lr { border-top: .16cqw solid rgba(239,231,214,.2); padding-top: 1.3cqw; }
   .lr .t { font-weight: 700; font-size: 1.65cqw; line-height: 1.2; }
   .lr .d { font-size: 1.3cqw; color: var(--mutd); margin-top: .6cqw; line-height: 1.45; }
+
+  /* ---------- Glut-Bühne: Tiefnacht, Kobalt-Glow, Glaswürfel, Serif ---------- */
+  .glut { background: radial-gradient(46% 62% at 50% var(--gy, 58%), rgba(30,80,230,.95) 0%, rgba(30,80,230,.7) 22%, rgba(18,40,150,.45) 48%, rgba(6,10,28,0) 78%), var(--deep); color: var(--card); }
+  .serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; letter-spacing: -.025em; line-height: .96; }
+  .serif i { font-style: italic; }
+  .pill { display: inline-block; padding: .55em 1.5em; border-radius: 999px; border: .1cqw solid rgba(219,229,255,.24); background: rgba(219,229,255,.08);
+          color: var(--card); font-weight: 400; font-size: 1.5cqw; letter-spacing: .01em; }
+  .glass { position: relative; aspect-ratio: 1; border-radius: 23%; display: grid; place-items: center;
+           background: radial-gradient(circle at 50% 46%, rgba(255,255,255,.55), rgba(255,255,255,0) 58%), linear-gradient(158deg, var(--light) 0%, #9dbaff 30%, var(--glow) 58%, var(--cobalt) 100%);
+           box-shadow: inset 0 0 0 .3cqw rgba(255,255,255,.6), inset 0 1.2cqw 2.2cqw rgba(255,255,255,.5), inset 0 -1.4cqw 2.6cqw rgba(30,80,230,.55),
+                       0 .7cqw 0 rgba(219,229,255,.5), 0 0 1.6cqw rgba(219,229,255,.85), 0 0 5cqw rgba(110,155,255,.95); }
+  .glass::before { content: ''; position: absolute; inset: 5% 7% 52% 7%; border-radius: 30% 30% 45% 45%; background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0)); }
+  .glass::after { content: ''; position: absolute; inset: -75%; z-index: -1; border-radius: 50%;   /* Lichthof statt Riesen-Schatten (Chromium kappt große Blur-Radien) */
+                  background: radial-gradient(closest-side, rgba(110,155,255,.8), rgba(30,80,230,.5) 42%, rgba(30,80,230,0)); }
+  .glass .core { position: relative; width: 62%; height: 62%; }
+  .glut-buehne { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 5cqw; }
+  .glut-buehne h1 { font-size: 7cqw; margin: 0; }
+  .glut-buehne .pill { margin-top: 1.6cqw; }
+  .glut-buehne .glass { width: 18cqw; margin-top: 4cqw; }
+
+  /* Hochformat 4:5 (Instagram-Karussell, 1080 × 1350) */
+  .slide.hoch { width: min(100vw, 80vh); width: min(100vw, calc(100dvh * 4 / 5)); aspect-ratio: 4 / 5; }
+  .hoch { --gy: 62%; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 11cqw 7cqw 0; }
+  .hoch .titel { font-size: 15cqw; margin: 0; }
+  .hoch .pill { margin-top: 5cqw; font-size: 4.2cqw; border-width: .3cqw; }
+  .hoch .glass { width: 42cqw; margin-top: 10cqw; box-shadow: inset 0 0 0 .9cqw rgba(255,255,255,.6), inset 0 3.5cqw 6cqw rgba(255,255,255,.5), inset 0 -4cqw 7cqw rgba(30,80,230,.55),
+                 0 2cqw 0 rgba(219,229,255,.5), 0 0 4.5cqw rgba(219,229,255,.85), 0 0 14cqw rgba(110,155,255,.95); }
+  .hoch .from { position: absolute; left: 7cqw; bottom: 7cqw; text-align: left; font-size: 4cqw; line-height: 1.3; }
+  .hoch .from b { font-weight: 700; }
+  .hoch .next { position: absolute; right: 7cqw; bottom: 7cqw; width: 12cqw; height: 12cqw; border-radius: 50%; display: grid; place-items: center;
+                background: rgba(219,229,255,.1); border: .3cqw solid rgba(219,229,255,.24); color: var(--card); font-size: 6cqw; line-height: 1; }
+
+  /* Muster im Brand-Book: Hochformat als verschachtelte Mini-Bühne */
+  .post { width: 31cqw; aspect-ratio: 4 / 5; container-type: inline-size; position: relative; overflow: hidden; border-radius: 1cqw; box-shadow: .45cqw .45cqw 0 var(--sage); }
 
   /* S10 Abschluss */
   .s10 { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-bottom: 14cqw; }
@@ -291,9 +326,38 @@
   </div>
 </div></section>
 
-<!-- S9 · REGELN -->
-<section class="frame" id="s9"><div class="slide dark stack s9">
-  <div class="kick">08 · Regeln für Video &amp; Kurs</div>
+<!-- S9 · GLUT-BÜHNE (selbst im Modus gebaut) -->
+<section class="frame" id="s9"><div class="slide glut glut-buehne">
+  <h1 class="serif">Wenn Kobalt <i>leuchtet</i></h1>
+  <div class="pill">08 · Glut-Bühne</div>
+  <div class="glass"><div class="core"><canvas id="gBolt" class="art"></canvas></div></div>
+</div></section>
+
+<!-- S10 · HOCHFORMAT 4:5 -->
+<section class="frame" id="s10"><div class="slide light werk" style="grid-template-columns:auto 1fr">
+  <div class="post hoch glut">
+    <h3 class="serif titel">Recherche in <i>5&nbsp;Minuten</i></h3>
+    <div class="pill">Teil 1</div>
+    <div class="glass"><div class="core"><canvas id="pBolt" class="art"></canvas></div></div>
+    <div class="from"><b>KUBOLT</b><br>@dein.kanal</div>
+    <div class="next">→</div>
+  </div>
+  <div>
+    <div class="kick">09 · Glut-Bühne · Hochformat</div>
+    <h2>Ein Objekt, das <span class="em">LEUCHTET</span></h2>
+    <div class="specs">
+      <div class="spec"><span><b>Tiefnacht + Kobalt-Glow</b>, der Glaswürfel ist der einzige Akzent</span></div>
+      <div class="spec"><span>Titel in <b>Instrument Serif</b>, hell – nur in diesem Modus</span></div>
+      <div class="spec"><span><b>Glas-Pille</b> für Teil, Lektion oder Kapitel</span></div>
+      <div class="spec"><span>Hand oder <b>KUBI</b> als freigestelltes PNG vor dem Würfel</span></div>
+      <div class="spec"><span><b>16:9</b> für Kapitel-Intros · <b>4:5</b> (1080 × 1350) für Karussells</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- S11 · REGELN -->
+<section class="frame" id="s11"><div class="slide dark stack s9">
+  <div class="kick">10 · Regeln für Video &amp; Kurs</div>
   <h2>Weniger ist die <span class="em">REGEL</span></h2>
   <div class="lr-grid">
     <div class="lr"><div class="t">Sicherer Rand</div><div class="d">6 % Abstand links und rechts, 8 % oben. Nichts Wichtiges ganz außen.</div></div>
@@ -307,8 +371,8 @@
   </div>
 </div></section>
 
-<!-- S10 · ABSCHLUSS -->
-<section class="frame" id="s10"><div class="slide dark s10">
+<!-- S12 · ABSCHLUSS -->
+<section class="frame" id="s12"><div class="slide dark s10">
   <div class="band"><canvas id="aBand" class="art"></canvas></div>
   <h1>Klein. Klar. <span class="em">KOBALT</span>.</h1>
   <div class="kick">der KUBOLT Style</div>
@@ -452,6 +516,9 @@ art(() => raster('aCrystal', 46, M.kristall.f, { ...DARK, f2: M.kristall.f2 }));
 art(() => raster('bCube', 30, M.wuerfel.f, { ...LIGHT, f2: M.wuerfel.f2 }));
 art(() => raster('tOre', 64, M.erzader.f, { color: SAND, alpha: 0.14 }));    // Text darüber → 14 %
 art(() => raster('aBand', 150, M.flöz.f, { ...DARK, f2: M.flöz.f2, glow: 0.7 }));
+const GLAS = { color: 'rgba(255,255,255,0.96)', color2: 'rgba(255,255,255,0.96)', glow: 0.35, fill: 0.88 };   // Kern im Glaswürfel
+art(() => raster('gBolt', 15, () => 0, { ...GLAS, f2: M.blitz.f2 }));
+art(() => raster('pBolt', 15, () => 0, { ...GLAS, f2: M.blitz.f2 }));
 const INK = { k: '#16294d' }, HOT = { o: '#1e50e6' };
 art(() => icon('icLupe', ['............', '..kkkkk.....', '.k.....k....', 'k.......k...', 'k.......k...', 'k.......k...', 'k.......k...', '.k.....k....', '..kkkkkkk...', '.......kkk..', '........kkk.', '.........kk.'], INK));
 art(() => icon('icBalken', ['............', '.........kk.', '.........kk.', '.....kk..kk.', '.....kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', 'kkkkkkkkkkkk', '............'], INK));

@@ -1,13 +1,13 @@
 ---
 name: kubolt-style
-description: "Der KUBOLT-Style – der visuelle Hausstil für alles, was im Video gezeigt wird: YouTube-Folien, Kurs-Lektionen, Website-Recherchen als Screenshot, Zahlen-Folien und Thumbnails. Sand/Navy-Pastell mit Kobaltblau als einzigem Akzent, Würfelraster-Grafiken (variabel große Würfel statt Punkte), Bricolage Grotesque + Unbounded, jede Folie exakt 16:9. Nutzen bei „/kubolt-style“, „KUBOLT-Style“, „im KUBOLT-Look“, „Folien fürs Video“, „Kurs-Folie“, „Lektion“, „Recherche im Video zeigen“, „Thumbnail im KUBOLT-Look“. Für Maskottchen KUBI, Logo/Wortmarke, Markenstimme und Markenrecht gilt zusätzlich der Skill kubolt-brand."
+description: "Der KUBOLT-Style – der visuelle Hausstil für alles, was im Video gezeigt wird: YouTube-Folien, Kurs-Lektionen, Website-Recherchen als Screenshot, Zahlen-Folien und Thumbnails. Sand/Navy-Pastell mit Kobaltblau als einzigem Akzent, Würfelraster-Grafiken (variabel große Würfel statt Punkte), Bricolage Grotesque + Unbounded, jede Folie exakt 16:9 – plus „Glut-Bühne“: Tiefnacht mit Kobalt-Glow, leuchtender Glaswürfel und Serif-Titel für Kapitel-Intros, Kurs-Cover und Instagram-Karussells im Hochformat 4:5. Nutzen bei „/kubolt-style“, „KUBOLT-Style“, „im KUBOLT-Look“, „Folien fürs Video“, „Kurs-Folie“, „Lektion“, „Recherche im Video zeigen“, „Thumbnail im KUBOLT-Look“, „Glut-Bühne“, „leuchtender Würfel“, „Karussell“, „Instagram-Post“, „Kapitel-Intro“. Für Maskottchen KUBI, Logo/Wortmarke, Markenstimme und Markenrecht gilt zusätzlich der Skill kubolt-brand."
 ---
 
 # /kubolt-style – Der KUBOLT-Style
 
 Ein fester Hausstil für Video und Kurs: ruhig, warm, klar – Pastell als Fläche, **Kobalt als einziger Akzent**, Grafiken aus **variabel großen Würfeln**. Alles hier gilt für **jeden** Build in diesem Stil.
 
-**Brand-Book (ZUERST öffnen):** [`brand-book.html`](brand-book.html) in diesem Ordner – der Stil dokumentiert sich selbst: Farben, Schrift, Würfelraster, acht Motive, Karten + Icons, Recherche-Rahmen, Thumbnail und Regeln. Blättern mit ← → / Leertaste, **F** = Vollbild. Wenn du etwas baust: Es muss aussehen wie das Brand-Book.
+**Brand-Book (ZUERST öffnen):** [`brand-book.html`](brand-book.html) in diesem Ordner – der Stil dokumentiert sich selbst: Farben, Schrift, Würfelraster, acht Motive, Karten + Icons, Recherche-Rahmen, Thumbnail, Glut-Bühne (16:9 und 4:5) und Regeln. Blättern mit ← → / Leertaste, **F** = Vollbild. Wenn du etwas baust: Es muss aussehen wie das Brand-Book.
 
 **Abgrenzung zu `kubolt-brand`:** Dieser Skill regelt *wie es aussieht*. Für KUBI (immer das gespeicherte Higgsfield-Element verwenden), die Wortmarke, die Kobold→Kobalt→Strom-Story, die Markenstimme und die Markenrecht-Regeln gilt `kubolt-brand`. Insbesondere: Maskottchen und Produkte **nie „Kobold“ nennen** (Vorwerk-Marke) – der Name ist **KUBI**.
 
@@ -25,8 +25,10 @@ Ein fester Hausstil für Video und Kurs: ruhig, warm, klar – Pastell als Fläc
 | Akzent auf Navy | `#6e9bff` Kobalt-Glut | ersetzt Kobalt auf Navy, darf glühen |
 | Gedämpft | `#56607a` auf Sand · `#a3aeca` auf Navy | Nebentext, Labels |
 | Rand (Letterbox) | `#0b1530` | Fläche um die 16:9-Bühne |
+| Tiefnacht | `#060a1c` | **nur Glut-Bühne:** Grund hinter dem Kobalt-Glow |
+| Kobalt-Licht | `#dbe5ff` | **nur Glut-Bühne:** Lichtkante und Glanz im Glaswürfel, Rand der Glas-Pille |
 
-Keine weiteren Farben. Kein Orange, kein Gelb, kein Feuerrot – auch nicht für den Blitz.
+Keine weiteren Farben. Kein Orange, kein Gelb, kein Feuerrot – auch nicht für den Blitz. Auch kein Cyan im Glow – das Leuchten bleibt Kobalt.
 
 **Kobalt-Disziplin:** Kobalt markiert genau **eine** Sache pro Folie – das, worauf der Zuschauer schauen soll. Braucht nichts Betonung, bleibt alles Navy auf Sand. Pastell ist immer Fläche, nie Betonung.
 
@@ -40,9 +42,10 @@ Keine weiteren Farben. Kein Orange, kein Gelb, kein Feuerrot – auch nicht für
 |---|---|---|
 | **Bricolage Grotesque** | alles | Überschriften **700**, `letter-spacing: -0.02em`. Text **400**. Kicker **600**, Versalien, `letter-spacing: .32em`, in Kobalt. |
 | **Unbounded** 800 | Betonung | **1–2 Wörter oder eine Zahl** in einer Überschrift, in Kobalt (`.em`). Auch für große Einzelzahlen und Badge-Ziffern. Nie Fließtext, nie ganze Zeilen. |
+| **Instrument Serif** 400 | Titel der Glut-Bühne | **Nur** im Glut-Modus, nur für den Titel, hell (`#f7f2e7`). Betonung dort per *Kursiv*, nicht per Unbounded. Sonst nirgends. |
 
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Unbounded:wght@500..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Unbounded:wght@500..900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 ```
 ```css
 .em { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: .86em; letter-spacing: -.01em; color: var(--cobalt); margin-left: .06em; }
@@ -214,6 +217,80 @@ function icon(id, rows, pal) {
 - Hintergrund-Textur (Erzader) höchstens alpha 0.15.
 - Muster: Folie „07 · Thumbnail“ im Brand-Book.
 
+## Glut-Bühne (Showcase-Modus)
+
+Der dramatische Modus: **Tiefnacht, ein Kobalt-Glow, ein leuchtender Glaswürfel** mit Würfelraster-Kern, darüber ein großer **Serif-Titel** und eine **Glas-Pille**. Der Glaswürfel ist der Akzent – die Kobalt-Story als Bild: Kobalt leuchtet.
+
+**Wann:** Kapitel- und Lektions-Intros, Kurs-Cover, Instagram-Karussell-Cover, Abschluss-Momente, Thumbnails mit Produkt-Fokus. **Sparsam:** höchstens eine Glut-Folie pro Kapitel (etwa jede 5.–10. Folie) – sonst verliert sie ihre Wirkung. Inhalts-Folien bleiben Sand/Navy.
+
+```css
+:root { --deep: #060a1c; --light: #dbe5ff; }   /* zusätzlich zu den Haus-Tokens */
+.glut { background: radial-gradient(46% 62% at 50% var(--gy, 58%), rgba(30,80,230,.95) 0%, rgba(30,80,230,.7) 22%, rgba(18,40,150,.45) 48%, rgba(6,10,28,0) 78%), var(--deep); color: var(--card); }
+.serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; letter-spacing: -.025em; line-height: .96; }
+.serif i { font-style: italic; }
+.pill { display: inline-block; padding: .55em 1.5em; border-radius: 999px; border: .1cqw solid rgba(219,229,255,.24); background: rgba(219,229,255,.08);
+        color: var(--card); font-weight: 400; font-size: 1.5cqw; letter-spacing: .01em; }
+.glass { position: relative; aspect-ratio: 1; border-radius: 23%; display: grid; place-items: center;
+         background: radial-gradient(circle at 50% 46%, rgba(255,255,255,.55), rgba(255,255,255,0) 58%), linear-gradient(158deg, var(--light) 0%, #9dbaff 30%, var(--glow) 58%, var(--cobalt) 100%);
+         box-shadow: inset 0 0 0 .3cqw rgba(255,255,255,.6), inset 0 1.2cqw 2.2cqw rgba(255,255,255,.5), inset 0 -1.4cqw 2.6cqw rgba(30,80,230,.55),
+                     0 .7cqw 0 rgba(219,229,255,.5), 0 0 1.6cqw rgba(219,229,255,.85), 0 0 5cqw rgba(110,155,255,.95); }
+.glass::before { content: ''; position: absolute; inset: 5% 7% 52% 7%; border-radius: 30% 30% 45% 45%; background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0)); }
+.glass::after { content: ''; position: absolute; inset: -75%; z-index: -1; border-radius: 50%;   /* Lichthof statt Riesen-Schatten (Chromium kappt große Blur-Radien) */
+                background: radial-gradient(closest-side, rgba(110,155,255,.8), rgba(30,80,230,.5) 42%, rgba(30,80,230,0)); }
+.glass .core { position: relative; width: 62%; height: 62%; }
+.glut-buehne { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 5cqw; }
+.glut-buehne h1 { font-size: 7cqw; margin: 0; }
+.glut-buehne .pill { margin-top: 1.6cqw; }
+.glut-buehne .glass { width: 18cqw; margin-top: 4cqw; }
+```
+```html
+<section class="frame"><div class="slide glut glut-buehne">
+  <h1 class="serif">Wenn Kobalt <i>leuchtet</i></h1>
+  <div class="pill">Lektion 3</div>
+  <div class="glass"><div class="core"><canvas id="gKern" class="art"></canvas></div></div>
+</div></section>
+```
+```js
+// Kern im Glaswürfel: weißes Würfelraster, grob (13–17 Spalten), leichter Glow
+const GLAS = { color: 'rgba(255,255,255,0.96)', color2: 'rgba(255,255,255,0.96)', glow: 0.35, fill: 0.88 };
+art(() => raster('gKern', 15, () => 0, { ...GLAS, f2: M.blitz.f2 }));   // oder M.wuerfel, M.kristall
+```
+
+Regeln:
+- **Ein leuchtendes Objekt pro Folie** – der Glaswürfel. Kein zweiter Glow, keine Unbounded-Betonung, kein Kobalt-Text: das Objekt ist der Akzent.
+- **Titel in Instrument Serif**, hell, zentriert, höchstens zwei Zeilen; ein Wort darf *kursiv* sein. Der Titel steht oben im dunklen Teil – nie über dem hellen Glow-Zentrum.
+- **Glas-Pille** für „Teil 1“, „Lektion 3“, „Kapitel 2“ – ein bis drei Wörter.
+- **Kern im Glas** immer aus dem Würfelraster (Blitz, Würfel oder Kristall) in Weiß – nie ein fremdes Logo, nie ein Vektor-Icon.
+- **Glow-Zentrum** mit `--gy` auf die Mitte des Glaswürfels legen (16:9 ≈ 58 %, 4:5 ≈ 62 %).
+- **Hand oder KUBI** dürfen den Würfel halten: freigestelltes PNG (`position: absolute`, unten mittig, vor dem Würfel). KUBI nur über das Higgsfield-Element aus `kubolt-brand`; eine eigene Hand fotografierst du selbst – nie fremde Fotos übernehmen.
+- Kein `backdrop-filter` auf der Pille – Chromium malt damit einen dunklen Streifen in den Glow.
+
+**Hochformat 4:5 (Instagram-Karussell, 1080 × 1350)** – dieselbe Bühne, andere Proportion. Alle Maße in `cqw` beziehen sich hier auf die Postbreite:
+```css
+.slide.hoch { width: min(100vw, 80vh); width: min(100vw, calc(100dvh * 4 / 5)); aspect-ratio: 4 / 5; }
+.hoch { --gy: 62%; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 11cqw 7cqw 0; }
+.hoch .titel { font-size: 15cqw; margin: 0; }
+.hoch .pill { margin-top: 5cqw; font-size: 4.2cqw; border-width: .3cqw; }
+.hoch .glass { width: 42cqw; margin-top: 10cqw; box-shadow: inset 0 0 0 .9cqw rgba(255,255,255,.6), inset 0 3.5cqw 6cqw rgba(255,255,255,.5), inset 0 -4cqw 7cqw rgba(30,80,230,.55),
+               0 2cqw 0 rgba(219,229,255,.5), 0 0 4.5cqw rgba(219,229,255,.85), 0 0 14cqw rgba(110,155,255,.95); }
+.hoch .from { position: absolute; left: 7cqw; bottom: 7cqw; text-align: left; font-size: 4cqw; line-height: 1.3; }
+.hoch .from b { font-weight: 700; }
+.hoch .next { position: absolute; right: 7cqw; bottom: 7cqw; width: 12cqw; height: 12cqw; border-radius: 50%; display: grid; place-items: center;
+              background: rgba(219,229,255,.1); border: .3cqw solid rgba(219,229,255,.24); color: var(--card); font-size: 6cqw; line-height: 1; }
+```
+```html
+<section class="frame"><div class="slide hoch glut">
+  <h1 class="serif titel">Recherche in <i>5&nbsp;Minuten</i></h1>
+  <div class="pill">Teil 1</div>
+  <div class="glass"><div class="core"><canvas id="pKern" class="art"></canvas></div></div>
+  <div class="from"><b>KUBOLT</b><br>@kanal</div>   <!-- echtes Logo/Handle einsetzen -->
+  <div class="next">→</div>                           <!-- Weiter-Hinweis fürs Karussell -->
+</div></section>
+```
+- Absender unten links, Weiter-Pfeil unten rechts – nur auf dem Cover und Zwischenseiten, nicht auf der letzten Karte.
+- Folgekarten des Karussells sind normale Sand/Navy-Inhalte im Hochformat (`.slide.hoch.light`) – die Glut-Bühne ist das Cover.
+- Screenshot bei **1080 × 1350**.
+
 ## Regeln für Video & Kurs
 
 - **Sicherer Rand:** 6 % links/rechts, 8 % oben – nichts Wichtiges ganz außen.
@@ -229,7 +306,7 @@ function icon(id, rows, pal) {
 1. `brand-book.html` ansehen (und bei Bedarf den Skill `kubolt-brand` für KUBI, Story und Wortlaut).
 2. Pro Folie eine Idee festlegen, Layout wählen (Werkbank / Bühne / Split), Sand oder Navy.
 3. **Eine** HTML-Datei bauen: alle Folien als `.frame > .slide`, Bühnen-CSS, Präsentieren-Steuerung, Engine und nur die Motive, die gebraucht werden.
-4. **Headless prüfen:** jede Folie bei 1920 × 1080 als Screenshot (Playwright: `page.locator('.slide').nth(i).screenshot()` oder pro `.frame` `scrollIntoView` + Screenshot). Prüfen: nichts ragt über die Folie, nichts liegt in den unteren 12 %, Kobalt nur einmal pro Folie, Schriften geladen (`document.fonts`).
+4. **Headless prüfen:** jede Folie bei 1920 × 1080 (Hochformat: 1080 × 1350) als Screenshot (Playwright: `page.locator('.slide').nth(i).screenshot()` oder pro `.frame` `scrollIntoView` + Screenshot). Prüfen: nichts ragt über die Folie, nichts liegt in den unteren 12 %, Kobalt nur einmal pro Folie, Schriften geladen (`document.fonts`).
 5. Erst dann abgeben.
 
 ## Canvas-Fallen
@@ -242,11 +319,12 @@ function icon(id, rows, pal) {
 ## Was dieser Style NICHT ist
 
 - Kein Orange, kein Papierweiß/Schwarz, keine Pixelschrift, keine runden Rasterpunkte – das ist Robo, unser Ursprung, nicht unser Look.
-- Keine knalligen Primärfarben, keine Farbverläufe, kein Mehrfarben-Mix.
+- Keine Serifenschrift außerhalb der Glut-Bühne, kein Cyan-Glow, keine fremden Logos im Glaswürfel.
+- Keine knalligen Primärfarben, kein Mehrfarben-Mix. Farbverläufe nur als Kobalt-Glow und Glas in der Glut-Bühne.
 - Keine Textwände, keine Bullet-Listen mit mehr als drei Punkten auf Video-Folien.
 - Keine Animationen, keine Ecktexte, keine Wasserzeichen.
 - Nie „Kobold“ als Name – KUBI.
 
 ## Herkunft
 
-Weiterentwicklung von „Robo Style“ (CC BY 4.0) – Details in [`ATTRIBUTION.md`](ATTRIBUTION.md). Wird dieser Skill weitergegeben (z. B. an Kursteilnehmer), `ATTRIBUTION.md` mitgeben.
+Weiterentwicklung von „Robo Style“ (CC BY 4.0); die Glut-Bühne ist von einer allgemeinen Glow-/Glas-Ästhetik inspiriert – Details in [`ATTRIBUTION.md`](ATTRIBUTION.md). Wird dieser Skill weitergegeben (z. B. an Kursteilnehmer), `ATTRIBUTION.md` mitgeben.

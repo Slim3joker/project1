@@ -28,3 +28,11 @@ pro Folie.
 
 Der Original-Lizenzgeber ist mit KUBOLT nicht verbunden und unterstützt diese
 Weiterentwicklung nicht ausdrücklich.
+
+## Inspiration: Glut-Bühne
+
+Die „Glut-Bühne“ (Tiefnacht, Kobalt-Glow, leuchtender Glaswürfel, Serif-Titel,
+Glas-Pille) ist von der allgemeinen Glow-/Glas-Ästhetik inspiriert, wie sie z. B.
+eine Instagram-Kachel von Kailash S R (@kail.designs) zeigt. Übernommen wurde nur
+die Stilrichtung; Bild, Logo, Foto und Layout wurden nicht kopiert. Umsetzung,
+Farben, Raster-Kern und Regeln sind eigenständig für KUBOLT gebaut.
