@@ -19,15 +19,15 @@
 - `index.html` ist das FBA Cockpit: eine Datei, kein Build, kein Server –
   im Browser öffnen. Daten liegen im `localStorage` (siehe README).
 
-## Design: KUBOLT-Style
+## Design: RoboGold-Style
 
-- Projekt-Skill `kubolt-style` (`.claude/skills/kubolt-style/`) ist der
-  Hausstil für YouTube-Folien, Kurs-Lektionen, Recherche-Screenshots und
-  Thumbnails – inklusive „Glut-Bühne“ (leuchtender Glaswürfel) für
-  Kapitel-Intros und Instagram-Karussells (4:5). Vor dem Bauen
-  `brand-book.html` im selben Ordner ansehen.
-- Für KUBOLT-Inhalte immer `kubolt-style` verwenden, nicht den Konto-Skill
-  `robo` – Robo ist nur die Vorlage (Herkunft: `ATTRIBUTION.md`).
+- Projekt-Skill `robogold-style` (`.claude/skills/robogold-style/`) ist der
+  Hausstil der Marke RoboGold für YouTube-Folien, Kurs-Lektionen,
+  Recherche-Screenshots, Thumbnails und Instagram-Karussells (4:5) –
+  dunkel zuerst (Navy), Gold als einziger Akzent, inklusive „Glut-Bühne“
+  (leuchtender Glaswürfel). Vor dem Bauen `brand-book.html` im selben Ordner
+  ansehen.
+- Für RoboGold-Inhalte immer `robogold-style` verwenden, nicht den
+  Konto-Skill `robo` – Robo ist nur die Vorlage (Herkunft: `ATTRIBUTION.md`).
 - Der Style ist bewusst abstrakte Gestaltungskunst: keine Maskottchen-,
-  Comic- oder Kinderfiguren (auch nicht KUBI), keine Produktmotive wie den
-  Steckdosenwürfel. Wortmarke und Markenrecht: Skill `kubolt-brand`.
+  Comic-, Kinder- oder Roboterfiguren, keine Produktmotive oder Produktfotos.
