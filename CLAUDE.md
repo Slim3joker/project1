@@ -18,11 +18,12 @@
 
 - `.claude/skills/` enthält unveränderte Kopien öffentlicher Skills:
   Anthropic (Apache 2.0), `last30days` (MIT, `mvanhorn/last30days-skill`),
-  `html` (MIT, Robogold) und Superpowers (MIT, `obra/superpowers`). Dazu
-  kommt das Superpowers-Startskript `.claude/hooks/session-start`. Nicht
-  inhaltlich bearbeiten. Zum Aktualisieren neu aus der jeweiligen Quelle
-  kopieren, siehe `SKILLS.md`. Ausnahme: `robogold-style` ist ein eigener
-  Skill dieses Repos und wird hier gepflegt (siehe unten).
+  `html` (MIT, Robogold), `vercel` (CC BY 4.0, Robogold) und Superpowers
+  (MIT, `obra/superpowers`). Dazu kommt das Superpowers-Startskript
+  `.claude/hooks/session-start`. Nicht inhaltlich bearbeiten. Zum
+  Aktualisieren neu aus der jeweiligen Quelle kopieren, siehe `SKILLS.md`.
+  Ausnahme: `robogold-style` ist ein eigener Skill dieses Repos und wird
+  hier gepflegt (siehe unten).
 - Superpowers-Skills verweisen aufeinander als `superpowers:<name>`. Hier
   heißen sie ohne Präfix: `superpowers:brainstorming` ist der Skill
   `brainstorming`.
@@ -70,3 +71,30 @@
   Browser zu öffnen“. Die Arbeitsdatei nicht im Repo-Ordner ablegen und nie
   committen: Das Repo ist öffentlich, die Seiten enthalten oft
   Geschäftszahlen.
+
+## Vercel-Deploys (Skill `vercel`)
+
+- `vercel` (`.claude/skills/vercel/`) bringt Namensregel, Checkliste und
+  Befehle für Deploys statischer Seiten auf Vercel. Der Skill bleibt
+  unverändert; wie er hier eingesetzt wird, regelt nur dieser Abschnitt.
+- Nur für öffentliche RoboGold-Inhalte, z. B. Kursseiten oder freie Tools
+  fürs Publikum. `*.vercel.app` kann jeder mit dem Link öffnen. Interne
+  Seiten, Geschäftszahlen und das FBA Cockpit kommen nicht auf Vercel,
+  sondern bleiben private claude.ai-Links (siehe „HTML-Ausgabe“).
+- Projektname immer `robogold-<name>` in kebab-case, also
+  `robogold-<name>.vercel.app`.
+- Vor jedem Deploy nachfragen und dabei Ordner, Projektname und Ergebnis der
+  Secrets-Prüfung nennen. Nach dem Deploy die URL melden.
+- Deployt wird ein eigener Ordner mit nur den Dateien, die online gehen
+  sollen, nie das Repo-Root. `.vercel/` ist per `.gitignore` ausgeschlossen.
+- Zugang am PC: einmal `vercel login`. In Cloud-Sitzungen kommt der Token aus
+  der Umgebungsvariable `VERCEL_TOKEN` aus den Einstellungen der
+  Cloud-Umgebung. Den Token nie ins Repo, in Commits, Logs oder den Chat
+  schreiben. Die CLI bei Bedarf mit `npm i -g vercel` installieren und mit
+  `--token "$VERCEL_TOKEN"` aufrufen.
+- In der Cloud fehlt `.vercel/` nach jedem Neustart. Vor dem Deploy mit
+  `vercel link --yes --project robogold-<name>` neu verknüpfen; der feste
+  Name trifft immer dasselbe Projekt.
+- Die Netzwerkfreigabe der Cloud-Umgebung muss `vercel.com`,
+  `api.vercel.com` und `*.vercel.app` erlauben. Fehlt sie, scheitert der
+  Deploy mit „403“ am Proxy.

@@ -10,7 +10,7 @@ Anfrage zur Beschreibung passt. Gezielt aufrufen kannst du ihn mit
 `/<skill-name>`, z. B. `/theme-factory`. Welche Skills geladen sind, zeigt
 `/skills`.
 
-## Im Repo enthalten (14 Anthropic-Skills + 17 von Drittanbietern)
+## Im Repo enthalten (14 Anthropic-Skills + 18 von Drittanbietern)
 
 Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 (`LICENSE.txt` im jeweiligen Ordner).
@@ -54,12 +54,13 @@ Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 |---|---|
 | `skill-creator` | Neue Skills erstellen, bestehende verbessern, mit Evals testen und die Beschreibung so optimieren, dass der Skill zuverlässig auslöst. |
 
-## Drittanbieter (17 Skills)
+## Drittanbieter (18 Skills)
 
 | Skill | Wofür |
 |---|---|
 | `last30days` | Recherchiert, was in den letzten 30 Tagen über ein Thema gesagt wurde: Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub und Web, gewichtet nach echtem Engagement. Aufruf z. B. `/last30days Steckdosenwürfel`. |
 | `html` | Liefert große Ergebnisse (Pläne, Reports, Reviews, Vergleiche, Dashboards, kleine Werkzeuge) als eine eigenständige HTML-Seite statt als langen Markdown-Text, in vier Stufen: Lese-Seite, Seite mit Grafiken und Tabellen, Seite zum Klicken und Einstellen, Wegwerf-Werkzeug. Stufe 3 und 4 enden mit einem „Copy as …“-Knopf, der deine Auswahl als nächsten Prompt zurückgibt. Aufruf: `/html`. |
+| `vercel` | Bringt statische Seiten auf Vercel: feste Namensregel (hier `robogold-<name>.vercel.app`), Checkliste vor jedem Deploy (eigenständiger Ordner, `vercel.json`, Favicon und Meta-Tags, Suche nach Secrets) und Prüfung der Live-URL danach. Aufruf: `/vercel`. |
 | Superpowers (15 Skills) | Arbeitsweise fürs Programmieren: erst Brainstorming und Plan, dann testgetrieben umsetzen, systematisch debuggen, Code-Review. Die einzelnen Skills stehen unten. |
 
 ### `last30days`
@@ -92,6 +93,24 @@ The Unreasonable Effectiveness of HTML“ von Thariq Shihipar. Unverändert
   Fertige Seiten kommen als privater claude.ai-Link und landen nie im Repo.
 - Keine Skripte, keine Abhängigkeiten. Der im README erwähnte Zusatz-Skill
   für Live-Regler gehört nicht zum Paket.
+
+### `vercel`
+
+Quelle: Skill-Paket `robogold-vercel.zip` von [Robogold](https://robogold.de),
+Lizenz CC BY 4.0 (`LICENSE` im Ordner). Unverändert übernommen (`SKILL.md`,
+`README.md`, `LICENSE`). CC BY verlangt die Quellenangabe: Sie steht hier und
+muss bei jeder Weitergabe mit.
+
+- Wie der Skill hier eingesetzt wird, regelt `CLAUDE.md`, Abschnitt
+  „Vercel-Deploys“. Kurz: nur öffentliche RoboGold-Inhalte, Präfix
+  `robogold-`, vor jedem Deploy fragt Claude nach. Interne Seiten,
+  Geschäftszahlen und das FBA Cockpit kommen nicht auf Vercel.
+- Keine Skripte. Voraussetzung ist die Vercel-CLI: am PC
+  `npm i -g vercel` und einmal `vercel login`.
+- In Cloud-Sitzungen braucht es zwei Einstellungen der Cloud-Umgebung: die
+  Umgebungsvariable `VERCEL_TOKEN` mit einem Vercel-Token (nie ins Repo) und
+  eine Netzwerkfreigabe für `vercel.com`, `api.vercel.com` und
+  `*.vercel.app`.
 
 ### Superpowers (15 Skills)
 
@@ -220,6 +239,8 @@ Ordner bestätigt.
   - `mcp-builder` (Evaluation): `pip install -r .claude/skills/mcp-builder/scripts/requirements.txt`
   - `brainstorming` (Browser-Begleiter): Node.js
   - Superpowers-Start-Hook: `bash` (unter Windows Git Bash)
+  - `vercel`: Vercel-CLI (`npm i -g vercel`), am PC einmal `vercel login`,
+    in der Cloud `VERCEL_TOKEN`
 - **Lizenzen:** Apache 2.0 je Skill in `LICENSE.txt`. Die mitgelieferten
   Schriften (`canvas-design/canvas-fonts`) stehen unter der SIL Open Font
   License (`*-OFL.txt`). Hinweise zu Fremdkomponenten:
@@ -266,6 +287,14 @@ cp /tmp/last30days/LICENSE .claude/skills/last30days/LICENSE
 unzip -o robogold-html.zip -d /tmp/robogold-html
 rm -rf .claude/skills/html
 cp -a /tmp/robogold-html/html .claude/skills/html
+```
+
+`vercel` auf den neuesten Stand bringen (neue ZIP von Robogold):
+
+```bash
+unzip -o robogold-vercel.zip -d /tmp/robogold-vercel
+rm -rf .claude/skills/vercel
+cp -a /tmp/robogold-vercel/vercel .claude/skills/vercel
 ```
 
 Superpowers auf den neuesten Stand bringen:
