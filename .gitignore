@@ -5,3 +5,7 @@
 
 # Persönliche Claude-Code-Einstellungen (nicht geteilt)
 .claude/settings.local.json
+
+# Python-Cache (entsteht, wenn Skill-Skripte laufen)
+__pycache__/
+*.pyc

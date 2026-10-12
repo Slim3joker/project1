@@ -10,7 +10,7 @@ Anfrage zur Beschreibung passt. Gezielt aufrufen kannst du ihn mit
 `/<skill-name>`, z. B. `/theme-factory`. Welche Skills geladen sind, zeigt
 `/skills`.
 
-## Im Repo enthalten (14 Skills)
+## Im Repo enthalten (14 Anthropic-Skills + 1 Drittanbieter)
 
 Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 (`LICENSE.txt` im jeweiligen Ordner).
@@ -53,6 +53,27 @@ Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 | Skill | Wofür |
 |---|---|
 | `skill-creator` | Neue Skills erstellen, bestehende verbessern, mit Evals testen und die Beschreibung so optimieren, dass der Skill zuverlässig auslöst. |
+
+## Drittanbieter (1 Skill)
+
+| Skill | Wofür |
+|---|---|
+| `last30days` | Recherchiert, was in den letzten 30 Tagen über ein Thema gesagt wurde: Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub und Web, gewichtet nach echtem Engagement. Aufruf z. B. `/last30days Steckdosenwürfel`. |
+
+Quelle: [mvanhorn/last30days-skill](https://github.com/mvanhorn/last30days-skill),
+Version 3.28.0, Lizenz MIT (`LICENSE` im Ordner). Unverändert übernommen, nur
+ohne die Demo-Medien (`assets/`), die auch das Original beim Paketieren
+weglässt.
+
+- **Ohne API-Schlüssel** laufen Reddit, Hacker News, Polymarket, GitHub und die
+  Websuche. Für X, YouTube, TikTok usw. braucht es Schlüssel (z. B.
+  `SCRAPECREATORS_API_KEY`). Die gehören als Umgebungsvariable in die
+  Cloud-Umgebung, nie ins Repo.
+- Der Skill darf ohne Rückfrage `Bash`, `Read`, `Write` und die Websuche
+  nutzen (`allowed-tools`). Browser-Cookies liest er nur nach ausdrücklicher
+  Zustimmung.
+- Am PC ist er als Plugin installiert. Solche Plugins laden in Cloud-Sitzungen
+  nicht, deshalb liegt er hier als Skill.
 
 ## Über den Anthropic-Marketplace (nicht kopiert)
 
@@ -127,3 +148,13 @@ cp /tmp/anthropic-skills/THIRD_PARTY_NOTICES.md .claude/skills/
 
 Vor dem Commit prüfen, ob sich eine Lizenz geändert hat:
 `grep -L "Apache License" .claude/skills/*/LICENSE.txt` darf nichts ausgeben.
+
+`last30days` auf den neuesten Stand bringen:
+
+```bash
+git clone --depth 1 https://github.com/mvanhorn/last30days-skill /tmp/last30days
+rm -rf .claude/skills/last30days
+cp -a /tmp/last30days/skills/last30days .claude/skills/last30days
+rm -rf .claude/skills/last30days/assets
+cp /tmp/last30days/LICENSE .claude/skills/last30days/LICENSE
+```

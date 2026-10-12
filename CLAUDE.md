@@ -16,9 +16,10 @@
 
 ## Skills
 
-- `.claude/skills/` enthält unveränderte Kopien öffentlicher Anthropic-Skills
-  (Apache 2.0). Nicht inhaltlich bearbeiten. Zum Aktualisieren neu aus
-  `anthropics/skills` kopieren, siehe `SKILLS.md`.
+- `.claude/skills/` enthält unveränderte Kopien öffentlicher Skills:
+  Anthropic (Apache 2.0) und `last30days` (MIT, `mvanhorn/last30days-skill`).
+  Nicht inhaltlich bearbeiten. Zum Aktualisieren neu aus der jeweiligen Quelle
+  kopieren, siehe `SKILLS.md`.
 - `docx`, `pdf`, `pptx` und `xlsx` sind proprietär lizenziert: nie ins Repo
   kopieren. Sie kommen über den Marketplace in `.claude/settings.json`.
 - Das Repo ist öffentlich. Die eigenen Skills aus dem claude.ai-Konto
