@@ -96,7 +96,10 @@ Das Repo bringt die öffentlich nutzbaren Skills von Anthropic mit
 (Apache 2.0, unter `.claude/skills/`). In jeder Claude-Code-Sitzung in diesem
 Ordner sind sie verfügbar. Die Dokument-Skills `docx`, `pdf`, `pptx` und
 `xlsx` sind proprietär lizenziert und werden deshalb über den offiziellen
-Anthropic-Marketplace eingebunden (`.claude/settings.json`). Die vollständige
+Anthropic-Marketplace eingebunden (`.claude/settings.json`). Dazu kommen
+freie Skills von Drittanbietern (MIT): `last30days` für Trend-Recherche und
+die Sammlung Superpowers, eine Arbeitsweise fürs Programmieren mit
+Brainstorming, Plänen, TDD und Debugging. Die vollständige
 Liste mit Beschreibungen, Aufruf und Aktualisierung steht in
 **[SKILLS.md](SKILLS.md)**.
 
