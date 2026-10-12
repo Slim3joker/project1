@@ -10,7 +10,7 @@ Anfrage zur Beschreibung passt. Gezielt aufrufen kannst du ihn mit
 `/<skill-name>`, z. B. `/theme-factory`. Welche Skills geladen sind, zeigt
 `/skills`.
 
-## Im Repo enthalten (14 Anthropic-Skills + 1 Drittanbieter)
+## Im Repo enthalten (14 Anthropic-Skills + 2 Drittanbieter)
 
 Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 (`LICENSE.txt` im jeweiligen Ordner).
@@ -54,11 +54,14 @@ Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 |---|---|
 | `skill-creator` | Neue Skills erstellen, bestehende verbessern, mit Evals testen und die Beschreibung so optimieren, dass der Skill zuverlässig auslöst. |
 
-## Drittanbieter (1 Skill)
+## Drittanbieter (2 Skills)
 
 | Skill | Wofür |
 |---|---|
 | `last30days` | Recherchiert, was in den letzten 30 Tagen über ein Thema gesagt wurde: Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub und Web, gewichtet nach echtem Engagement. Aufruf z. B. `/last30days Steckdosenwürfel`. |
+| `html` | Liefert große Ergebnisse (Pläne, Reports, Reviews, Vergleiche, Dashboards, kleine Werkzeuge) als eine eigenständige HTML-Seite statt als langen Markdown-Text, in vier Stufen: Lese-Seite, Seite mit Grafiken und Tabellen, Seite zum Klicken und Einstellen, Wegwerf-Werkzeug. Stufe 3 und 4 enden mit einem „Copy as …“-Knopf, der deine Auswahl als nächsten Prompt zurückgibt. Aufruf: `/html`. |
+
+### `last30days`
 
 Quelle: [mvanhorn/last30days-skill](https://github.com/mvanhorn/last30days-skill),
 Version 3.28.0, Lizenz MIT (`LICENSE` im Ordner). Unverändert übernommen, nur
@@ -74,6 +77,20 @@ weglässt.
   Zustimmung.
 - Am PC ist er als Plugin installiert. Solche Plugins laden in Cloud-Sitzungen
   nicht, deshalb liegt er hier als Skill.
+
+### `html`
+
+Quelle: Skill-Paket `robogold-html.zip` von [Robogold](https://robogold.de),
+Lizenz MIT (`LICENSE` im Ordner). Umsetzung des Artikels „Using Claude Code:
+The Unreasonable Effectiveness of HTML“ von Thariq Shihipar. Unverändert
+übernommen (`SKILL.md`, `README.md`, `LICENSE`).
+
+- Wie der Skill hier eingesetzt wird, regelt `CLAUDE.md`, Abschnitt
+  „HTML-Ausgabe“, nicht der Skill selbst. Kurz: Von selbst greift er nur bei
+  großen Ausgaben. RoboGold-Inhalte bekommen den Look von `robogold-style`.
+  Fertige Seiten kommen als privater claude.ai-Link und landen nie im Repo.
+- Keine Skripte, keine Abhängigkeiten. Der im README erwähnte Zusatz-Skill
+  für Live-Regler gehört nicht zum Paket.
 
 ## Eigener Skill (1)
 
@@ -123,7 +140,8 @@ Ordner bestätigt.
 
 - **Diese Skills wirken von selbst:** `discernment-nudge`, `academy-guide`
   und `learn` greifen ohne Aufruf, sobald eine Anfrage passt. Wenn du das
-  nicht willst, lösch den jeweiligen Ordner unter `.claude/skills/`.
+  nicht willst, lösch den jeweiligen Ordner unter `.claude/skills/`. `html`
+  greift von selbst nur bei großen Ausgaben (siehe `CLAUDE.md`).
 - **Voraussetzungen für Skripte:**
   - `slack-gif-creator`: `pip install -r .claude/skills/slack-gif-creator/requirements.txt`
   - `webapp-testing`: Playwright für Python (`pip install playwright`)
@@ -167,4 +185,12 @@ rm -rf .claude/skills/last30days
 cp -a /tmp/last30days/skills/last30days .claude/skills/last30days
 rm -rf .claude/skills/last30days/assets
 cp /tmp/last30days/LICENSE .claude/skills/last30days/LICENSE
+```
+
+`html` auf den neuesten Stand bringen (neue ZIP von Robogold):
+
+```bash
+unzip -o robogold-html.zip -d /tmp/robogold-html
+rm -rf .claude/skills/html
+cp -a /tmp/robogold-html/html .claude/skills/html
 ```
