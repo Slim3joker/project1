@@ -322,7 +322,7 @@ Regeln:
 
 ## Was dieser Style NICHT ist
 
-- Kein Orange (#ff6b1a), kein Papierweiß/Schwarz-Druck-Look, keine Pixelschrift, keine runden Rasterpunkte – das ist Robo, unser Ursprung, nicht unser Look.
+- Kein Orange (#ff6b1a), kein Papierweiß/Schwarz-Druck-Look, keine Pixelschrift, keine runden Rasterpunkte – das ist der Look der Vorlage, nicht unser Look.
 - Keine Serifenschrift außerhalb der Glut-Bühne, kein Cyan- oder Regenbogen-Glow, keine fremden Logos im Glaswürfel.
 - Keine Gold-Schrift auf Sand (zu schwach) – dort Altgold.
 - Keine knalligen Primärfarben, kein Mehrfarben-Mix. Farbverläufe nur als Gold-Glow und Glas in der Glut-Bühne.
