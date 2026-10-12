@@ -10,7 +10,7 @@ Anfrage zur Beschreibung passt. Gezielt aufrufen kannst du ihn mit
 `/<skill-name>`, z. B. `/theme-factory`. Welche Skills geladen sind, zeigt
 `/skills`.
 
-## Im Repo enthalten (14 Anthropic-Skills + 1 Drittanbieter)
+## Im Repo enthalten (14 Anthropic-Skills + 16 von Drittanbietern)
 
 Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 (`LICENSE.txt` im jeweiligen Ordner).
@@ -54,7 +54,9 @@ Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 |---|---|
 | `skill-creator` | Neue Skills erstellen, bestehende verbessern, mit Evals testen und die Beschreibung so optimieren, dass der Skill zuverlässig auslöst. |
 
-## Drittanbieter (1 Skill)
+## Drittanbieter (16 Skills)
+
+### last30days
 
 | Skill | Wofür |
 |---|---|
@@ -74,6 +76,75 @@ weglässt.
   Zustimmung.
 - Am PC ist er als Plugin installiert. Solche Plugins laden in Cloud-Sitzungen
   nicht, deshalb liegt er hier als Skill.
+
+### Superpowers (15 Skills)
+
+Eine feste Arbeitsweise fürs Programmieren mit Claude: erst klären und
+planen, dann testgetrieben umsetzen, systematisch debuggen und vor dem
+Abschluss nachweisen, dass es funktioniert. Die Skills greifen von selbst,
+sobald eine Anfrage passt.
+
+| Skill | Wofür |
+|---|---|
+| `brainstorming` | Klärt vor jeder Umsetzung mit Rückfragen, was du wirklich willst, und legt einen Entwurf zur Freigabe vor. Optional mit Browser-Begleiter für Skizzen. |
+| `writing-plans` | Macht aus dem freigegebenen Entwurf einen kleinteiligen Umsetzungsplan. |
+| `executing-plans` | Arbeitet einen Plan in der laufenden Sitzung selbst ab. |
+| `subagent-driven-development` | Lässt Subagenten die Aufgaben eines Plans einzeln umsetzen und prüft jede in zwei Stufen: Plantreue, dann Codequalität. |
+| `dispatching-parallel-agents` | Verteilt unabhängige Aufgaben parallel auf mehrere Subagenten. |
+| `test-driven-development` | Erst ein fehlschlagender Test, dann der Code (Red-Green-Refactor). |
+| `systematic-debugging` | Verfolgt einen Fehler in vier Phasen bis zur eigentlichen Ursache, bevor etwas geändert wird. |
+| `verification-before-completion` | Erst Prüfbefehle laufen lassen, dann „fertig“ melden. |
+| `requesting-code-review` | Lässt die Arbeit vor dem Abschluss von einem Subagenten reviewen. |
+| `receiving-code-review` | Review-Anmerkungen erst technisch prüfen, dann umsetzen – nicht blind übernehmen. |
+| `using-git-worktrees` | Legt für neue Features einen isolierten Arbeitsbereich (Git-Worktree) an. |
+| `finishing-a-development-branch` | Am Ende entscheiden: lokal mergen, Pull Request oder Branch behalten. |
+| `using-superpowers` | Einstieg: verpflichtet Claude, vor jeder Antwort passende Skills zu prüfen und zu nutzen. |
+| `writing-skills` | Eigene Skills schreiben und mit Subagenten testen. |
+| `diagnosing-superpowers` | Findet heraus, warum eine Sitzung mit Superpowers schiefging, und erstellt auf Wunsch einen bereinigten Fehlerbericht. |
+
+Quelle: [obra/superpowers](https://github.com/obra/superpowers),
+Version 7.0.0 (Commit `bb92a77`), Lizenz MIT (`LICENSE` in jedem Ordner).
+Unverändert übernommen.
+
+- **Namen:** Im Original heißen die Skills `superpowers:<name>`, und so
+  verweisen sie auch aufeinander. Hier heißen sie ohne Präfix, z. B.
+  `/brainstorming` statt `/superpowers:brainstorming`.
+- **Start-Hook:** Im Plugin lädt ein SessionStart-Hook bei jedem Start den
+  Text von `using-superpowers` in die Sitzung. Erst dadurch hält sich Claude
+  konsequent an die Skills. Das Skript liegt unverändert unter
+  `.claude/hooks/session-start` (MIT, `LICENSE` daneben). Aktiv ist es nur
+  mit diesem Eintrag auf oberster Ebene in `.claude/settings.json`:
+
+  ```json
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLAUDE_PLUGIN_ROOT=\"$CLAUDE_PROJECT_DIR/.claude\" bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start\"",
+            "shell": "bash",
+            "async": false
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  `CLAUDE_PLUGIN_ROOT` sorgt nur dafür, dass das Skript im Format von
+  Claude Code antwortet. Ohne den Eintrag greifen die Skills nur über ihre
+  Beschreibung, also weniger zuverlässig. Zum Abschalten den Eintrag löschen.
+- **Wirkung:** Mit Superpowers fragt und plant Claude auch bei kleinen
+  Änderungen erst. Deine Anweisungen und `CLAUDE.md` haben laut Skill
+  Vorrang. Ein „mach einfach“ genügt also, um abzukürzen.
+- **Browser-Begleiter:** Der optionale Skizzen-Begleiter von `brainstorming`
+  lädt das Logo der Entwickler von deren Website und übermittelt dabei die
+  Superpowers-Version. Abschalten mit der Umgebungsvariable
+  `SUPERPOWERS_DISABLE_TELEMETRY=1`.
+- **Am PC nicht zusätzlich als Plugin installieren.** Sonst sind alle Skills
+  und der Start-Hook doppelt aktiv.
 
 ## Über den Anthropic-Marketplace (nicht kopiert)
 
@@ -111,14 +182,17 @@ Ordner bestätigt.
 
 ## Hinweise
 
-- **Diese Skills wirken von selbst:** `discernment-nudge`, `academy-guide`
-  und `learn` greifen ohne Aufruf, sobald eine Anfrage passt. Wenn du das
-  nicht willst, lösch den jeweiligen Ordner unter `.claude/skills/`.
+- **Diese Skills wirken von selbst:** `discernment-nudge`, `academy-guide`,
+  `learn` und die Superpowers-Skills greifen ohne Aufruf, sobald eine Anfrage
+  passt. Wenn du das nicht willst, lösch den jeweiligen Ordner unter
+  `.claude/skills/`.
 - **Voraussetzungen für Skripte:**
   - `slack-gif-creator`: `pip install -r .claude/skills/slack-gif-creator/requirements.txt`
   - `webapp-testing`: Playwright für Python (`pip install playwright`)
   - `web-artifacts-builder`: Node.js 18 oder neuer
   - `mcp-builder` (Evaluation): `pip install -r .claude/skills/mcp-builder/scripts/requirements.txt`
+  - `brainstorming` (Browser-Begleiter): Node.js
+  - Superpowers-Start-Hook: `bash` (unter Windows Git Bash)
 - **Lizenzen:** Apache 2.0 je Skill in `LICENSE.txt`. Die mitgelieferten
   Schriften (`canvas-design/canvas-fonts`) stehen unter der SIL Open Font
   License (`*-OFL.txt`). Hinweise zu Fremdkomponenten:
@@ -158,3 +232,20 @@ cp -a /tmp/last30days/skills/last30days .claude/skills/last30days
 rm -rf .claude/skills/last30days/assets
 cp /tmp/last30days/LICENSE .claude/skills/last30days/LICENSE
 ```
+
+Superpowers auf den neuesten Stand bringen:
+
+```bash
+git clone --depth 1 https://github.com/obra/superpowers /tmp/superpowers
+for d in /tmp/superpowers/skills/*/; do
+  s=$(basename "$d")
+  rm -rf ".claude/skills/$s" && cp -a "$d" ".claude/skills/$s"
+  cp /tmp/superpowers/LICENSE ".claude/skills/$s/LICENSE"
+done
+cp /tmp/superpowers/hooks/session-start .claude/hooks/session-start
+cp /tmp/superpowers/LICENSE .claude/hooks/LICENSE
+```
+
+Danach prüfen: Ist im Original ein Skill weggefallen, den Ordner hier löschen.
+Kommt einer dazu oder hat sich `hooks/hooks.json` im Original geändert, die
+Tabelle und den Hook-Eintrag oben anpassen.
