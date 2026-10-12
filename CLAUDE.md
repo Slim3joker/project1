@@ -17,10 +17,12 @@
 ## Skills
 
 - `.claude/skills/` enthält unveränderte Kopien öffentlicher Skills:
-  Anthropic (Apache 2.0), `last30days` (MIT, `mvanhorn/last30days-skill`)
-  und Superpowers (MIT, `obra/superpowers`). Dazu kommt das Superpowers-
-  Startskript `.claude/hooks/session-start`. Nicht inhaltlich bearbeiten. Zum
-  Aktualisieren neu aus der jeweiligen Quelle kopieren, siehe `SKILLS.md`.
+  Anthropic (Apache 2.0), `last30days` (MIT, `mvanhorn/last30days-skill`),
+  `html` (MIT, Robogold) und Superpowers (MIT, `obra/superpowers`). Dazu
+  kommt das Superpowers-Startskript `.claude/hooks/session-start`. Nicht
+  inhaltlich bearbeiten. Zum Aktualisieren neu aus der jeweiligen Quelle
+  kopieren, siehe `SKILLS.md`. Ausnahme: `robogold-style` ist ein eigener
+  Skill dieses Repos und wird hier gepflegt (siehe unten).
 - Superpowers-Skills verweisen aufeinander als `superpowers:<name>`. Hier
   heißen sie ohne Präfix: `superpowers:brainstorming` ist der Skill
   `brainstorming`.
@@ -36,3 +38,35 @@
 
 - `index.html` ist das FBA Cockpit: eine Datei, kein Build, kein Server –
   im Browser öffnen. Daten liegen im `localStorage` (siehe README).
+
+## Design: RoboGold-Style
+
+- Projekt-Skill `robogold-style` (`.claude/skills/robogold-style/`) ist der
+  Hausstil der Marke RoboGold für YouTube-Folien, Kurs-Lektionen,
+  Recherche-Screenshots, Thumbnails und Instagram-Karussells (4:5) –
+  dunkel zuerst (Navy), Gold als einziger Akzent, inklusive „Glut-Bühne“
+  (leuchtender Glaswürfel). Vor dem Bauen `brand-book.html` im selben Ordner
+  ansehen.
+- Für RoboGold-Inhalte immer `robogold-style` verwenden. Die Vorlage, aus der
+  er entstanden ist, ist nur Herkunft (`ATTRIBUTION.md`), nicht zum Bauen.
+- Der Style ist bewusst abstrakte Gestaltungskunst: keine Maskottchen-,
+  Comic-, Kinder- oder Roboterfiguren, keine Produktmotive oder Produktfotos.
+
+## HTML-Ausgabe (Skill `html`)
+
+- `html` (`.claude/skills/html/`) legt fest, wann ein Ergebnis als
+  HTML-Seite statt als Markdown kommt und in welcher Stufe (1–4). Der Skill
+  bleibt unverändert; wie er hier eingesetzt wird, regelt nur dieser
+  Abschnitt.
+- Von selbst nur bei großen Ausgaben: lange Pläne, Reports, Vergleiche,
+  Review- und Triage-Aufgaben. Kurze Antworten bleiben normaler Text.
+  Arbeit an `index.html` (FBA Cockpit) ist Code-Arbeit und kein Anlass für
+  den Skill. Ausdrücklich gewünscht: `/html`, „als HTML“, „html this“.
+- Form und Look trennen: `html` bestimmt Stufe, Aufbau und Export-Knopf.
+  Bei RoboGold-Inhalten (Video, Kurs, Social) kommt der Look aus
+  `robogold-style` (Navy/Gold) statt aus der Palette des Skills. Interne
+  Seiten (Pläne, FBA-Auswertungen, Recaps) behalten den Look des Skills.
+- Fertige Seiten als privaten claude.ai-Link veröffentlichen, statt sie „im
+  Browser zu öffnen“. Die Arbeitsdatei nicht im Repo-Ordner ablegen und nie
+  committen: Das Repo ist öffentlich, die Seiten enthalten oft
+  Geschäftszahlen.
