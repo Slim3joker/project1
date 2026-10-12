@@ -19,7 +19,8 @@
 - `.claude/skills/` enthält unveränderte Kopien öffentlicher Skills:
   Anthropic (Apache 2.0) und `last30days` (MIT, `mvanhorn/last30days-skill`).
   Nicht inhaltlich bearbeiten. Zum Aktualisieren neu aus der jeweiligen Quelle
-  kopieren, siehe `SKILLS.md`.
+  kopieren, siehe `SKILLS.md`. Ausnahme: `robogold-style` ist ein eigener
+  Skill dieses Repos und wird hier gepflegt (siehe unten).
 - `docx`, `pdf`, `pptx` und `xlsx` sind proprietär lizenziert: nie ins Repo
   kopieren. Sie kommen über den Marketplace in `.claude/settings.json`.
 - Das Repo ist öffentlich. Die eigenen Skills aus dem claude.ai-Konto
@@ -32,3 +33,16 @@
 
 - `index.html` ist das FBA Cockpit: eine Datei, kein Build, kein Server –
   im Browser öffnen. Daten liegen im `localStorage` (siehe README).
+
+## Design: RoboGold-Style
+
+- Projekt-Skill `robogold-style` (`.claude/skills/robogold-style/`) ist der
+  Hausstil der Marke RoboGold für YouTube-Folien, Kurs-Lektionen,
+  Recherche-Screenshots, Thumbnails und Instagram-Karussells (4:5) –
+  dunkel zuerst (Navy), Gold als einziger Akzent, inklusive „Glut-Bühne“
+  (leuchtender Glaswürfel). Vor dem Bauen `brand-book.html` im selben Ordner
+  ansehen.
+- Für RoboGold-Inhalte immer `robogold-style` verwenden. Die Vorlage, aus der
+  er entstanden ist, ist nur Herkunft (`ATTRIBUTION.md`), nicht zum Bauen.
+- Der Style ist bewusst abstrakte Gestaltungskunst: keine Maskottchen-,
+  Comic-, Kinder- oder Roboterfiguren, keine Produktmotive oder Produktfotos.

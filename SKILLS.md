@@ -75,6 +75,16 @@ weglässt.
 - Am PC ist er als Plugin installiert. Solche Plugins laden in Cloud-Sitzungen
   nicht, deshalb liegt er hier als Skill.
 
+## Eigener Skill (1)
+
+| Skill | Wofür |
+|---|---|
+| `robogold-style` | Hausstil der Marke RoboGold für YouTube-Folien, Kurs-Lektionen, Recherche-Screenshots, Thumbnails und Instagram-Karussells (4:5): dunkel zuerst (Navy), Gold als einziger Akzent, Grafiken aus einem Würfelraster, „Glut-Bühne“ für Intros. Rein abstrakt, keine Figuren. Vor dem Bauen `brand-book.html` im Ordner öffnen. Aufruf: `/robogold-style`. |
+
+Für dieses Repo gebaut und wird hier gepflegt, anders als die unveränderten
+Kopien oben. Er ist eine Weiterentwicklung eines Skills unter CC BY 4.0. Die
+Quellenangabe steht in `ATTRIBUTION.md` und muss bei jeder Weitergabe mit.
+
 ## Über den Anthropic-Marketplace (nicht kopiert)
 
 | Skill | Wofür |
