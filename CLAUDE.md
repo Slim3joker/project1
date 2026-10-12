@@ -14,6 +14,13 @@
 - Den Server nicht zusätzlich per `claude mcp add` anlegen – er ist über
   `.mcp.json` bereits vorhanden.
 
+## PC-Zugriff (Remote Desktop Commander)
+
+- Schickt der Nutzer etwas zum Anschauen (Link, YouTube-Video, Datei/Ordner
+  auf seinem PC) oder ist eine Seite aus der Cloud gesperrt: Skill
+  `pc-zugriff` nutzen und über seinen Windows-PC „Jacktown“ gehen
+  (`.claude/skills/pc-zugriff/SKILL.md`).
+
 ## Projekt
 
 - `index.html` ist das FBA Cockpit: eine Datei, kein Build, kein Server –
