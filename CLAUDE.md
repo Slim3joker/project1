@@ -14,11 +14,20 @@
 - Den Server nicht zusätzlich per `claude mcp add` anlegen – er ist über
   `.mcp.json` bereits vorhanden.
 
+## REA-MCP
+
+- Der MCP-Server `rea` (Reverse Engineering, `npx -y rea-agents@6.4.0 mcp`)
+  ist ebenfalls in `.mcp.json` konfiguriert, ohne API-Key. Dazu gehört der
+  Skill `reverse-engineer-anything`. Version in `.mcp.json` und Skill nur
+  gemeinsam anheben (siehe `SKILLS.md`). Nicht zusätzlich per
+  `rea setup` oder `claude mcp add` anlegen.
+
 ## Skills
 
 - `.claude/skills/` enthält unveränderte Kopien öffentlicher Skills:
   Anthropic (Apache 2.0), `last30days` (MIT, `mvanhorn/last30days-skill`),
-  `html` (MIT, Robogold) und Superpowers (MIT, `obra/superpowers`). Dazu
+  `html` (MIT, Robogold), Superpowers (MIT, `obra/superpowers`) und
+  `reverse-engineer-anything` (MIT, `morluto/rea`). Dazu
   kommt das Superpowers-Startskript `.claude/hooks/session-start`. Nicht
   inhaltlich bearbeiten. Zum Aktualisieren neu aus der jeweiligen Quelle
   kopieren, siehe `SKILLS.md`. Ausnahme: `robogold-style` ist ein eigener

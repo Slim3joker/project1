@@ -10,7 +10,7 @@ Anfrage zur Beschreibung passt. Gezielt aufrufen kannst du ihn mit
 `/<skill-name>`, z. B. `/theme-factory`. Welche Skills geladen sind, zeigt
 `/skills`.
 
-## Im Repo enthalten (14 Anthropic-Skills + 17 von Drittanbietern)
+## Im Repo enthalten (14 Anthropic-Skills + 18 von Drittanbietern)
 
 Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 (`LICENSE.txt` im jeweiligen Ordner).
@@ -54,10 +54,11 @@ Alle 14 sind **unveränderte Kopien** des Originals, Lizenz Apache 2.0
 |---|---|
 | `skill-creator` | Neue Skills erstellen, bestehende verbessern, mit Evals testen und die Beschreibung so optimieren, dass der Skill zuverlässig auslöst. |
 
-## Drittanbieter (17 Skills)
+## Drittanbieter (18 Skills)
 
 | Skill | Wofür |
 |---|---|
+| `reverse-engineer-anything` | Reverse Engineering mit REA: untersucht Apps ohne Quellcode (JavaScript/Electron, .NET, Android, Websites, native Binärdateien) und erklärt mit Belegen, wie eine Funktion arbeitet. Arbeitet mit dem MCP-Server `rea` aus `.mcp.json`. |
 | `last30days` | Recherchiert, was in den letzten 30 Tagen über ein Thema gesagt wurde: Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub und Web, gewichtet nach echtem Engagement. Aufruf z. B. `/last30days Steckdosenwürfel`. |
 | `html` | Liefert große Ergebnisse (Pläne, Reports, Reviews, Vergleiche, Dashboards, kleine Werkzeuge) als eine eigenständige HTML-Seite statt als langen Markdown-Text, in vier Stufen: Lese-Seite, Seite mit Grafiken und Tabellen, Seite zum Klicken und Einstellen, Wegwerf-Werkzeug. Stufe 3 und 4 enden mit einem „Copy as …“-Knopf, der deine Auswahl als nächsten Prompt zurückgibt. Aufruf: `/html`. |
 | Superpowers (15 Skills) | Arbeitsweise fürs Programmieren: erst Brainstorming und Plan, dann testgetrieben umsetzen, systematisch debuggen, Code-Review. Die einzelnen Skills stehen unten. |
@@ -78,6 +79,23 @@ weglässt.
   Zustimmung.
 - Am PC ist er als Plugin installiert. Solche Plugins laden in Cloud-Sitzungen
   nicht, deshalb liegt er hier als Skill.
+
+### `reverse-engineer-anything`
+
+Quelle: [morluto/rea](https://github.com/morluto/rea), npm-Paket
+`rea-agents` Version 6.4.0 (Skill-Version 37), Lizenz MIT (`LICENSE` im
+Ordner). Unverändert aus dem npm-Paket übernommen, nicht vom GitHub-`main`:
+Der Skill dort kann Werkzeuge beschreiben, die der Server 6.4.0 noch nicht
+hat.
+
+- Der Skill allein bringt keine Werkzeuge. Die kommen vom MCP-Server `rea`,
+  den `.mcp.json` als `npx -y rea-agents@6.4.0 mcp` startet (Node.js 22.19+,
+  24.11+ oder 26+). Einrichtung und Voraussetzungen: README, Abschnitt
+  „REA-MCP“.
+- Native Analyse braucht Hopper, Ghidra oder IDA. JavaScript- und
+  .NET-Analysen laufen ohne.
+- **Nicht zusätzlich per `npx rea-agents setup` für Claude Code
+  installieren.** Sonst sind Server und Skill doppelt aktiv.
 
 ### `html`
 
@@ -279,6 +297,17 @@ for d in /tmp/superpowers/skills/*/; do
 done
 cp /tmp/superpowers/hooks/session-start .claude/hooks/session-start
 cp /tmp/superpowers/LICENSE .claude/hooks/LICENSE
+```
+
+`reverse-engineer-anything` auf den neuesten Stand bringen (Version `X.Y.Z`
+danach auch in `.mcp.json` eintragen, Skill und Server gehören zusammen):
+
+```bash
+npm pack rea-agents@X.Y.Z --pack-destination /tmp
+tar xzf /tmp/rea-agents-X.Y.Z.tgz -C /tmp
+rm -rf .claude/skills/reverse-engineer-anything
+cp -a /tmp/package/skills/reverse-engineer-anything .claude/skills/
+cp /tmp/package/LICENSE .claude/skills/reverse-engineer-anything/LICENSE
 ```
 
 Danach prüfen: Ist im Original ein Skill weggefallen, den Ordner hier löschen.
