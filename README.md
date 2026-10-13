@@ -132,6 +132,44 @@ Weil der Server unter einer öffentlichen Domain läuft, schützt **Cloudflare
 Access** (siehe oben) den Zugriff auf App und Daten. Ohne diesen Schutz wäre
 `/api/data` für jeden mit der URL erreichbar.
 
+## Skills (Claude Code)
+
+Das Repo bringt die öffentlich nutzbaren Skills von Anthropic mit
+(Apache 2.0, unter `.claude/skills/`). In jeder Claude-Code-Sitzung in diesem
+Ordner sind sie verfügbar. Die Dokument-Skills `docx`, `pdf`, `pptx` und
+`xlsx` sind proprietär lizenziert und werden deshalb über den offiziellen
+Anthropic-Marketplace eingebunden (`.claude/settings.json`). Dazu kommen
+freie Skills von Drittanbietern (MIT): `last30days` für Trend-Recherche und
+die Sammlung Superpowers, eine Arbeitsweise fürs Programmieren mit
+Brainstorming, Plänen, TDD und Debugging. Für Reverse Engineering kommt
+REA dazu (Skill `reverse-engineer-anything` plus MCP-Server, siehe unten).
+Die vollständige
+Liste mit Beschreibungen, Aufruf und Aktualisierung steht in
+**[SKILLS.md](SKILLS.md)**.
+
+## REA-MCP: Reverse Engineering (Claude Code)
+
+[REA](https://github.com/morluto/rea) (MIT) untersucht Apps ohne deren
+Quellcode: JavaScript-/Electron-Apps, .NET-Assemblies, Android-APKs,
+Websites, Netzwerkmitschnitte und – mit Hopper, Ghidra oder IDA – native
+Binärdateien. Die Analyse läuft lokal; jede Aussage kommt mit Belegen.
+
+`.mcp.json` startet den Server als `npx -y rea-agents@6.4.0 mcp`. Kein
+API-Key nötig, nur **Node.js 22.19+, 24.11+ oder 26+** und npm. Beim ersten
+Start lädt `npx` das Paket herunter, danach meldet `/mcp` den Server `rea`
+mit 170 Werkzeugen. Der Skill `reverse-engineer-anything` erklärt Claude,
+wann und wie REA einzusetzen ist.
+
+- **Native Analyse** braucht Hopper, Ghidra (`GHIDRA_INSTALL_DIR`) oder IDA
+  auf deinem Rechner. Statische JavaScript- und .NET-Analysen laufen ohne.
+- **Ohne MCP im Terminal:**
+  `npx -y rea-agents@6.4.0 analyze-javascript-application /pfad/zur/app --json`
+- **Nicht zusätzlich per `npx rea-agents setup` für Claude Code
+  einrichten.** Setup trägt `rea` in `~/.claude.json` ein und legt den Skill
+  unter `~/.claude/skills/` ab, dann ist beides doppelt aktiv.
+- **Aktualisieren:** Version in `.mcp.json` und den Skill gemeinsam anheben,
+  siehe `SKILLS.md`.
+
 ## Scarlett-MCP-Anbindung (Claude Code)
 
 [Scarlett](https://scarlett.ai) stellt einen MCP-Server unter

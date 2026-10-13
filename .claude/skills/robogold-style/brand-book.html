@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoboGold Style – Brand-Book</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M7 14.8L24 24.6V44L7 34.4Z' fill='%233a4f7a'/%3E%3Cpath d='M24 24.6L41 14.8v19.6L24 44Z' fill='%2316294d'/%3E%3Cpath d='M24 5l17 9.8L24 24.6 7 14.8Z' fill='%23e3a92b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Unbounded:wght@500..900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens (LOCKED) ---------- */
+  :root {
+    --navy: #16294d; --panel: #1f3561; --night: #0b1530; --deep: #08090f;
+    --sand: #efe7d6; --card: #f7f2e7; --shade: #d6cbb3;
+    --gold: #e3a92b; --glanz: #f6d27a; --altgold: #8a5e08; --light: #fff1cc;
+    --mut: #56607a; --mutd: #a3aeca;
+  }
+  html { color-scheme: light; scroll-snap-type: y mandatory; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--night); font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-optical-sizing: auto; -webkit-font-smoothing: antialiased; }
+
+  /* ---------- Bühne: jede Folie exakt 16:9, alles in cqw ---------- */
+  .frame { height: 100vh; height: 100dvh; display: grid; place-items: center; scroll-snap-align: start; overflow: hidden; }
+  .slide { width: min(100vw, 177.78vh); width: min(100vw, calc(100dvh * 16 / 9)); aspect-ratio: 16 / 9; container-type: inline-size;
+           position: relative; overflow: hidden; padding: 4.5cqw 6cqw 6.75cqw; }
+  .dark  { background: var(--navy); color: var(--sand); }
+  .light { background: var(--sand); color: var(--navy); }
+  .stack { display: flex; flex-direction: column; justify-content: center; }
+  .werk  { display: grid; grid-template-columns: 1fr auto; align-items: center; align-content: center; gap: 5cqw; }
+  .vis canvas, canvas.art { display: block; width: 100%; height: 100%; }
+
+  /* ---------- Schrift ---------- */
+  .kick { font-weight: 600; font-size: 1.3cqw; letter-spacing: .32em; text-transform: uppercase; color: var(--gold); }
+  .light .kick { color: var(--altgold); }
+  h1 { font-weight: 700; font-size: 6.2cqw; line-height: 1.02; letter-spacing: -.025em; margin-top: 1.2cqw; }
+  h2 { font-weight: 700; font-size: 3.8cqw; line-height: 1.06; letter-spacing: -.02em; margin-top: 1cqw; }
+  .em { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: .86em; letter-spacing: -.01em; margin-left: .06em;
+        color: var(--gold); text-shadow: 0 0 .4em rgba(227,169,43,.4); }
+  .light .em { color: var(--altgold); text-shadow: none; }
+  .body { font-weight: 400; font-size: 1.6cqw; line-height: 1.5; color: var(--mutd); }
+  .light .body { color: var(--mut); }
+  .lab { font-weight: 600; font-size: 1.3cqw; letter-spacing: .14em; text-transform: uppercase; color: var(--mutd); }
+  .light .lab { color: var(--mut); }
+
+  /* ---------- Karten: auf Navy (Standard) und auf Sand ---------- */
+  .card { background: var(--panel); border: .16cqw solid rgba(239,231,214,.5); border-radius: 1cqw; box-shadow: .45cqw .45cqw 0 rgba(8,9,15,.6); }
+  .card.hot { border-color: var(--gold); box-shadow: .45cqw .45cqw 0 var(--gold); }
+  .light .card { background: var(--card); border-color: var(--navy); box-shadow: .45cqw .45cqw 0 var(--shade); }
+  .light .card.hot { border-color: var(--altgold); box-shadow: .45cqw .45cqw 0 var(--altgold); }
+
+  /* S1 Cover */
+  .s1 .sub { margin-top: 2.2cqw; }
+
+  /* S2 Farbe */
+  .sw-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.5cqw; margin-top: 3.2cqw; }
+  .sw { overflow: hidden; }
+  .sw .chip { height: 9cqw; border-bottom: .16cqw solid rgba(239,231,214,.5); display: grid; place-items: center; }
+  .sw.hot .chip { border-bottom-color: var(--gold); }
+  .sw .chip i { width: 3.2cqw; height: 3.2cqw; border-radius: .7cqw; background: var(--glanz); box-shadow: 0 0 1.6cqw rgba(246,210,122,.8); }
+  .sw .meta { padding: 1.1cqw 1.2cqw 1.3cqw; }
+  .sw .nm { font-weight: 700; font-size: 1.6cqw; }
+  .sw .hex { font-family: 'Unbounded'; font-weight: 600; font-size: 1.05cqw; color: var(--mutd); margin-top: .3cqw; letter-spacing: .04em; }
+  .sw .use { font-size: 1.3cqw; color: var(--mutd); margin-top: .6cqw; line-height: 1.35; }
+  .sw.hot .nm, .sw.hot .hex { color: var(--gold); }
+  .s2 .body { margin-top: 2.6cqw; }
+
+  /* S3 Schrift */
+  .tl { display: grid; grid-template-columns: 22cqw 1fr; gap: 3cqw; align-items: baseline; padding: 1.5cqw 0; border-bottom: .08cqw solid rgba(239,231,214,.16); }
+  .tl:last-child { border-bottom: none; }
+  .demo-h { font-weight: 700; font-size: 3.4cqw; letter-spacing: -.02em; line-height: 1.1; }
+  .demo-b { font-size: 1.6cqw; line-height: 1.5; max-width: 52ch; }
+  .demo-e { font-family: 'Unbounded'; font-weight: 800; font-size: 3.2cqw; letter-spacing: -.01em; }
+  .ramp { margin-top: 1.8cqw; }
+
+  /* S4 Raster */
+  .rules { display: flex; flex-direction: column; gap: 1.8cqw; margin-top: 2.8cqw; }
+  .rule { display: grid; grid-template-columns: 4cqw 1fr; gap: 1.2cqw; align-items: start; }
+  .rule .n { font-family: 'Unbounded'; font-weight: 700; font-size: 1.6cqw; color: var(--gold); text-shadow: 0 0 .5em rgba(227,169,43,.45); }
+  .rule .t { font-weight: 700; font-size: 1.75cqw; line-height: 1.2; }
+  .rule .d { font-size: 1.35cqw; color: var(--mutd); margin-top: .3cqw; line-height: 1.45; }
+  .figure { display: flex; flex-direction: column; align-items: center; gap: 1.4cqw; }
+
+  /* S5 Motive */
+  .lib { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.8cqw; margin-top: 2.8cqw; }
+  .motif { padding: 1.1cqw 1.1cqw .9cqw; display: flex; flex-direction: column; align-items: center; gap: .7cqw; }
+  .motif .vis { width: 100%; height: 10.4cqw; }
+  .motif .nm { font-weight: 700; font-size: 1.45cqw; }
+
+  /* S6 Karten + Icons, Spezifikationslisten */
+  .specs { display: flex; flex-direction: column; gap: 1.1cqw; margin-top: 2.6cqw; }
+  .spec { display: flex; gap: 1cqw; font-size: 1.45cqw; line-height: 1.4; color: var(--mutd); }
+  .spec::before { content: ''; flex: none; width: .75cqw; height: .75cqw; margin-top: .55em; border-radius: .18cqw; background: var(--gold); }
+  .spec b { color: var(--sand); font-weight: 700; }
+  .light .spec { color: var(--mut); }
+  .light .spec::before { background: var(--altgold); }
+  .light .spec b { color: var(--navy); }
+  .cards { display: flex; flex-direction: column; gap: 1.7cqw; width: 34cqw; }
+  .ccard { display: grid; grid-template-columns: 3.8cqw 1fr; gap: 1.5cqw; align-items: center; padding: 1.4cqw 1.7cqw; }
+  .ccard canvas { width: 3.8cqw; height: 3.8cqw; display: block; }
+  .ccard .t { font-weight: 700; font-size: 1.9cqw; line-height: 1.15; }
+  .ccard .s { font-weight: 600; font-size: 1.3cqw; letter-spacing: .12em; text-transform: uppercase; color: var(--mutd); margin-top: .2cqw; }
+  .ccard.hot .s { color: var(--gold); }
+
+  /* S7 Recherche: Browser-Rahmen + Marker (helle Inhalts-Folie) */
+  .s7 { grid-template-columns: auto 1fr; }
+  .browser { width: 50cqw; overflow: hidden; }
+  .browser .bar { display: flex; align-items: center; gap: .55cqw; padding: .8cqw 1.1cqw; border-bottom: .16cqw solid var(--navy); background: var(--sand); }
+  .browser .bar i { width: .85cqw; height: .85cqw; border-radius: .2cqw; background: var(--shade); }
+  .browser .bar i:nth-child(3) { background: var(--card); border: .1cqw solid var(--navy); }
+  .browser .url { margin-left: .8cqw; flex: 1; font-size: 1.15cqw; color: var(--mut); background: var(--card); border-radius: 2cqw; padding: .25cqw 1cqw; }
+  .shot { position: relative; aspect-ratio: 16 / 10; background: var(--card); }
+  .shot > * { position: absolute; }
+  .pimg { left: 4%; top: 7%; width: 40%; height: 86%; background: var(--sand); border-radius: .6cqw; padding: 1.2cqw; }
+  .ln { background: var(--navy); opacity: .85; border-radius: .25cqw; }
+  .ln.m { background: var(--mut); opacity: .35; }
+  .stars { display: flex; gap: .3cqw; }
+  .stars i { width: 1cqw; height: 1cqw; border-radius: .22cqw; background: var(--shade); }
+  .price { line-height: 1; }
+  .price b { font-weight: 800; font-size: 2.5cqw; letter-spacing: -.02em; color: var(--navy); }
+  .price s { font-size: 1.3cqw; color: var(--mut); margin-left: .5cqw; }
+  .buy { border: .16cqw solid var(--navy); border-radius: .5cqw; }
+  .mark { border: .3cqw solid var(--altgold); border-radius: .8cqw; }
+  .badge { width: 2.6cqw; height: 2.6cqw; border-radius: .55cqw; background: var(--gold); color: var(--navy); display: grid; place-items: center;
+           font-family: 'Unbounded'; font-weight: 800; font-size: 1.35cqw; }
+  .light .badge { background: var(--altgold); color: var(--card); }
+  .mark .badge { position: absolute; left: -1.5cqw; top: -1.5cqw; }
+  .callout { display: grid; grid-template-columns: 2.6cqw 1fr; gap: 1.2cqw; align-items: center; padding: 1.3cqw 1.5cqw; margin-top: 2.4cqw; }
+  .callout .t { font-weight: 700; font-size: 1.8cqw; line-height: 1.15; }
+  .callout .s { font-size: 1.35cqw; color: var(--mut); margin-top: .2cqw; }
+
+  /* S8 Thumbnail */
+  .thumb { width: 50cqw; aspect-ratio: 16 / 9; container-type: inline-size; position: relative; overflow: hidden; background: var(--navy); color: var(--sand);
+           border-radius: 1cqw; box-shadow: .45cqw .45cqw 0 var(--shade); }
+  .thumb .tex { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .thumb .big { position: absolute; left: 6cqw; top: 50%; transform: translateY(-50%); line-height: .9; }
+  .thumb .num { font-family: 'Unbounded'; font-weight: 900; font-size: 24cqw; letter-spacing: -.03em; color: var(--gold); text-shadow: 0 0 .25em rgba(227,169,43,.55); }
+  .thumb .word { font-weight: 800; font-size: 9.5cqw; letter-spacing: -.03em; margin-top: 1.5cqw; }
+  .thumb .face { position: absolute; right: 6cqw; top: 9cqw; width: 34cqw; height: 40cqw; border: .5cqw dashed rgba(239,231,214,.45); border-radius: 3cqw;
+                 display: grid; place-items: center; text-align: center; font-size: 3.2cqw; font-weight: 600; color: var(--mutd); line-height: 1.3; }
+  .thumb .ts { position: absolute; right: 2cqw; bottom: 2cqw; background: rgba(0,0,0,.78); color: #fff; font: 600 3cqw/1 system-ui, sans-serif; padding: .9cqw 1.4cqw; border-radius: .8cqw; }
+
+  /* S11 Regeln */
+  .lr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4cqw 2.6cqw; margin-top: 3cqw; }
+  .lr { border-top: .16cqw solid rgba(239,231,214,.2); padding-top: 1.3cqw; }
+  .lr .t { font-weight: 700; font-size: 1.65cqw; line-height: 1.2; }
+  .lr .d { font-size: 1.3cqw; color: var(--mutd); margin-top: .6cqw; line-height: 1.45; }
+
+  /* ---------- Glut-Bühne: Tiefnacht, Gold-Glow, Glaswürfel, Serif ---------- */
+  .glut { background: radial-gradient(46% 62% at 50% var(--gy, 58%), rgba(227,169,43,.7) 0%, rgba(205,140,30,.42) 22%, rgba(110,70,12,.3) 46%, rgba(8,9,15,0) 78%), var(--deep); color: var(--card); }
+  .serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; letter-spacing: -.025em; line-height: .96; }
+  .serif i { font-style: italic; }
+  .pill { display: inline-block; padding: .55em 1.5em; border-radius: 999px; border: .1cqw solid rgba(246,210,122,.3); background: rgba(246,210,122,.08);
+          color: var(--card); font-weight: 400; font-size: 1.5cqw; letter-spacing: .01em; }
+  .glass { position: relative; aspect-ratio: 1; border-radius: 23%; display: grid; place-items: center;
+           background: radial-gradient(circle at 50% 46%, rgba(255,255,255,.6), rgba(255,255,255,0) 58%), linear-gradient(158deg, var(--light) 0%, var(--glanz) 30%, var(--gold) 60%, #a8740f 100%);
+           box-shadow: inset 0 0 0 .3cqw rgba(255,255,255,.65), inset 0 1.2cqw 2.2cqw rgba(255,255,255,.5), inset 0 -1.4cqw 2.6cqw rgba(150,95,10,.55),
+                       0 .7cqw 0 rgba(255,236,190,.5), 0 0 1.6cqw rgba(255,236,190,.85), 0 0 5cqw rgba(227,169,43,.95); }
+  .glass::before { content: ''; position: absolute; inset: 5% 7% 52% 7%; border-radius: 30% 30% 45% 45%; background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0)); }
+  .glass::after { content: ''; position: absolute; inset: -75%; z-index: -1; border-radius: 50%;   /* Lichthof statt Riesen-Schatten (Chromium kappt große Blur-Radien) */
+                  background: radial-gradient(closest-side, rgba(246,210,122,.7), rgba(227,169,43,.42) 42%, rgba(227,169,43,0)); }
+  .glass .core { position: relative; width: 62%; height: 62%; }
+  .glut-buehne { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 5cqw; }
+  .glut-buehne h1 { font-size: 7cqw; margin: 0; }
+  .glut-buehne .pill { margin-top: 1.6cqw; }
+  .glut-buehne .glass { width: 18cqw; margin-top: 4cqw; }
+
+  /* Hochformat 4:5 (Instagram-Karussell, 1080 × 1350) */
+  .slide.hoch { width: min(100vw, 80vh); width: min(100vw, calc(100dvh * 4 / 5)); aspect-ratio: 4 / 5; }
+  .hoch { --gy: 62%; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 11cqw 7cqw 0; }
+  .hoch .titel { font-size: 15cqw; margin: 0; }
+  .hoch .pill { margin-top: 5cqw; font-size: 4.2cqw; border-width: .3cqw; }
+  .hoch .glass { width: 42cqw; margin-top: 10cqw; box-shadow: inset 0 0 0 .9cqw rgba(255,255,255,.65), inset 0 3.5cqw 6cqw rgba(255,255,255,.5), inset 0 -4cqw 7cqw rgba(150,95,10,.55),
+                 0 2cqw 0 rgba(255,236,190,.5), 0 0 4.5cqw rgba(255,236,190,.85), 0 0 14cqw rgba(227,169,43,.95); }
+  .hoch .from { position: absolute; left: 7cqw; bottom: 7cqw; text-align: left; font-size: 4cqw; line-height: 1.3; }
+  .hoch .from b { font-weight: 700; }
+  .hoch .next { position: absolute; right: 7cqw; bottom: 7cqw; width: 12cqw; height: 12cqw; border-radius: 50%; display: grid; place-items: center;
+                background: rgba(246,210,122,.1); border: .3cqw solid rgba(246,210,122,.3); color: var(--card); font-size: 6cqw; line-height: 1; }
+
+  /* Muster im Brand-Book: Hochformat als verschachtelte Mini-Bühne */
+  .post { width: 31cqw; aspect-ratio: 4 / 5; container-type: inline-size; position: relative; overflow: hidden; border-radius: 1cqw; box-shadow: .45cqw .45cqw 0 var(--shade); }
+
+  /* S12 Abschluss */
+  .s12 { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-bottom: 14cqw; }
+  .s12 h1 { font-size: 6.8cqw; }
+  .s12 .kick { color: var(--mutd); margin-top: 2.2cqw; }
+  .band { position: absolute; left: 0; right: 0; bottom: 0; height: 17cqw; }
+</style>
+</head>
+<body>
+
+<!-- S1 · COVER -->
+<section class="frame" id="s1"><div class="slide dark werk s1">
+  <div>
+    <div class="kick">RoboGold Style · Brand-Book</div>
+    <h1>Aus Daten wird<br><span class="em">GOLD</span></h1>
+    <div class="lab sub">abstrakt · raster · gold</div>
+  </div>
+  <div class="vis" style="width:36cqw;height:36cqw"><canvas id="aCube"></canvas></div>
+</div></section>
+
+<!-- S2 · FARBE -->
+<section class="frame" id="s2"><div class="slide dark stack s2">
+  <div class="kick">01 · Farbe</div>
+  <h2>Dunkel als Basis. <span class="em">EIN</span> Akzent.</h2>
+  <div class="sw-row">
+    <div class="card sw"><div class="chip" style="background:#16294d"></div><div class="meta"><div class="nm">Navy</div><div class="hex">#16294D</div><div class="use">Grundfläche · Schrift auf Sand</div></div></div>
+    <div class="card sw"><div class="chip" style="background:#08090f"></div><div class="meta"><div class="nm">Tiefnacht</div><div class="hex">#08090F</div><div class="use">Grund der Glut-Bühne</div></div></div>
+    <div class="card sw"><div class="chip" style="background:#efe7d6"></div><div class="meta"><div class="nm">Sand</div><div class="hex">#EFE7D6</div><div class="use">helle Inhalts-Folien · Schrift auf Navy</div></div></div>
+    <div class="card sw hot"><div class="chip" style="background:#e3a92b"></div><div class="meta"><div class="nm">Gold</div><div class="hex">#E3A92B</div><div class="use">der EINE Akzent auf Dunkel</div></div></div>
+    <div class="card sw"><div class="chip" style="background:#8a5e08"></div><div class="meta"><div class="nm">Altgold</div><div class="hex">#8A5E08</div><div class="use">Akzent auf Sand</div></div></div>
+    <div class="card sw"><div class="chip" style="background:#08090f"><i></i></div><div class="meta"><div class="nm">Goldglanz</div><div class="hex">#F6D27A</div><div class="use">Glanz &amp; Glow · nur im Glas</div></div></div>
+  </div>
+  <p class="body">Gold markiert genau eine Sache pro Folie. Auf Sand wird es zu Altgold.</p>
+</div></section>
+
+<!-- S3 · SCHRIFT -->
+<section class="frame" id="s3"><div class="slide dark stack s3">
+  <div class="kick">02 · Schrift</div>
+  <h2>Zwei Stimmen, klare <span class="em">ROLLEN</span></h2>
+  <div style="margin-top:1.6cqw">
+    <div class="tl"><div class="lab">Überschrift<br>Bricolage 700</div><div class="demo-h">Automatisieren in <span class="em">5</span> Minuten</div></div>
+    <div class="tl"><div class="lab">Text<br>Bricolage 400</div><div class="demo-b">Ein Gedanke pro Folie. Der Text bleibt kurz – den Rest sagst du im Video.</div></div>
+    <div class="tl"><div class="lab">Kicker<br>Bricolage 600 · gesperrt</div><div class="kick" style="font-size:1.5cqw">Lektion 03 · Erste Automation</div></div>
+    <div class="tl"><div class="lab">Betonung<br>Unbounded 800</div><div class="demo-e"><span style="color:var(--gold)">10×</span> SCHNELLER</div></div>
+  </div>
+  <div class="lab ramp">bei 1080p: Titel 120 px · Folie 72 px · Text 31 px · Label 25 px</div>
+</div></section>
+
+<!-- S4 · WÜRFELRASTER -->
+<section class="frame" id="s4"><div class="slide dark werk s4">
+  <div>
+    <div class="kick">03 · Würfelraster</div>
+    <h2>Würfel tragen die <span class="em">FORM</span></h2>
+    <div class="rules">
+      <div class="rule"><div class="n">01</div><div><div class="t">Größe macht das Bild</div><div class="d">festes Raster, Würfelgröße = Dichte. Formen entstehen aus der Größe.</div></div></div>
+      <div class="rule"><div class="n">02</div><div><div class="t">Zwei Ebenen, nie mehr</div><div class="d">Sand- oder Navy-Feld + ein Gold-Motiv. Auf Navy darf Gold glühen.</div></div></div>
+      <div class="rule"><div class="n">03</div><div><div class="t">Text gewinnt</div><div class="d">Raster hinter Text auf höchstens 20 % – oder das Motiv lässt eine Lücke.</div></div></div>
+      <div class="rule"><div class="n">04</div><div><div class="t">Spalten statt Pixel</div><div class="d">das Raster zählt Spalten, nicht Pixel – scharf von 720p bis 4K.</div></div></div>
+    </div>
+  </div>
+  <div class="figure">
+    <div class="vis" style="width:34cqw;height:30cqw"><canvas id="aNetz"></canvas></div>
+    <div class="lab">ein Netz · eine Funktion</div>
+  </div>
+</div></section>
+
+<!-- S5 · MOTIVE -->
+<section class="frame" id="s5"><div class="slide dark stack s5">
+  <div class="kick">04 · Motive</div>
+  <h2>Acht Motive, <span class="em">BEREIT</span></h2>
+  <div class="lib">
+    <div class="card motif"><div class="vis"><canvas id="mWuerfel"></canvas></div><div class="nm">Würfel</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mChip"></canvas></div><div class="nm">Chip</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mNetz"></canvas></div><div class="nm">Netz</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mLeiterbahn"></canvas></div><div class="nm">Leiterbahn</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mTuerme"></canvas></div><div class="nm">Würfeltürme</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mWachstum"></canvas></div><div class="nm">Wachstum</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mRing"></canvas></div><div class="nm">Fortschritt</div></div>
+    <div class="card motif"><div class="vis"><canvas id="mSpirale"></canvas></div><div class="nm">Spirale</div></div>
+  </div>
+</div></section>
+
+<!-- S6 · KARTEN + ICONS -->
+<section class="frame" id="s6"><div class="slide dark werk s6">
+  <div>
+    <div class="kick">05 · Karten + Icons</div>
+    <h2>Weiche Kanten, klare <span class="em">ICONS</span></h2>
+    <div class="specs">
+      <div class="spec"><span><b>3 px heller Rahmen</b>, runde Ecken, Schatten in Tiefnacht</span></div>
+      <div class="spec"><span><b>Gold-Rahmen + Schatten</b> markiert DIE eine Karte</span></div>
+      <div class="spec"><span>Icons aus <b>12 × 12 Würfeln</b> mit Fuge – nie Vektor-SVG</span></div>
+      <div class="spec"><span><b>Umriss in Sand</b> · gefüllt nur das Gold-Icon</span></div>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card ccard"><canvas id="icLupe"></canvas><div><div class="t">Daten sammeln</div><div class="s">Schritt 1 · Quellen anbinden</div></div></div>
+    <div class="card ccard"><canvas id="icBalken"></canvas><div><div class="t">Auswerten</div><div class="s">Schritt 2 · Muster finden</div></div></div>
+    <div class="card ccard hot"><canvas id="icBlitz"></canvas><div><div class="t">Automatisieren</div><div class="s">Schritt 3 · Ablauf starten</div></div></div>
+  </div>
+</div></section>
+
+<!-- S7 · RECHERCHE ZEIGEN (helle Inhalts-Folie) -->
+<section class="frame" id="s7"><div class="slide light werk s7">
+  <div class="card browser">
+    <div class="bar"><i></i><i></i><i></i><span class="url">example.com/tool</span></div>
+    <div class="shot">
+      <div class="pimg"><canvas id="bChip" class="art"></canvas></div>
+      <div class="ln" style="left:50%;top:9%;width:42%;height:5%"></div>
+      <div class="ln" style="left:50%;top:17%;width:30%;height:5%"></div>
+      <div class="stars" style="left:50%;top:27%"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="price" style="left:51.5%;top:39%"><b>24,90 €</b><s>29,90 €</s></div>
+      <div class="ln m" style="left:50%;top:56%;width:38%;height:2.8%"></div>
+      <div class="ln m" style="left:50%;top:62.5%;width:33%;height:2.8%"></div>
+      <div class="ln m" style="left:50%;top:69%;width:40%;height:2.8%"></div>
+      <div class="ln m" style="left:50%;top:75.5%;width:28%;height:2.8%"></div>
+      <div class="buy" style="left:50%;top:84%;width:22%;height:8%"></div>
+      <div class="mark" style="left:48%;top:34%;width:33%;height:17%"><div class="badge">1</div></div>
+    </div>
+  </div>
+  <div>
+    <div class="kick">06 · Recherche zeigen</div>
+    <h2>Zeigen statt <span class="em">LESEN</span></h2>
+    <div class="card hot callout"><div class="badge">1</div><div><div class="t">Preis-Anker</div><div class="s">24,90 € statt 29,90 €</div></div></div>
+    <div class="specs">
+      <div class="spec"><span>Screenshot immer <b>im Browser-Rahmen</b></span></div>
+      <div class="spec"><span><b>ein Marker</b> pro Bild, Position in %</span></div>
+      <div class="spec"><span><b>Badge-Zahl = Zahl im Text</b></span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- S8 · THUMBNAIL -->
+<section class="frame" id="s8"><div class="slide light werk s8" style="grid-template-columns:auto 1fr">
+  <div class="thumb">
+    <canvas id="tBahn" class="tex"></canvas>
+    <div class="big"><div class="num">10×</div><div class="word">SCHNELLER</div></div>
+    <div class="face">Gesicht<br>oder Motiv</div>
+    <div class="ts">12:34</div>
+  </div>
+  <div>
+    <div class="kick">07 · Thumbnail</div>
+    <h2>Vier Wörter, <span class="em">MAX</span></h2>
+    <div class="specs">
+      <div class="spec"><span><b>1280 × 720</b>, gleiche Farben wie die Folien</span></div>
+      <div class="spec"><span><b>Navy-Fläche + Sand-Schrift</b> – Kontrast fürs Handy</span></div>
+      <div class="spec"><span><b>Gold nur auf der einen</b> Zahl oder dem einen Wort</span></div>
+      <div class="spec"><span><b>unten rechts frei</b> – dort liegt der Zeitstempel</span></div>
+      <div class="spec"><span>Gesicht oder <b>ein abstraktes Motiv</b> auf eine Seite, Text auf die andere</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- S9 · GLUT-BÜHNE (selbst im Modus gebaut) -->
+<section class="frame" id="s9"><div class="slide glut glut-buehne">
+  <h1 class="serif">Wenn Daten <i>leuchten</i></h1>
+  <div class="pill">08 · Glut-Bühne</div>
+  <div class="glass"><div class="core"><canvas id="gChip" class="art"></canvas></div></div>
+</div></section>
+
+<!-- S10 · HOCHFORMAT 4:5 -->
+<section class="frame" id="s10"><div class="slide light werk" style="grid-template-columns:auto 1fr">
+  <div class="post hoch glut">
+    <h3 class="serif titel">Automatisieren in <i>5&nbsp;Minuten</i></h3>
+    <div class="pill">Teil 1</div>
+    <div class="glass"><div class="core"><canvas id="pChip" class="art"></canvas></div></div>
+    <div class="from"><b>RoboGold</b><br>@dein.kanal</div>
+    <div class="next">→</div>
+  </div>
+  <div>
+    <div class="kick">09 · Glut-Bühne · Hochformat</div>
+    <h2>Ein Objekt, das <span class="em">LEUCHTET</span></h2>
+    <div class="specs">
+      <div class="spec"><span><b>Tiefnacht + Gold-Glow</b>, der Glaswürfel ist der einzige Akzent</span></div>
+      <div class="spec"><span>Titel in <b>Instrument Serif</b>, hell – nur in diesem Modus</span></div>
+      <div class="spec"><span><b>Glas-Pille</b> für Teil, Lektion oder Kapitel</span></div>
+      <div class="spec"><span><b>Nur abstrakt</b> – der Würfel schwebt, keine Figuren, keine Produktfotos</span></div>
+      <div class="spec"><span><b>16:9</b> für Kapitel-Intros · <b>4:5</b> (1080 × 1350) für Karussells</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- S11 · REGELN -->
+<section class="frame" id="s11"><div class="slide dark stack">
+  <div class="kick">10 · Regeln für Video &amp; Kurs</div>
+  <h2>Weniger ist die <span class="em">REGEL</span></h2>
+  <div class="lr-grid">
+    <div class="lr"><div class="t">Sicherer Rand</div><div class="d">6 % Abstand links und rechts, 8 % oben. Nichts Wichtiges ganz außen.</div></div>
+    <div class="lr"><div class="t">Unten frei</div><div class="d">die unteren 12 % gehören Player-Leiste und Untertiteln.</div></div>
+    <div class="lr"><div class="t">Handy-lesbar</div><div class="d">Kernaussage ≥ 72 px, Text ≥ 31 px, Labels ≥ 25 px bei 1080p.</div></div>
+    <div class="lr"><div class="t">Eine Idee pro Folie</div><div class="d">eine Überschrift, ein Motiv. Lieber zwei Folien als eine volle.</div></div>
+    <div class="lr"><div class="t">Gold = eine Sache</div><div class="d">genau ein Akzent pro Folie. Alles andere bleibt Navy und Sand.</div></div>
+    <div class="lr"><div class="t">Dunkel zuerst</div><div class="d">Navy ist der Grund. Sand nur für Inhalt: Screenshots, Tabellen, Details.</div></div>
+    <div class="lr"><div class="t">Nur abstrakt</div><div class="d">Form, Raster, Licht, Typo. Keine Figuren, keine Maskottchen, keine Produktmotive.</div></div>
+    <div class="lr"><div class="t">Präsentieren</div><div class="d">← → oder Leertaste blättern, F für Vollbild – jede Folie exakt 16:9.</div></div>
+  </div>
+</div></section>
+
+<!-- S12 · ABSCHLUSS -->
+<section class="frame" id="s12"><div class="slide dark s12">
+  <div class="band"><canvas id="aBand" class="art"></canvas></div>
+  <h1>Klein. Klar. <span class="em">GOLD</span>.</h1>
+  <div class="kick">der RoboGold Style</div>
+</div></section>
+
+<script>
+/* ---------- Würfelraster-Engine ---------- */
+function raster(id, cols, f, o = {}) {
+  const c = document.getElementById(id); if (!c) return;
+  const { width: w, height: h } = c.getBoundingClientRect(); if (!w || !h) return;
+  const dpr = window.devicePixelRatio || 1, a = w / h, step = w / cols, k = step / h, max = step * (o.fill || 0.84);
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalAlpha = o.alpha ?? 1;
+  for (let y = step / 2; y < h; y += step) for (let x = step / 2; x < w; x += step) {
+    const u = x / w, v = y / h; let b = f(u, v, a, k), col = o.color, hot = false;
+    if (o.f2) { const b2 = o.f2(u, v, a, k); if (b2 > b) { b = b2; col = o.color2; hot = true; } }
+    if (b <= 0.03) continue;
+    const s = Math.min(1, b) * max;
+    ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = hot && o.glow ? o.glow * step * dpr : 0;
+    ctx.beginPath(); box(ctx, x - s / 2, y - s / 2, s, s, s * (o.round ?? 0.24)); ctx.fill();
+  }
+}
+function box(ctx, x, y, w, h, r) { if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+function segDist(px, py, [ax, ay], [bx, by]) { const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))); return Math.hypot(px - ax - t * dx, py - ay - t * dy); }
+function noise(x, y) { const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return n - Math.floor(n); }   // reproduzierbar, nie Math.random()
+function inPoly(p, x, y) { let s = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) if ((p[i][1] > y) !== (p[j][1] > y) && x < (p[j][0] - p[i][0]) * (y - p[i][1]) / (p[j][1] - p[i][1]) + p[i][0]) s = !s; return s; }
+
+/* ---------- Würfel-Icons: 12×12 Raster, jede Zelle ein Würfel mit Fuge ---------- */
+function icon(id, rows, pal) {
+  const c = document.getElementById(id); if (!c) return;
+  const w = c.getBoundingClientRect().width, n = rows[0].length, m = rows.length, cell = w / n, dpr = window.devicePixelRatio || 1;
+  c.width = Math.round(w * dpr); c.height = Math.round(cell * m * dpr);
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const g = cell * 0.09;
+  rows.forEach((row, y) => [...row].forEach((k, x) => {
+    if (k === '.') return;
+    ctx.fillStyle = pal[k]; ctx.beginPath(); box(ctx, x * cell + g, y * cell + g, cell - 2 * g, cell - 2 * g, cell * 0.22); ctx.fill();
+  }));
+}
+
+/* ---------- Farben ---------- */
+const NAVY = 'rgba(22,41,77,0.9)', SAND = 'rgba(239,231,214,0.88)', GOLD = '#e3a92b', ALTGOLD = '#8a5e08';
+const DARK  = { color: SAND, color2: GOLD, glow: 0.9 };     // auf Navy (Standard): Gold glüht
+const LIGHT = { color: NAVY, color2: ALTGOLD };             // auf Sand: Altgold, kein Glow
+
+/* ---------- Motiv-Bibliothek: f = Feld (Sand/Navy), f2 = Gold-Motiv. (u, v) = 0..1, a = Breite/Höhe, k = Würfelgröße ---------- */
+const M = {};
+const S3 = Math.sqrt(3) / 2;
+function cubeFace(X, Y, s, g = 0) {   // g = Fugenbreite zwischen den Flächen
+  const T = [0, -s], UR = [S3 * s, -s / 2], LR = [S3 * s, s / 2], B = [0, s], LL = [-S3 * s, s / 2], UL = [-S3 * s, -s / 2], C = [0, 0];
+  if (!inPoly([T, UR, LR, B, LL, UL], X, Y)) return '';
+  if (Math.min(segDist(X, Y, C, UL), segDist(X, Y, C, UR), segDist(X, Y, C, B)) < g) return 'gap';
+  if (inPoly([T, UR, C, UL], X, Y)) return 'top';
+  if (inPoly([UL, C, B, LL], X, Y)) return 'left';
+  if (inPoly([C, UR, LR, B], X, Y)) return 'right';
+  return '';
+}
+M.wuerfel = {   // isometrischer Würfel, Deckel in Gold – das Leitmotiv
+  f: (u, v, a, k) => {
+    const X = (u - 0.5) * a, Y = v - 0.5 + 0.03, s = 0.38, face = cubeFace(X, Y, s, k * 0.6);
+    if (face === 'left') return 0.5 + 0.2 * (Y + s / 2) / (1.5 * s);
+    if (face === 'right') return 0.92;
+    if (!face && ((X - 0.04) / 0.44) ** 2 + ((Y - s - 0.04) / 0.05) ** 2 < 1) return 0.18;   // Bodenschatten
+    return 0;
+  },
+  f2: (u, v, a, k) => { const X = (u - 0.5) * a, Y = v - 0.5 + 0.03, s = 0.38; return cubeFace(X, Y, s, k * 0.6) === 'top' ? 0.55 + 0.35 * (Y + s) / s : 0; }
+};
+M.chip = {      // Prozessor: Gehäuse mit Pins an allen Seiten, Kern in Gold
+  f: (u, v, a, k) => {
+    const X = (u - 0.5) * a, Y = v - 0.5, ax = Math.abs(X), ay = Math.abs(Y), m = Math.max(ax, ay);
+    if (m < 0.27) return m < 0.15 ? 0 : (m > 0.235 ? 0.88 : 0.4);         // Gehäuse: kräftiger Rand, ruhige Fläche, Kern frei
+    const along = ax > ay ? Y : X;
+    return m < 0.41 && Math.abs(along) < 0.22 && Math.abs(Math.round(along / k)) % 2 === 0 ? 0.8 : 0;   // Pins an jedem zweiten Würfel
+  },
+  f2: (u, v, a) => { const m = Math.max(Math.abs((u - 0.5) * a), Math.abs(v - 0.5)); return m < 0.13 ? 0.62 + 0.3 * (1 - m / 0.13) : 0; }
+};
+const LAYERS = [[-0.36, [-0.3, -0.1, 0.1, 0.3]], [0, [-0.2, 0, 0.2]], [0.36, [-0.1, 0.1]]];
+const NODES = LAYERS.flatMap(([x, ys]) => ys.map(y => [x, y]));
+const EDGES = LAYERS.slice(0, -1).flatMap(([x1, ys1], l) => ys1.flatMap(y1 => LAYERS[l + 1][1].map(y2 => [[x1, y1], [LAYERS[l + 1][0], y2]])));
+const PATH = [[-0.36, 0.1], [0, 0], [0.36, -0.1]];   // der aktive Pfad in Gold
+M.netz = {      // neuronales Netz: drei Schichten, ein aktiver Pfad
+  f: (u, v, a, k) => {
+    const X = (u - 0.5) * a, Y = v - 0.5;
+    if (NODES.some(([x, y]) => Math.hypot(X - x, Y - y) < 0.065)) return 0.92;
+    return EDGES.some(([p, q]) => segDist(X, Y, p, q) < k * 0.62) ? 0.36 : 0;
+  },
+  f2: (u, v, a, k) => {
+    const X = (u - 0.5) * a, Y = v - 0.5;
+    if (PATH.some(([x, y]) => Math.hypot(X - x, Y - y) < 0.065)) return 1;
+    return segDist(X, Y, PATH[0], PATH[1]) < k * 0.7 || segDist(X, Y, PATH[1], PATH[2]) < k * 0.7 ? 0.8 : 0;
+  }
+};
+const TR = {};
+function traces(a) {   // Leiterbahnen über die volle Breite, je Seitenverhältnis einmal berechnet
+  const key = a.toFixed(3); if (TR[key]) return TR[key];
+  const W = a / 2 + 0.1, out = [];
+  for (let i = 0; i < 7; i++) {
+    const y = -0.36 + i * 0.12, d = i % 2 ? 0.06 : -0.06, bx = (noise(i + 1, 3.7) - 0.5) * a * 0.6;
+    const vx = (noise(i + 1, 9.1) - 0.5) * a * 0.8, vy = vx < bx - 0.06 ? y : vx > bx + 0.06 ? y + d : y + d * (vx - bx + 0.06) / 0.12;
+    out.push({ pts: [[-W, y], [bx - 0.06, y], [bx + 0.06, y + d], [W, y + d]], via: [vx, vy] });   // Schräge 45°
+  }
+  return (TR[key] = out);
+}
+const onTrace = (t, X, Y, w) => t.pts.slice(1).some((q, j) => segDist(X, Y, t.pts[j], q) < w);
+M.leiterbahn = { // Platinen-Bahnen mit Durchkontaktierungen, eine Bahn in Gold
+  f: (u, v, a, k) => {
+    const X = (u - 0.5) * a, Y = v - 0.5, ts = traces(a);
+    for (let i = 0; i < ts.length; i++) {
+      if (i === 3) continue;
+      if (Math.hypot(X - ts[i].via[0], Y - ts[i].via[1]) < 0.04) return 0.95;
+      if (onTrace(ts[i], X, Y, k * 0.62)) return 0.5;
+    }
+    return 0;
+  },
+  f2: (u, v, a, k) => { const X = (u - 0.5) * a, Y = v - 0.5, t = traces(a)[3]; return Math.hypot(X - t.via[0], Y - t.via[1]) < 0.05 ? 1 : (onTrace(t, X, Y, k * 0.72) ? 0.8 : 0); }
+};
+const BARS = [0.34, 0.48, 0.6, 0.74, 0.9];
+function barAt(u, v) { const n = BARS.length, i = Math.floor(u * n), g = u * n - i; if (g < 0.18 || g > 0.82) return [-1, 0]; const h = BARS[i] * 0.92; return v > 1 - h ? [i, (v - (1 - h)) / h] : [-1, 0]; }
+M.tuerme = {    // Balken aus gestapelten Würfeln, der letzte in Gold
+  f: (u, v) => { const [i, t] = barAt(u, v); return i >= 0 && i < BARS.length - 1 ? 0.62 + 0.3 * t : 0; },
+  f2: (u, v) => { const [i, t] = barAt(u, v); return i === BARS.length - 1 ? 0.7 + 0.25 * t : 0; }
+};
+const curve = u => 0.82 - 0.62 * Math.pow(u, 1.7) - 0.03 * Math.sin(u * 14);
+M.wachstum = {  // Kurve in Gold, Fläche darunter verblasst
+  f: (u, v) => { const c = curve(u); return v < c + 0.05 ? 0 : Math.max(0, 0.5 - (v - c) * 0.7); },
+  f2: (u, v, a) => { const c = curve(u); if (u > 0.08 && u < 0.92 && Math.abs(v - c) < 0.045) return 0.9; return Math.hypot((u - 0.9) * a, v - curve(0.9)) < 0.07 ? 1 : 0; }
+};
+const ringAng = (X, Y) => (Math.atan2(X, -Y) / (2 * Math.PI) + 1) % 1;   // 0 = oben, im Uhrzeigersinn
+const P = 0.68;
+M.ring = {      // Fortschrittsring, Mitte frei für eine Zahl
+  f: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5, d = Math.hypot(X, Y); return d < 0.3 || d > 0.42 ? 0 : (ringAng(X, Y) > P ? 0.36 : 0); },
+  f2: (u, v, a) => { const X = (u - 0.5) * a, Y = v - 0.5, d = Math.hypot(X, Y); return d < 0.3 || d > 0.42 ? 0 : (ringAng(X, Y) <= P ? 0.9 : 0); }
+};
+const vign = (X, Y, r) => Math.max(0, Math.min(1, (r - Math.hypot(X, Y)) / 0.08));   // weicher Kreisrand
+M.spirale = {   // logarithmische Spirale mit drei Armen, Gold-Kern in der Mitte
+  f: (u, v, a) => {
+    const X = (u - 0.5) * a, Y = v - 0.5, r = Math.hypot(X, Y); if (r > 0.46 || r < 0.03) return 0;
+    const s = (Math.sin(Math.atan2(Y, X) * 3 - Math.log(r) * 5.5) + 1) / 2;
+    return (0.1 + 0.8 * Math.pow(s, 2)) * vign(X, Y, 0.46);
+  },
+  f2: (u, v, a) => Math.hypot((u - 0.5) * a, v - 0.5) < 0.085 ? 0.95 : 0
+};
+
+/* ---------- Zeichnen (und bei jeder Größenänderung neu) ---------- */
+const ART = [];
+const art = f => ART.push(f);
+art(() => raster('aCube', 44, M.wuerfel.f, { ...DARK, f2: M.wuerfel.f2 }));
+art(() => raster('aNetz', 46, M.netz.f, { ...DARK, f2: M.netz.f2 }));
+[['mWuerfel', 'wuerfel'], ['mChip', 'chip'], ['mNetz', 'netz'], ['mLeiterbahn', 'leiterbahn'],
+ ['mTuerme', 'tuerme'], ['mWachstum', 'wachstum'], ['mRing', 'ring'], ['mSpirale', 'spirale']]
+  .forEach(([id, k]) => art(() => raster(id, 46, M[k].f, { ...DARK, f2: M[k].f2 })));
+art(() => raster('bChip', 30, M.chip.f, { ...LIGHT, f2: M.chip.f2 }));
+art(() => raster('tBahn', 64, M.leiterbahn.f, { color: SAND, alpha: 0.14 }));    // Text darüber → 14 %
+art(() => raster('aBand', 150, M.leiterbahn.f, { ...DARK, f2: M.leiterbahn.f2, glow: 0.7 }));
+const GLAS = { color: 'rgba(22,41,77,0.92)', color2: 'rgba(22,41,77,0.92)', fill: 0.88 };   // Kern im Glaswürfel: Navy auf Gold
+art(() => raster('gChip', 15, M.chip.f, { ...GLAS, f2: M.chip.f2 }));
+art(() => raster('pChip', 15, M.chip.f, { ...GLAS, f2: M.chip.f2 }));
+const INK = { k: '#efe7d6' }, HOT = { o: '#e3a92b' };   // Icons auf Navy: Sand, Highlight in Gold
+art(() => icon('icLupe', ['............', '..kkkkk.....', '.k.....k....', 'k.......k...', 'k.......k...', 'k.......k...', 'k.......k...', '.k.....k....', '..kkkkkkk...', '.......kkk..', '........kkk.', '.........kk.'], INK));
+art(() => icon('icBalken', ['............', '.........kk.', '.........kk.', '.....kk..kk.', '.....kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', '.kk..kk..kk.', 'kkkkkkkkkkkk', '............'], INK));
+art(() => icon('icBlitz', ['.....ooooo..', '....ooooo...', '....oooo....', '...oooo.....', '...ooooooo..', '..oooooooo..', '.....oooo...', '.....ooo....', '....ooo.....', '....oo......', '...oo.......', '...o........'], HOT));
+const drawAll = () => ART.forEach(f => f());
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawAll, 150); });
+addEventListener('load', drawAll);
+if (document.fonts) document.fonts.ready.then(drawAll);
+
+/* ---------- Präsentieren: ← → / Leertaste blättern, F = Vollbild ---------- */
+const frames = [...document.querySelectorAll('.frame')];
+const go = i => frames[Math.max(0, Math.min(frames.length - 1, i))].scrollIntoView({ behavior: 'instant', block: 'start' });
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const cur = Math.round(scrollY / innerHeight);
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  else if (e.key === 'f' || e.key === 'F') { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); }
+});
+</script>
+</body>
+</html>
