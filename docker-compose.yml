@@ -1,0 +1,11 @@
+services:
+  meinzyklus:
+    build: .
+    container_name: meinzyklus
+    ports:
+      - "8087:80"
+    volumes:
+      # Zentraler Datenspeicher – bleibt auf dem Server, nie in Git (.gitignore).
+      # Hier liegen data.json (die gemeinsamen Daten) und optional seed.json (Startdaten).
+      - ./data:/data
+    restart: unless-stopped

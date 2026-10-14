@@ -45,8 +45,12 @@
 
 ## Projekt
 
-- `index.html` ist das FBA Cockpit: eine Datei, kein Build, kein Server –
-  im Browser öffnen. Daten liegen im `localStorage` (siehe README).
+- `index.html` ist die MeinZyklus-App (Zyklustracker): eine Datei, kein
+  Build-Tool. `server.js` ist ein winziger Node-Server, der die App ausliefert
+  und die Daten zentral in `data/data.json` speichert, sodass alle Geräte
+  dieselben Daten sehen. Der Browser hält zusätzlich eine lokale Kopie.
+- Deployment per Docker (`docker-compose up -d --build`), Port 8087. Details
+  und Datenschutz-Hinweise (Cloudflare Access) im README.
 
 ## Design: RoboGold-Style
 
@@ -69,7 +73,7 @@
   Abschnitt.
 - Von selbst nur bei großen Ausgaben: lange Pläne, Reports, Vergleiche,
   Review- und Triage-Aufgaben. Kurze Antworten bleiben normaler Text.
-  Arbeit an `index.html` (FBA Cockpit) ist Code-Arbeit und kein Anlass für
+  Arbeit an `index.html` (MeinZyklus) ist Code-Arbeit und kein Anlass für
   den Skill. Ausdrücklich gewünscht: `/html`, „als HTML“, „html this“.
 - Form und Look trennen: `html` bestimmt Stufe, Aufbau und Export-Knopf.
   Bei RoboGold-Inhalten (Video, Kurs, Social) kommt der Look aus
