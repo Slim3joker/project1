@@ -83,15 +83,16 @@ weglässt.
 ### `reverse-engineer-anything`
 
 Quelle: [morluto/rea](https://github.com/morluto/rea), npm-Paket
-`rea-agents` Version 6.4.0 (Skill-Version 37), Lizenz MIT (`LICENSE` im
-Ordner). Unverändert aus dem npm-Paket übernommen, nicht vom GitHub-`main`:
-Der Skill dort kann Werkzeuge beschreiben, die der Server 6.4.0 noch nicht
-hat.
+`rea-agents` Version 6.8.0 (Skill-Version 49, 229 Werkzeuge), Lizenz MIT
+(`LICENSE` im Ordner). Unverändert aus dem npm-Paket übernommen, nicht vom
+GitHub-`main`: Der Skill dort kann Werkzeuge beschreiben, die der Server
+6.8.0 noch nicht hat. Das Paket enthält sonst nur den Server; Hooks, Agents
+oder Commands gibt es nicht.
 
 - Der Skill allein bringt keine Werkzeuge. Die kommen vom MCP-Server `rea`,
-  den `.mcp.json` als `npx -y rea-agents@6.4.0 mcp` startet (Node.js 22.19+,
-  24.11+ oder 26+). Einrichtung und Voraussetzungen: README, Abschnitt
-  „REA-MCP“.
+  den `.mcp.json` als `npx -y rea-agents@6.8.0 mcp` startet (Node.js
+  22.23.4+, 24.22.1+ oder 26.12.1+). Einrichtung und Voraussetzungen:
+  README, Abschnitt „REA-MCP“.
 - Native Analyse braucht Hopper, Ghidra oder IDA. JavaScript- und
   .NET-Analysen laufen ohne.
 - **Nicht zusätzlich per `npx rea-agents setup` für Claude Code
