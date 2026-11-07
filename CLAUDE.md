@@ -16,7 +16,7 @@
 
 ## REA-MCP
 
-- Der MCP-Server `rea` (Reverse Engineering, `npx -y rea-agents@6.4.0 mcp`)
+- Der MCP-Server `rea` (Reverse Engineering, `npx -y rea-agents@6.8.0 mcp`)
   ist ebenfalls in `.mcp.json` konfiguriert, ohne API-Key. Dazu gehört der
   Skill `reverse-engineer-anything`. Version in `.mcp.json` und Skill nur
   gemeinsam anheben (siehe `SKILLS.md`). Nicht zusätzlich per

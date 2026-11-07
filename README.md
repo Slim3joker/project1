@@ -112,16 +112,26 @@ Quellcode: JavaScript-/Electron-Apps, .NET-Assemblies, Android-APKs,
 Websites, Netzwerkmitschnitte und – mit Hopper, Ghidra oder IDA – native
 Binärdateien. Die Analyse läuft lokal; jede Aussage kommt mit Belegen.
 
-`.mcp.json` startet den Server als `npx -y rea-agents@6.4.0 mcp`. Kein
-API-Key nötig, nur **Node.js 22.19+, 24.11+ oder 26+** und npm. Beim ersten
-Start lädt `npx` das Paket herunter, danach meldet `/mcp` den Server `rea`
-mit 170 Werkzeugen. Der Skill `reverse-engineer-anything` erklärt Claude,
-wann und wie REA einzusetzen ist.
+`.mcp.json` startet den Server als `npx -y rea-agents@6.8.0 mcp`. Kein
+API-Key nötig, nur **Node.js 22.23.4+, 24.22.1+ oder 26.12.1+** und npm. Beim
+ersten Start lädt `npx` das Paket herunter, danach meldet `/mcp` den Server
+`rea` mit 229 Werkzeugen. Der Skill `reverse-engineer-anything` erklärt
+Claude, wann und wie REA einzusetzen ist.
 
 - **Native Analyse** braucht Hopper, Ghidra (`GHIDRA_INSTALL_DIR`) oder IDA
   auf deinem Rechner. Statische JavaScript- und .NET-Analysen laufen ohne.
+- **Weitere Zusatzprogramme, nur für den jeweiligen Zieltyp:** Android-APKs
+  brauchen JADX und ein vollständiges JDK, Websites einen Chrome-Browser.
+  Unter Linux muss für JavaScript-/Electron-Analyse, Ghidra und JADX ein
+  procps-kompatibles `ps` im `PATH` liegen (in Standard-Distributionen
+  vorhanden). REA installiert diese Programme nicht selbst.
+- **Verantwortungsvoll nutzen:** REA ist für Ziele gedacht, die du
+  analysieren darfst (eigene Software, Sicherheitsforschung, Interoperabilität,
+  Lehre). Umgehung von Kopierschutz, Lizenzprüfungen oder Zugriffskontrollen
+  gehört nicht dazu. Der vollständige Wortlaut steht in `DISCLAIMER.md` im
+  [Original-Repo](https://github.com/morluto/rea) und im npm-Paket.
 - **Ohne MCP im Terminal:**
-  `npx -y rea-agents@6.4.0 analyze-javascript-application /pfad/zur/app --json`
+  `npx -y rea-agents@6.8.0 analyze-javascript-application /pfad/zur/app --json`
 - **Nicht zusätzlich per `npx rea-agents setup` für Claude Code
   einrichten.** Setup trägt `rea` in `~/.claude.json` ein und legt den Skill
   unter `~/.claude/skills/` ab, dann ist beides doppelt aktiv.
